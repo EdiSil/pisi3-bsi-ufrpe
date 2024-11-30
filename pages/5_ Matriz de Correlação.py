@@ -1,59 +1,113 @@
-import pandas as pd
-import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
+import streamlit as st
 
-# Função para carregar os dados
-def carregar_arquivo():
-    url_csv = "https://github.com/EdiSil/pisi3-bsi-ufrpe/blob/main/data/OLX_cars_dataset00.csv"  # URL para exemplo
+# Função para carregar os dados diretamente da URL do GitHub
+def carregar_dados():
+    """
+    Esta função carrega os dados diretamente do arquivo CSV hospedado no GitHub.
+    """
+    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
     try:
+        # Carregar os dados do CSV
         data = pd.read_csv(url_csv)
         return data
     except Exception as e:
-        st.error(f"Erro ao carregar o arquivo: {e}")
+        st.error(f"Erro ao carregar os dados: {e}")
         return None
 
-# Função para exibir a matriz de correlação e o heatmap
-def matriz_correlacao_e_heatmap(data):
-    # Filtrar apenas as colunas numéricas
-    data_numerica = data.select_dtypes(include=['float64', 'int64'])
-
-    # Tratar valores ausentes: podemos preencher com a média ou remover as linhas
-    data_numerica = data_numerica.fillna(data_numerica.mean())  # Preencher NaN com a média
-
-    # Calcular a matriz de correlação
-    corr_matrix = data_numerica.corr()
-
-    # Configurar o gráfico
-    plt.figure(figsize=(12, 8))
-    sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="coolwarm", linewidths=0.5)
-    plt.title("Matriz de Correlação e Heatmap", fontsize=16)
-    plt.xticks(rotation=45)
-    plt.yticks(rotation=45)
-
-    # Exibir o gráfico no Streamlit
-    st.pyplot(plt)
-
-# Função principal do aplicativo Streamlit
-def main():
-    st.title("Análise de Correlação com Heatmap")
+# Função para visualizar a distribuição de preços
+def plotar_distribuicao_precos(data):
+    """
+    Esta função gera um histograma da distribuição dos preços dos carros e também adiciona a curva de densidade
+    (KDE - Kernel Density Estimation) para visualizar melhor a distribuição.
+    """
+    st.write("### Distribuição de Preços")
     
+    # Configuração do tamanho da figura para melhor visualização
+    plt.figure(figsize=(10, 6))
+
+    # Gerando o histograma com a curva KDE
+    sns.histplot(data['Price'], kde=True, color='blue', bins=30)
+    
+    # Adicionando título e rótulos aos eixos
+    plt.title('Distribuição de Preços de Carros', fontsize=16)
+    plt.xlabel('Preço (R$)', fontsize=12)
+    plt.ylabel('Frequência', fontsize=12)
+    
+    # Exibindo o gráfico no Streamlit
+    st.pyplot()
+
+# Função para comparar KM driven com o preço
+def plotar_relacao_km_preco(data):
+    """
+    Esta função gera um gráfico de dispersão (scatter plot) que compara a quantidade de quilômetros rodados
+    (KM driven) com o preço do carro. Este gráfico ajuda a entender a relação entre essas duas variáveis.
+    """
+    st.write("### Relação entre KM driven e Preço")
+    
+    # Configuração do tamanho da figura para o gráfico de dispersão
+    plt.figure(figsize=(10, 6))
+    
+    # Gerando o gráfico de dispersão
+    sns.scatterplot(x=data['KM\'s driven'], y=data['Price'], color='green', alpha=0.6)
+    
+    # Adicionando título e rótulos aos eixos
+    plt.title('Relação entre KM driven e Preço', fontsize=16)
+    plt.xlabel('Quilometragem (KM)', fontsize=12)
+    plt.ylabel('Preço (R$)', fontsize=12)
+    
+    # Exibindo o gráfico no Streamlit
+    st.pyplot()
+
+# Função para gerar a matriz de correlação e heatmap
+def plotar_matriz_correlacao(data):
+    """
+    Esta função gera a matriz de correlação entre todas as variáveis numéricas do dataset
+    e exibe um heatmap para facilitar a visualização das correlações.
+    """
+    st.write("### Matriz de Correlação entre Variáveis")
+
+    # Calculando a matriz de correlação entre todas as colunas numéricas
+    corr = data.corr()
+
+    # Configuração do tamanho da figura para o heatmap
+    plt.figure(figsize=(12, 8))
+    
+    # Gerando o heatmap da matriz de correlação
+    sns.heatmap(corr, annot=True, fmt=".2f", cmap='coolwarm', linewidths=0.5, linecolor='black', square=True)
+    
+    # Adicionando título ao gráfico
+    plt.title('Matriz de Correlação', fontsize=16)
+    
+    # Exibindo o gráfico no Streamlit
+    st.pyplot()
+
+# Função principal para exibir todas as visualizações
+def main():
     # Carregar os dados
-    data = carregar_arquivo()
+    data = carregar_dados()
 
+    # Verificando se os dados foram carregados corretamente
     if data is not None:
-        # Exibir as primeiras linhas dos dados carregados
-        st.write("### Primeiras Linhas dos Dados Carregados:")
-        st.write(data.head())
+        st.title("Análise Exploratória de Dados - OLX Carros")
+        
+        # Mostrar as primeiras linhas do dataset
+        st.write("### Primeiras Linhas do Dataset:")
+        st.write(data.head())  # Exibe as primeiras linhas do dataset
 
-        # Exibir a matriz de correlação e o heatmap
-        st.write("### Matriz de Correlação")
-        matriz_correlacao_e_heatmap(data)
+        # Visualizar a distribuição de preços
+        plotar_distribuicao_precos(data)
+        
+        # Visualizar a relação entre KM driven e Preço
+        plotar_relacao_km_preco(data)
+        
+        # Visualizar a matriz de correlação
+        plotar_matriz_correlacao(data)
+    else:
+        st.error("Dados não carregados. Verifique a disponibilidade do dataset.")
 
-        # Exibir a matriz de correlação como uma tabela
-        st.write("### Tabela da Matriz de Correlação")
-        st.write(data.corr())
-
-# Executar o aplicativo Streamlit
+# Executando a função principal
 if __name__ == "__main__":
     main()
