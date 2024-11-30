@@ -5,7 +5,7 @@ import streamlit as st
 # Função para carregar o arquivo CSV
 def carregar_arquivo():
     # Carregar o arquivo CSV usando o uploader do Streamlit
-    arquivo = st.file_uploader("Carregue o arquivo CSV", type=["csv"])
+    arquivo = st.file_uploader("data/OLX_cars_dataset00.csv", type=["csv"])
     if arquivo is not None:
         # Lê o arquivo CSV e retorna um DataFrame
         return pd.read_csv(arquivo)
