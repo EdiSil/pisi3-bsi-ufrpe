@@ -5,6 +5,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns
+import joblib
+import io
 
 # Função para carregar o arquivo CSV diretamente da URL
 def carregar_arquivo():
@@ -71,6 +73,14 @@ def grafico_importancia_features(X, model):
     ax.set_ylabel('Características')
     st.pyplot(fig)
 
+# Função para salvar o modelo treinado e permitir o download
+def salvar_modelo(model):
+    # Salvar o modelo treinado como um arquivo .pkl usando joblib
+    modelo_file = io.BytesIO()
+    joblib.dump(model, modelo_file)
+    modelo_file.seek(0)  # Retorna o ponteiro para o início do arquivo
+    return modelo_file
+
 # Função principal da aplicação Streamlit
 def main():
     st.title("Classificação de Preços de Carros com Random Forest")
@@ -113,6 +123,16 @@ def main():
             grafico_comparacao(y_test, y_pred)
         elif opcao_grafico == "Importância das Features":
             grafico_importancia_features(X_train, model)
+
+        # Botão para download do modelo treinado
+        st.write("### Baixar o Modelo Treinado")
+        modelo_file = salvar_modelo(model)
+        st.download_button(
+            label="Baixar Modelo Treinado",
+            data=modelo_file,
+            file_name="modelo_random_forest.pkl",
+            mime="application/octet-stream"
+        )
 
 # Executando a aplicação Streamlit
 if __name__ == "__main__":
