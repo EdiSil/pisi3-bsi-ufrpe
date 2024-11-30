@@ -22,3 +22,7 @@ Este projeto foi desenvolvido com fins acadêmicos, utilizando técnicas de Mach
 - 🚀 **Rode o sistema**:
     ```bash
     streamlit run Home.py
+
+Repositório: <https://github.com/EdiSil/pisi3-bsi-ufrpe/>
+
+Disponível em: <https://pisi3-bsi-ufrpe-rqyhznq6unmjoq7jy6au8t.streamlit.app/>
