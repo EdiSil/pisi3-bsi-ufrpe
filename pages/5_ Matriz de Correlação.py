@@ -3,7 +3,7 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Função para carregar os dados (pode ser de um arquivo CSV ou URL)
+# Função para carregar os dados
 def carregar_arquivo():
     url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"  # URL para exemplo
     try:
@@ -15,8 +15,14 @@ def carregar_arquivo():
 
 # Função para exibir a matriz de correlação e o heatmap
 def matriz_correlacao_e_heatmap(data):
+    # Filtrar apenas as colunas numéricas
+    data_numerica = data.select_dtypes(include=['float64', 'int64'])
+
+    # Tratar valores ausentes: podemos preencher com a média ou remover as linhas
+    data_numerica = data_numerica.fillna(data_numerica.mean())  # Preencher NaN com a média
+
     # Calcular a matriz de correlação
-    corr_matrix = data.corr()
+    corr_matrix = data_numerica.corr()
 
     # Configurar o gráfico
     plt.figure(figsize=(12, 8))
