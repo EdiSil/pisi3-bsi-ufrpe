@@ -18,7 +18,7 @@ def carregar_dados():
 
 # Função para preparar os dados
 def preparar_dados(data):
-    relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel', 'Assembly', 'Transmission']
+    relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel_Diesel', 'Fuel_Petrol' 'Assembly_Local', 'Transmission_Manual']
 
     # Verificar se as colunas necessárias estão presentes
     missing_columns = [col for col in relevant_columns if col not in data.columns]
