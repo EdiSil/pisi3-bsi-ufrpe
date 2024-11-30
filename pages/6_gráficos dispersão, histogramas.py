@@ -18,12 +18,7 @@ def carregar_dados():
 
 # Função para preparar os dados
 def preparar_dados(data):
-    # Exibir os nomes das colunas carregadas
-    st.write("### Colunas no dataset:")
-    st.write(list(data.columns))
-
-    # Ajustar os nomes das colunas para corresponder ao dataset
-    relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']
+    relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel', 'Assembly', 'Transmission']
 
     # Verificar se as colunas necessárias estão presentes
     missing_columns = [col for col in relevant_columns if col not in data.columns]
@@ -47,7 +42,7 @@ def preparar_dados(data):
     ]
 
     # Codificar variáveis categóricas
-    encoded_data = pd.get_dummies(filtered_data, columns=['Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual'], drop_first=True)
+    encoded_data = pd.get_dummies(filtered_data, columns=['Fuel_Diesel', 'Fuel_Petrol' 'Assembly_Local', 'Transmission_Manual'], drop_first=True)
 
     return encoded_data
 
@@ -83,30 +78,55 @@ def main():
         st.write("### Dados Preparados:")
         st.write(encoded_data.head())
 
+        # Divisão dos dados em X e y
         X = encoded_data.drop(columns=['Price'])
         y = encoded_data['Price']
 
+        # Dividir os dados em treino e teste
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+        # Treinar o modelo e avaliar o desempenho
         rf_model, y_pred, rmse, r2, y_test = treinar_modelo_e_avaliar(X_train, X_test, y_train, y_test)
 
+        # Opções interativas para visualizações
+        st.sidebar.title("Opções de Visualização")
+        grafico_escolhido = st.sidebar.selectbox(
+            "Escolha o Gráfico para Visualizar",
+            ["Nenhum", "Dispersão (Real vs Previsto)", "Histograma dos Erros", "Correlação (Heatmap)"]
+        )
+
+        # Métricas de desempenho
         st.write("### Avaliação do Modelo:")
         st.write(f"**RMSE (Raiz do Erro Quadrático Médio):** {rmse:.2f}")
         st.write(f"**R² (Coeficiente de Determinação):** {r2:.2f}")
 
-        comparison = pd.DataFrame({'Valor Real': y_test.values, 'Valor Previsto': y_pred})
-        st.write("### Comparação entre Valores Reais e Previstos (Top 10):")
-        st.write(comparison.head(10))
+        if grafico_escolhido == "Dispersão (Real vs Previsto)":
+            st.write("### Gráfico de Dispersão (Real vs Previsto)")
+            fig, ax = plt.subplots(figsize=(8, 6))
+            sns.scatterplot(x=y_test, y=y_pred, alpha=0.7, ax=ax)
+            ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--')
+            ax.set_title('Valores Reais vs. Valores Previstos')
+            ax.set_xlabel('Valor Real')
+            ax.set_ylabel('Valor Previsto')
+            st.pyplot(fig)
 
-        # Visualização: Gráfico de Dispersão (Real vs. Previsto)
-        st.write("### Visualização: Gráfico de Dispersão (Real vs. Previsto)")
-        fig1, ax1 = plt.subplots(figsize=(8, 6))
-        sns.scatterplot(x=y_test, y=y_pred, alpha=0.7, ax=ax1)
-        ax1.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--')
-        ax1.set_title('Valores Reais vs. Valores Previstos')
-        ax1.set_xlabel('Valor Real')
-        ax1.set_ylabel('Valor Previsto')
-        st.pyplot(fig1)
+        elif grafico_escolhido == "Histograma dos Erros":
+            st.write("### Histograma dos Erros (Resíduos)")
+            residuals = y_test - y_pred
+            fig, ax = plt.subplots(figsize=(8, 6))
+            sns.histplot(residuals, bins=30, kde=True, color='blue', ax=ax)
+            ax.set_title('Distribuição dos Erros (Resíduos)')
+            ax.set_xlabel('Erro (Valor Real - Valor Previsto)')
+            ax.set_ylabel('Frequência')
+            st.pyplot(fig)
+
+        elif grafico_escolhido == "Correlação (Heatmap)":
+            st.write("### Heatmap de Correlação")
+            corr = encoded_data.corr()
+            fig, ax = plt.subplots(figsize=(12, 8))
+            sns.heatmap(corr, annot=True, fmt=".2f", cmap='coolwarm', ax=ax)
+            ax.set_title('Matriz de Correlação')
+            st.pyplot(fig)
     else:
         st.error("Não foi possível carregar os dados. Verifique o endereço ou o formato do dataset.")
 
