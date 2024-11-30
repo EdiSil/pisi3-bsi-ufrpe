@@ -55,7 +55,7 @@ def main():
     )
 
     # URL do modelo Random Forest
-    modelo_url = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/pages/random_forest_model.pkl"
+    modelo_url = "https://github.com/EdiSil/pisi3-bsi-ufrpe/pages/5_Classificação Random Forest.py"
 
     # Carregar o modelo
     modelo = carregar_modelo_via_url(modelo_url)
