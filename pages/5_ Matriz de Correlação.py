@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # Função para carregar os dados
 def carregar_arquivo():
-    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"  # URL para exemplo
+    url_csv = "https://github.com/EdiSil/pisi3-bsi-ufrpe/blob/main/data/OLX_cars_dataset00.csv"  # URL para exemplo
     try:
         data = pd.read_csv(url_csv)
         return data
