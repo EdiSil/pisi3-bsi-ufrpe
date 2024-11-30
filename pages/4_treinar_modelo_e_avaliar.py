@@ -6,28 +6,28 @@ from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# FunÁ„o para treinar o modelo Random Forest e avaliar o desempenho
+# Fun√ß√£o para treinar o modelo Random Forest e avaliar o desempenho
 def treinar_modelo_e_avaliar(descricao_modelo, data, variaveis, alvo):
     """
-    FunÁ„o para treinar o modelo Random Forest e avaliar seu desempenho.
+    Fun√ß√£o para treinar o modelo Random Forest e avaliar seu desempenho.
     
-    Par‚metros:
-    descricao_modelo (str): Nome ou descriÁ„o do modelo.
-    data (DataFrame): DataFrame com as vari·veis de entrada e a vari·vel alvo.
-    variaveis (list): Lista de colunas para as vari·veis preditoras.
-    alvo (str): Nome da coluna que representa a vari·vel alvo.
+    Par√¢metros:
+    descricao_modelo (str): Nome ou descri√ß√£o do modelo.
+    data (DataFrame): DataFrame com as vari√°veis de entrada e a vari√°vel alvo.
+    variaveis (list): Lista de colunas para as vari√°veis preditoras.
+    alvo (str): Nome da coluna que representa a vari√°vel alvo.
     
     Retorna:
     model: O modelo RandomForestRegressor treinado.
     X_train, X_test, y_train, y_test: Conjuntos de dados para treinamento e teste.
-    y_pred: Previsıes feitas pelo modelo.
-    rmse (float): Erro quadr·tico mÈdio (RMSE).
-    r2 (float): Coeficiente de determinaÁ„o (R≤).
+    y_pred: Previs√µes feitas pelo modelo.
+    rmse (float): Erro quadr√°tico m√©dio (RMSE).
+    r2 (float): Coeficiente de determina√ß√£o (R¬≤).
     """
     
-    # 1. Preparar os dados de entrada e saÌda
-    X = data[variaveis]  # Vari·veis preditoras
-    y = data[alvo]       # Vari·vel alvo (preÁo dos carros)
+    # 1. Preparar os dados de entrada e sa√≠da
+    X = data[variaveis]  # Vari√°veis preditoras
+    y = data[alvo]       # Vari√°vel alvo (pre√ßo dos carros)
 
     # 2. Dividir os dados em conjunto de treino e teste
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -36,29 +36,29 @@ def treinar_modelo_e_avaliar(descricao_modelo, data, variaveis, alvo):
     model = RandomForestRegressor(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
     
-    # 4. Fazer previsıes com o conjunto de teste
+    # 4. Fazer previs√µes com o conjunto de teste
     y_pred = model.predict(X_test)
     
-    # 5. Avaliar o desempenho do modelo usando mÈtricas
+    # 5. Avaliar o desempenho do modelo usando m√©tricas
     rmse = mean_squared_error(y_test, y_pred, squared=False)  # RMSE (Root Mean Squared Error)
-    r2 = r2_score(y_test, y_pred)  # R≤ (Coeficiente de DeterminaÁ„o)
+    r2 = r2_score(y_test, y_pred)  # R¬≤ (Coeficiente de Determina√ß√£o)
     
-    # 6. Exibir as mÈtricas de desempenho
+    # 6. Exibir as m√©tricas de desempenho
     st.write(f"\nDesempenho do Modelo: {descricao_modelo}")
-    st.write(f"RMSE (Erro Quadr·tico MÈdio): {rmse:.2f}")
-    st.write(f"R≤ (Coeficiente de DeterminaÁ„o): {r2:.2f}")
+    st.write(f"RMSE (Erro Quadr√°tico M√©dio): {rmse:.2f}")
+    st.write(f"R¬≤ (Coeficiente de Determina√ß√£o): {r2:.2f}")
     
-    # 7. Exibir gr·fico de comparaÁ„o entre valores reais e previstos
+    # 7. Exibir gr√°fico de compara√ß√£o entre valores reais e previstos
     comparar_df = pd.DataFrame({'Real': y_test, 'Previsto': y_pred})
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.lineplot(data=comparar_df, ax=ax)
-    ax.set_title(f"ComparaÁ„o entre Valores Reais e Previstos - {descricao_modelo}")
-    ax.set_xlabel("Õndice")
-    ax.set_ylabel("PreÁo")
+    ax.set_title(f"Compara√ß√£o entre Valores Reais e Previstos - {descricao_modelo}")
+    ax.set_xlabel("√çndice")
+    ax.set_ylabel("Pre√ßo")
     ax.legend(title="Legenda", labels=["Real", "Previsto"])
     st.pyplot(fig)
     
-    # 8. Exibir gr·fico de import‚ncia das vari·veis no modelo
+    # 8. Exibir gr√°fico de import√¢ncia das vari√°veis no modelo
     importancia_features = pd.DataFrame({
         'Feature': X.columns,
         'Importance': model.feature_importances_
@@ -66,15 +66,15 @@ def treinar_modelo_e_avaliar(descricao_modelo, data, variaveis, alvo):
     
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(x='Importance', y='Feature', data=importancia_features, ax=ax)
-    ax.set_title(f'Import‚ncia das Features - {descricao_modelo}')
-    ax.set_xlabel('Import‚ncia')
-    ax.set_ylabel('CaracterÌsticas')
+    ax.set_title(f'Import√¢ncia das Features - {descricao_modelo}')
+    ax.set_xlabel('Import√¢ncia')
+    ax.set_ylabel('Caracter√≠sticas')
     st.pyplot(fig)
 
-    # Retornar o modelo treinado e outras vari·veis ˙teis
+    # Retornar o modelo treinado e outras vari√°veis √∫teis
     return model, X_train, X_test, y_train, y_test, y_pred, rmse, r2
 
-# FunÁ„o para carregar o arquivo CSV diretamente
+# Fun√ß√£o para carregar o arquivo CSV diretamente
 def carregar_arquivo():
     # Caminho para o arquivo CSV local
     file_path = 'OLX_cars_novo.csv'  # Substitua com o caminho correto do seu arquivo CSV
@@ -87,9 +87,9 @@ def carregar_arquivo():
         st.error(f"Erro ao carregar o arquivo: {e}")
         return None
 
-# FunÁ„o principal da aplicaÁ„o Streamlit
+# Fun√ß√£o principal da aplica√ß√£o Streamlit
 def main():
-    st.title("ClassificaÁ„o de PreÁos de Carros com Random Forest")
+    st.title("Classifica√ß√£o de Pre√ßos de Carros com Random Forest")
 
     # Carregar o dataset
     data = carregar_arquivo()
@@ -99,20 +99,20 @@ def main():
         st.write("### Dados Carregados:")
         st.write(data.head())
 
-        # PrÈ-processar os dados (defina suas vari·veis de entrada e alvo)
+        # Pr√©-processar os dados (defina suas vari√°veis de entrada e alvo)
         variaveis = ['Year', "KM's driven", 'Fuel', 'Assembly', 'Transmission']
         alvo = 'Price'
 
         # Treinar o modelo e avaliar desempenho
-        descricao_modelo = "Modelo Random Forest para PreÁo de Carros"
+        descricao_modelo = "Modelo Random Forest para Pre√ßo de Carros"
         model, X_train, X_test, y_train, y_test, y_pred, rmse, r2 = treinar_modelo_e_avaliar(
             descricao_modelo, data, variaveis, alvo
         )
 
-        # Exibir as mÈtricas de avaliaÁ„o
+        # Exibir as m√©tricas de avalia√ß√£o
         st.write(f"RMSE: {rmse:.2f}")
-        st.write(f"R≤: {r2:.2f}")
+        st.write(f"R¬≤: {r2:.2f}")
 
-# Executando a aplicaÁ„o Streamlit
+# Executando a aplica√ß√£o Streamlit
 if __name__ == "__main__":
     main()
