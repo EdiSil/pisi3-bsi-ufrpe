@@ -39,8 +39,9 @@ def aplicar_kmeans(data, n_clusters):
 def exibir_resultados(data, clusters, kmeans):
     st.write("Resumo dos Clusters")
     
-    # Resumo dos clusters
-    cluster_summary = data.groupby('Cluster').mean()
+    # Garantir que apenas as colunas numéricas sejam usadas para calcular a média
+    numeric_columns = data.select_dtypes(include=['float64', 'int64']).columns
+    cluster_summary = data.groupby('Cluster')[numeric_columns].mean()
     st.write(cluster_summary)
 
     # Exibir gráfico de dispersão dos clusters
