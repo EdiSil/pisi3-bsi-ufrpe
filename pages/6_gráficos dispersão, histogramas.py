@@ -18,7 +18,20 @@ def carregar_dados():
 
 # Função para preparar os dados
 def preparar_dados(data):
+    # Exibir os nomes das colunas carregadas
+    st.write("### Colunas no dataset:")
+    st.write(list(data.columns))
+
+    # Ajustar os nomes das colunas para corresponder ao dataset
     relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel', 'Assembly', 'Transmission']
+
+    # Verificar se as colunas necessárias estão presentes
+    missing_columns = [col for col in relevant_columns if col not in data.columns]
+    if missing_columns:
+        st.error(f"As seguintes colunas estão ausentes no dataset: {missing_columns}")
+        return None
+
+    # Filtrar apenas as colunas relevantes
     filtered_data = data[relevant_columns].copy()
 
     # Remover duplicados
@@ -62,7 +75,11 @@ def main():
         st.write("### Dataset Original:")
         st.write(data.head())
 
+        # Preparar os dados
         encoded_data = preparar_dados(data)
+        if encoded_data is None:
+            return  # Encerrar se a preparação falhar
+
         st.write("### Dados Preparados:")
         st.write(encoded_data.head())
 
@@ -81,33 +98,15 @@ def main():
         st.write("### Comparação entre Valores Reais e Previstos (Top 10):")
         st.write(comparison.head(10))
 
-        # Interatividade com os gráficos
-        st.write("### Configurações de Visualização")
-
-        # Configuração do gráfico de dispersão
-        st.write("#### Gráfico de Dispersão (Real vs. Previsto)")
-        alpha = st.slider("Escolha a transparência dos pontos", 0.1, 1.0, 0.7, 0.1)
-        point_size = st.slider("Escolha o tamanho dos pontos", 10, 200, 50, 10)
-
+        # Visualização: Gráfico de Dispersão (Real vs. Previsto)
+        st.write("### Visualização: Gráfico de Dispersão (Real vs. Previsto)")
         fig1, ax1 = plt.subplots(figsize=(8, 6))
-        sns.scatterplot(x=y_test, y=y_pred, alpha=alpha, s=point_size, ax=ax1)
+        sns.scatterplot(x=y_test, y=y_pred, alpha=0.7, ax=ax1)
         ax1.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--')
         ax1.set_title('Valores Reais vs. Valores Previstos')
         ax1.set_xlabel('Valor Real')
         ax1.set_ylabel('Valor Previsto')
         st.pyplot(fig1)
-
-        # Configuração do histograma de resíduos
-        st.write("#### Histograma dos Erros (Resíduos)")
-        bins = st.slider("Escolha o número de bins", 10, 100, 30, 5)
-
-        residuals = y_test - y_pred
-        fig2, ax2 = plt.subplots(figsize=(8, 6))
-        sns.histplot(residuals, bins=bins, kde=True, color='blue', ax=ax2)
-        ax2.set_title('Distribuição dos Erros (Resíduos)')
-        ax2.set_xlabel('Erro (Valor Real - Valor Previsto)')
-        ax2.set_ylabel('Frequência')
-        st.pyplot(fig2)
     else:
         st.error("Não foi possível carregar os dados. Verifique o endereço ou o formato do dataset.")
 
