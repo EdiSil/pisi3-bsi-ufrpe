@@ -76,7 +76,7 @@ def treinar_modelo_e_avaliar(descricao_modelo, data, variaveis, alvo):
 
 # Função para carregar o arquivo CSV diretamente da URL
 def carregar_arquivo():
-    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_com_clusters.csv"  # URL RAW do arquivo
+    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"  # URL RAW do arquivo
     try:
         data = pd.read_csv(url_csv)
         return data
