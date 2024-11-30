@@ -18,14 +18,7 @@ def carregar_dados():
 
 # Função para preparar os dados
 def preparar_dados(data):
-    """
-    Prepara o dataset para análise e modelagem:
-    - Filtra colunas relevantes
-    - Remove duplicatas
-    - Trata valores ausentes e outliers
-    - Codifica variáveis categóricas
-    """
-    relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']
+    relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel', 'Assembly', 'Transmission']
     filtered_data = data[relevant_columns].copy()
 
     # Remover duplicados
@@ -41,25 +34,19 @@ def preparar_dados(data):
     ]
 
     # Codificar variáveis categóricas
-    encoded_data = pd.get_dummies(filtered_data, columns=['Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual'], drop_first=True)
+    encoded_data = pd.get_dummies(filtered_data, columns=['Fuel', 'Assembly', 'Transmission'], drop_first=True)
 
     return encoded_data
 
 # Função para treinar o modelo e avaliar o desempenho
 def treinar_modelo_e_avaliar(X_train, X_test, y_train, y_test):
-    """
-    Treina um modelo Random Forest e avalia o desempenho nos dados de teste.
-    Retorna o modelo treinado, previsões, RMSE, R² e o conjunto de teste original.
-    """
     rf_model = RandomForestRegressor(random_state=42)
     rf_model.fit(X_train, y_train)
 
-    # Fazer previsões nos dados de teste
     y_pred = rf_model.predict(X_test)
 
-    # Avaliar a performance do modelo
-    rmse = mean_squared_error(y_test, y_pred, squared=False)  # Raiz do Erro Quadrático Médio
-    r2 = r2_score(y_test, y_pred)  # Coeficiente R²
+    rmse = mean_squared_error(y_test, y_pred, squared=False)
+    r2 = r2_score(y_test, y_pred)
 
     return rf_model, y_pred, rmse, r2, y_test
 
@@ -72,53 +59,52 @@ def main():
     data = carregar_dados()
 
     if data is not None:
-        # Mostrar as primeiras linhas do dataset original
         st.write("### Dataset Original:")
         st.write(data.head())
 
-        # Preparar os dados
         encoded_data = preparar_dados(data)
-
-        # Mostrar as primeiras linhas dos dados preparados
         st.write("### Dados Preparados:")
         st.write(encoded_data.head())
 
-        # Dividir entre variáveis preditoras (X) e alvo (y)
         X = encoded_data.drop(columns=['Price'])
         y = encoded_data['Price']
 
-        # Dividir os dados em treino e teste
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        # Treinar o modelo e avaliar o desempenho
         rf_model, y_pred, rmse, r2, y_test = treinar_modelo_e_avaliar(X_train, X_test, y_train, y_test)
 
-        # Exibir as métricas de desempenho
         st.write("### Avaliação do Modelo:")
         st.write(f"**RMSE (Raiz do Erro Quadrático Médio):** {rmse:.2f}")
         st.write(f"**R² (Coeficiente de Determinação):** {r2:.2f}")
 
-        # Comparar valores reais e previstos
         comparison = pd.DataFrame({'Valor Real': y_test.values, 'Valor Previsto': y_pred})
         st.write("### Comparação entre Valores Reais e Previstos (Top 10):")
         st.write(comparison.head(10))
 
-        # Visualização 1: Gráfico de Dispersão
-        st.write("### Gráfico de Dispersão (Real vs. Previsto)")
+        # Interatividade com os gráficos
+        st.write("### Configurações de Visualização")
+
+        # Configuração do gráfico de dispersão
+        st.write("#### Gráfico de Dispersão (Real vs. Previsto)")
+        alpha = st.slider("Escolha a transparência dos pontos", 0.1, 1.0, 0.7, 0.1)
+        point_size = st.slider("Escolha o tamanho dos pontos", 10, 200, 50, 10)
+
         fig1, ax1 = plt.subplots(figsize=(8, 6))
-        sns.scatterplot(x=y_test, y=y_pred, alpha=0.7, ax=ax1)
+        sns.scatterplot(x=y_test, y=y_pred, alpha=alpha, s=point_size, ax=ax1)
         ax1.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--')
         ax1.set_title('Valores Reais vs. Valores Previstos')
         ax1.set_xlabel('Valor Real')
         ax1.set_ylabel('Valor Previsto')
         st.pyplot(fig1)
 
-        # Visualização 2: Histograma dos Erros
-        st.write("### Distribuição dos Erros (Resíduos)")
+        # Configuração do histograma de resíduos
+        st.write("#### Histograma dos Erros (Resíduos)")
+        bins = st.slider("Escolha o número de bins", 10, 100, 30, 5)
+
         residuals = y_test - y_pred
         fig2, ax2 = plt.subplots(figsize=(8, 6))
-        sns.histplot(residuals, bins=30, kde=True, color='blue', ax=ax2)
-        ax2.set_title('Distribuição dos Erros')
+        sns.histplot(residuals, bins=bins, kde=True, color='blue', ax=ax2)
+        ax2.set_title('Distribuição dos Erros (Resíduos)')
         ax2.set_xlabel('Erro (Valor Real - Valor Previsto)')
         ax2.set_ylabel('Frequência')
         st.pyplot(fig2)
