@@ -74,16 +74,32 @@ def treinar_modelo_e_avaliar(descricao_modelo, data, variaveis, alvo):
     # Retornar o modelo treinado e outras variáveis úteis
     return model, X_train, X_test, y_train, y_test, y_pred, rmse, r2
 
-# Função para carregar o arquivo CSV diretamente
+# Função para carregar o arquivo CSV diretamente da URL
 def carregar_arquivo():
-    # Carregar o arquivo diretamente de uma URL ou caminho local
-    file_path = 'OLX_cars_novo.csv'  # Caminho para o arquivo CSV
+    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"  # URL RAW do arquivo
     try:
-        data = pd.read_csv(file_path)
+        data = pd.read_csv(url_csv)
         return data
     except Exception as e:
         st.error(f"Erro ao carregar o arquivo: {e}")
         return None
+
+# Função para salvar os dados de previsões em um arquivo CSV e permitir download
+def salvar_arquivo_com_previsoes(data, y_pred):
+    # Adiciona as previsões ao DataFrame
+    data['Predicted_Price'] = y_pred
+    
+    # Salva o DataFrame com as previsões em um arquivo CSV
+    file_name = 'OLX_cars_com_previsoes.csv'
+    data.to_csv(file_name, index=False)
+    
+    # Cria o botão de download
+    st.download_button(
+        label="Baixar arquivo CSV com Previsões",
+        data=data.to_csv(index=False).encode('utf-8'),
+        file_name=file_name,
+        mime='text/csv'
+    )
 
 # Função principal da aplicação Streamlit
 def main():
@@ -110,6 +126,9 @@ def main():
         # Exibir as métricas de avaliação
         st.write(f"RMSE: {rmse:.2f}")
         st.write(f"R²: {r2:.2f}")
+
+        # Salvar os dados com previsões e permitir download
+        salvar_arquivo_com_previsoes(data, y_pred)
 
 # Executando a aplicação Streamlit
 if __name__ == "__main__":
