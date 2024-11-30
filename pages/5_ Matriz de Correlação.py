@@ -26,18 +26,18 @@ def plotar_distribuicao_precos(data):
     st.write("### Distribuição de Preços")
     
     # Configuração do tamanho da figura para melhor visualização
-    plt.figure(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
     # Gerando o histograma com a curva KDE
-    sns.histplot(data['Price'], kde=True, color='blue', bins=30)
+    sns.histplot(data['Price'], kde=True, color='blue', bins=30, ax=ax)
     
     # Adicionando título e rótulos aos eixos
-    plt.title('Distribuição de Preços de Carros', fontsize=16)
-    plt.xlabel('Preço (R$)', fontsize=12)
-    plt.ylabel('Frequência', fontsize=12)
+    ax.set_title('Distribuição de Preços de Carros', fontsize=16)
+    ax.set_xlabel('Preço (R$)', fontsize=12)
+    ax.set_ylabel('Frequência', fontsize=12)
     
     # Exibindo o gráfico no Streamlit
-    st.pyplot()
+    st.pyplot(fig)
 
 # Função para comparar KM driven com o preço
 def plotar_relacao_km_preco(data):
@@ -48,18 +48,18 @@ def plotar_relacao_km_preco(data):
     st.write("### Relação entre KM driven e Preço")
     
     # Configuração do tamanho da figura para o gráfico de dispersão
-    plt.figure(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
     
     # Gerando o gráfico de dispersão
-    sns.scatterplot(x=data['KM\'s driven'], y=data['Price'], color='green', alpha=0.6)
+    sns.scatterplot(x=data['KM\'s driven'], y=data['Price'], color='green', alpha=0.6, ax=ax)
     
     # Adicionando título e rótulos aos eixos
-    plt.title('Relação entre KM driven e Preço', fontsize=16)
-    plt.xlabel('Quilometragem (KM)', fontsize=12)
-    plt.ylabel('Preço (R$)', fontsize=12)
+    ax.set_title('Relação entre KM driven e Preço', fontsize=16)
+    ax.set_xlabel('Quilometragem (KM)', fontsize=12)
+    ax.set_ylabel('Preço (R$)', fontsize=12)
     
     # Exibindo o gráfico no Streamlit
-    st.pyplot()
+    st.pyplot(fig)
 
 # Função para gerar a matriz de correlação e heatmap
 def plotar_matriz_correlacao(data):
@@ -73,16 +73,16 @@ def plotar_matriz_correlacao(data):
     corr = data.corr()
 
     # Configuração do tamanho da figura para o heatmap
-    plt.figure(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(12, 8))
     
     # Gerando o heatmap da matriz de correlação
-    sns.heatmap(corr, annot=True, fmt=".2f", cmap='coolwarm', linewidths=0.5, linecolor='black', square=True)
+    sns.heatmap(corr, annot=True, fmt=".2f", cmap='coolwarm', linewidths=0.5, linecolor='black', square=True, ax=ax)
     
     # Adicionando título ao gráfico
-    plt.title('Matriz de Correlação', fontsize=16)
+    ax.set_title('Matriz de Correlação', fontsize=16)
     
     # Exibindo o gráfico no Streamlit
-    st.pyplot()
+    st.pyplot(fig)
 
 # Função principal para exibir todas as visualizações
 def main():
