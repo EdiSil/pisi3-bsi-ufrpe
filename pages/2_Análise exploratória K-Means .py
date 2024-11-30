@@ -5,13 +5,19 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# URL do arquivo CSV no GitHub (link RAW)
+URL_CSV = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
+
 # Função para carregar o arquivo CSV
 def carregar_arquivo():
-    arquivo = st.file_uploader("Carregue o arquivo CSV (OLX_cars_novo.csv)", type=["csv"])
-    if arquivo is not None:
-        # Lê o arquivo CSV e retorna um DataFrame
-        return pd.read_csv(arquivo)
-    return None
+    try:
+        # Carregar o arquivo CSV diretamente da URL
+        data = pd.read_csv(URL_CSV)
+        return data
+    except Exception as e:
+        st.error("Erro ao carregar o arquivo. Verifique o link ou o formato do arquivo.")
+        st.write(e)
+        return None
 
 # Função para aplicar K-Means clustering
 def aplicar_kmeans(data, n_clusters):
@@ -53,7 +59,7 @@ def exibir_resultados(data, clusters, kmeans):
         kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=42)
         kmeans.fit(data.select_dtypes(include=['float64', 'int64']))
         wcss.append(kmeans.inertia_)
-    
+
     # Gráfico do Método do Cotovelo
     plt.figure(figsize=(8, 6))
     plt.plot(range(1, 11), wcss)
@@ -65,6 +71,20 @@ def exibir_resultados(data, clusters, kmeans):
     # Exibir os primeiros rótulos de cluster
     st.write("Primeiros 10 rótulos de cluster:")
     st.write(clusters[:10])
+
+# Função para salvar o DataFrame limpo e permitir o download
+def salvar_arquivo(data):
+    # Salvar o DataFrame como um arquivo CSV localmente
+    data.to_csv('OLX_cars_com_clusters.csv', index=False)
+    st.success("Arquivo com clusters salvo com sucesso como 'OLX_cars_com_clusters.csv'.")
+    
+    # Adicionar botão de download para o arquivo limpo
+    st.download_button(
+        label="Baixar arquivo CSV com clusters",
+        data=data.to_csv(index=False).encode('utf-8'),
+        file_name='OLX_cars_com_clusters.csv',
+        mime='text/csv'
+    )
 
 # Função principal do Streamlit
 def main():
@@ -86,6 +106,9 @@ def main():
 
         # Exibir os resultados da análise exploratória
         exibir_resultados(dados_com_clusters, clusters, kmeans)
+
+        # Salvar e permitir download do arquivo
+        salvar_arquivo(dados_com_clusters)
 
 # Executar o Streamlit
 if __name__ == "__main__":
