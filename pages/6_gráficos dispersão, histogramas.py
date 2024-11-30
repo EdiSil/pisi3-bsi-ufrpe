@@ -23,7 +23,7 @@ def preparar_dados(data):
     st.write(list(data.columns))
 
     # Ajustar os nomes das colunas para corresponder ao dataset
-    relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel', 'Assembly', 'Transmission']
+    relevant_columns = ['Year', "KM's driven", 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']
 
     # Verificar se as colunas necessárias estão presentes
     missing_columns = [col for col in relevant_columns if col not in data.columns]
@@ -47,7 +47,7 @@ def preparar_dados(data):
     ]
 
     # Codificar variáveis categóricas
-    encoded_data = pd.get_dummies(filtered_data, columns=['Fuel', 'Assembly', 'Transmission'], drop_first=True)
+    encoded_data = pd.get_dummies(filtered_data, columns=['Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual'], drop_first=True)
 
     return encoded_data
 
