@@ -58,14 +58,28 @@ def treinar_modelo_e_avaliar(data, variaveis, alvo):
 
 # Função para exibir o gráfico de comparação entre valores reais e previstos
 def grafico_comparacao(y_test, y_pred):
-    comparacao = pd.DataFrame({'Valor Real': y_test, 'Valor Previsto': y_pred})
+    """
+    Função para exibir o gráfico de dispersão (scatter plot) dos valores reais e previstos.
+    """
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.lineplot(data=comparacao, ax=ax)
+    ax.scatter(y_test, y_pred, color='blue', alpha=0.5)
+    ax.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', lw=2, label="Linha Ideal (y = x)")
     ax.set_title("Comparação entre Valores Reais e Previstos")
-    ax.set_xlabel("Índice")
-    ax.set_ylabel("Preço")
-    ax.legend(title="Legenda", labels=["Real", "Previsto"])
+    ax.set_xlabel("Valor Real")
+    ax.set_ylabel("Valor Previsto")
+    ax.legend()
     st.pyplot(fig)
+
+# Função para exibir a tabela de comparação entre valores reais e previstos
+def tabela_comparacao(y_test, y_pred):
+    """
+    Função para exibir uma tabela formatada de comparação entre os valores reais e previstos.
+    """
+    comparacao = pd.DataFrame({'Valor Real': y_test, 'Valor Previsto': y_pred})
+    comparacao['Erro Absoluto'] = abs(comparacao['Valor Real'] - comparacao['Valor Previsto'])
+    comparacao['Erro Relativo'] = comparacao['Erro Absoluto'] / comparacao['Valor Real'] * 100
+    st.write("### Tabela de Comparação (Valores Reais vs. Previstos):")
+    st.write(comparacao.head(20))  # Mostrar os 20 primeiros resultados
 
 # Função principal da aplicação Streamlit
 def main():
@@ -99,10 +113,8 @@ def main():
         st.write(f"**RMSE (Root Mean Squared Error):** {rmse:.2f}")
         st.write(f"**R² Score:** {r2:.2f}")
 
-        # Comparar valores reais e previstos (top 10)
-        comparacao = pd.DataFrame({'Valor Real': y_test, 'Valor Previsto': y_pred})
-        st.write("### Comparação dos 10 Primeiros Valores Reais e Previstos:")
-        st.write(comparacao.head(10))
+        # Comparar valores reais e previstos (top 20)
+        tabela_comparacao(y_test, y_pred)
 
         # Exibir o gráfico de comparação Real vs Previsto
         grafico_comparacao(y_test, y_pred)
