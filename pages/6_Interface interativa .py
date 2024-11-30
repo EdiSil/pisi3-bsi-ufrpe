@@ -1,33 +1,35 @@
 import streamlit as st
-import pickle
 import numpy as np
+import requests
+import pickle
 
-# Função para carregar o modelo treinado
+# Função para baixar e carregar o modelo Random Forest
 @st.cache_resource
-def carregar_modelo(caminho_modelo):
+def carregar_modelo_via_url(url):
     """
-    Carrega o modelo treinado de um arquivo pickle.
+    Faz o download e carrega o modelo Random Forest a partir de uma URL.
 
     Args:
-        caminho_modelo (str): Caminho para o arquivo do modelo.
+        url (str): URL do arquivo do modelo.
 
     Returns:
         object: Modelo treinado.
     """
     try:
-        with open(caminho_modelo, 'rb') as file:
-            modelo = pickle.load(file)
+        response = requests.get(url)
+        response.raise_for_status()
+        modelo = pickle.loads(response.content)
         return modelo
     except Exception as e:
         st.error(f"Erro ao carregar o modelo: {e}")
         return None
 
-# Função principal para a aplicação
+# Função principal da aplicação
 def main():
     st.title("Previsão de Preço de Carros 🚗")
     st.markdown(
         """
-        Esta aplicação utiliza um modelo de Machine Learning para prever o preço de carros com base em:
+        Esta aplicação utiliza um modelo Random Forest para prever o preço de carros com base em:
         - **KM driven (quilômetros rodados)**  
         - **Ano do carro**  
         
@@ -52,9 +54,11 @@ def main():
         help="Digite o ano de fabricação do carro. Deve ser um valor inteiro entre 1900 e 2024."
     )
 
-    # Carregar o modelo salvo
-    caminho_modelo = "modelo_random_forest.pkl"  # Ajuste o caminho se necessário
-    modelo = carregar_modelo(caminho_modelo)
+    # URL do modelo Random Forest
+    modelo_url = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/pages/random_forest_model.pkl"
+
+    # Carregar o modelo
+    modelo = carregar_modelo_via_url(modelo_url)
 
     if modelo:
         if st.button("Prever Preço"):
@@ -73,7 +77,7 @@ def main():
             except Exception as e:
                 st.error(f"Erro ao realizar a previsão: {e}")
     else:
-        st.error("O modelo não pôde ser carregado. Certifique-se de que o arquivo do modelo está disponível.")
+        st.error("Não foi possível carregar o modelo. Verifique a URL ou o formato do arquivo.")
 
     # Rodapé com informações adicionais
     st.markdown(
