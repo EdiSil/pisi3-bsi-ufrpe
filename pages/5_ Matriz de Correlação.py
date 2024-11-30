@@ -17,50 +17,6 @@ def carregar_dados():
         st.error(f"Erro ao carregar os dados: {e}")
         return None
 
-# Função para visualizar a distribuição de preços
-def plotar_distribuicao_precos(data):
-    """
-    Esta função gera um histograma da distribuição dos preços dos carros e também adiciona a curva de densidade
-    (KDE - Kernel Density Estimation) para visualizar melhor a distribuição.
-    """
-    st.write("### Distribuição de Preços")
-    
-    # Configuração do tamanho da figura para melhor visualização
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Gerando o histograma com a curva KDE
-    sns.histplot(data['Price'], kde=True, color='blue', bins=30, ax=ax)
-    
-    # Adicionando título e rótulos aos eixos
-    ax.set_title('Distribuição de Preços de Carros', fontsize=16)
-    ax.set_xlabel('Preço (R$)', fontsize=12)
-    ax.set_ylabel('Frequência', fontsize=12)
-    
-    # Exibindo o gráfico no Streamlit
-    st.pyplot(fig)
-
-# Função para comparar KM driven com o preço
-def plotar_relacao_km_preco(data):
-    """
-    Esta função gera um gráfico de dispersão (scatter plot) que compara a quantidade de quilômetros rodados
-    (KM driven) com o preço do carro. Este gráfico ajuda a entender a relação entre essas duas variáveis.
-    """
-    st.write("### Relação entre KM driven e Preço")
-    
-    # Configuração do tamanho da figura para o gráfico de dispersão
-    fig, ax = plt.subplots(figsize=(10, 6))
-    
-    # Gerando o gráfico de dispersão
-    sns.scatterplot(x=data['KM\'s driven'], y=data['Price'], color='green', alpha=0.6, ax=ax)
-    
-    # Adicionando título e rótulos aos eixos
-    ax.set_title('Relação entre KM driven e Preço', fontsize=16)
-    ax.set_xlabel('Quilometragem (KM)', fontsize=12)
-    ax.set_ylabel('Preço (R$)', fontsize=12)
-    
-    # Exibindo o gráfico no Streamlit
-    st.pyplot(fig)
-
 # Função para gerar a matriz de correlação e heatmap
 def plotar_matriz_correlacao(data):
     """
@@ -68,9 +24,16 @@ def plotar_matriz_correlacao(data):
     e exibe um heatmap para facilitar a visualização das correlações.
     """
     st.write("### Matriz de Correlação entre Variáveis")
+    
+    # Selecionar apenas as colunas numéricas
+    data_numerico = data.select_dtypes(include=["number"])
 
-    # Calculando a matriz de correlação entre todas as colunas numéricas
-    corr = data.corr()
+    if data_numerico.empty:
+        st.error("O dataset não contém colunas numéricas para calcular a correlação.")
+        return
+
+    # Calculando a matriz de correlação
+    corr = data_numerico.corr()
 
     # Configuração do tamanho da figura para o heatmap
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -96,12 +59,6 @@ def main():
         # Mostrar as primeiras linhas do dataset
         st.write("### Primeiras Linhas do Dataset:")
         st.write(data.head())  # Exibe as primeiras linhas do dataset
-
-        # Visualizar a distribuição de preços
-        plotar_distribuicao_precos(data)
-        
-        # Visualizar a relação entre KM driven e Preço
-        plotar_relacao_km_preco(data)
         
         # Visualizar a matriz de correlação
         plotar_matriz_correlacao(data)
