@@ -22,9 +22,7 @@ Informação (BSI) da Sede da Universidade Federal Rural de Pernambuco (UFRPE).
     Alguns dos exemplos são:
     <ul>
             <li>Páginas e componentes do Streamlit.</li>
-            <li>Uso do Pandas.</li>
-            <li>Uso do YData Profiling.</li>
-            <li>Utilização de arquivos parquet.</li>
+            <li>Uso do Pandas.</li>                    
             <li>Visualização de dados.</li>
             <li>Aprendizado de Máquina: Agrupamento e Classificação.</li>
     </ul>
