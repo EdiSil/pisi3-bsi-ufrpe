@@ -100,7 +100,7 @@ def main():
         st.write(data.head())
 
         # Pré-processar os dados (defina suas variáveis de entrada e alvo)
-        variaveis = ['Year', "KM's driven", 'Fuel', 'Assembly', 'Transmission']
+        variaveis = ['Year', "KM's driven", 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']
         alvo = 'Price'
 
         # Treinar o modelo e avaliar desempenho
