@@ -1,15 +1,19 @@
-
 import pandas as pd
 import streamlit as st
 
+# URL do arquivo CSV no GitHub
+URL_CSV = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset00.csv"
+
 # Função para carregar o arquivo CSV
 def carregar_arquivo():
-    # Carregar o arquivo CSV usando o uploader do Streamlit
-    arquivo = st.file_uploader("https://github.com/EdiSil/pisi3-bsi-ufrpe/blob/main/data/OLX_cars_dataset00.csv", type=["csv"])
-    if arquivo is not None:
-        # Lê o arquivo CSV e retorna um DataFrame
-        return pd.read_csv(arquivo)
-    return None
+    try:
+        # Carregar o arquivo CSV diretamente da URL
+        data = pd.read_csv(URL_CSV)
+        return data
+    except Exception as e:
+        st.error("Erro ao carregar o arquivo. Verifique o link ou o formato do arquivo.")
+        st.write(e)
+        return None
 
 # Função para realizar o pré-processamento e limpeza dos dados
 def limpar_dados(data):
@@ -43,6 +47,12 @@ def salvar_arquivo(data):
     # Salvar o DataFrame como um arquivo CSV
     data.to_csv('OLX_cars_novo.csv', index=False)
     st.success("Arquivo limpo salvo com sucesso como 'OLX_cars_novo.csv'.")
+    st.download_button(
+        label="Baixar arquivo limpo",
+        data=data.to_csv(index=False).encode('utf-8'),
+        file_name='OLX_cars_novo.csv',
+        mime='text/csv'
+    )
 
 # Função principal
 def main():
@@ -52,13 +62,13 @@ def main():
     data = carregar_arquivo()
 
     if data is not None:
-        st.write("Dados originais:", data.head())
+        st.write("### Dados originais:", data.head())
 
         # Limpar dados
         data_limpa = limpar_dados(data)
 
         # Mostrar os dados limpos
-        st.write("Dados limpos:", data_limpa.head())
+        st.write("### Dados limpos:", data_limpa.head())
 
         # Salvar os dados limpos
         salvar_arquivo(data_limpa)
