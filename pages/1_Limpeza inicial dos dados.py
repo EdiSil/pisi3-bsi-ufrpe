@@ -5,7 +5,7 @@ import streamlit as st
 # Função para carregar o arquivo CSV
 def carregar_arquivo():
     # Carregar o arquivo CSV usando o uploader do Streamlit
-    arquivo = st.file_uploader("pisi3-bsi-ufrpe/data/OLX_cars_dataset00.csv", type=["csv"])
+    arquivo = st.file_uploader("https://github.com/EdiSil/pisi3-bsi-ufrpe/blob/main/data/OLX_cars_dataset00.csv", type=["csv"])
     if arquivo is not None:
         # Lê o arquivo CSV e retorna um DataFrame
         return pd.read_csv(arquivo)
