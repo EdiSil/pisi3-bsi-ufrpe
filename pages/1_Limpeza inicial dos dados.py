@@ -2,16 +2,16 @@
 import pandas as pd
 import streamlit as st
 
-# Função para carregar o arquivo CSV
+# FunÃ§Ã£o para carregar o arquivo CSV
 def carregar_arquivo():
     # Carregar o arquivo CSV usando o uploader do Streamlit
     arquivo = st.file_uploader("Carregue o arquivo CSV", type=["csv"])
     if arquivo is not None:
-        # Lê o arquivo CSV e retorna um DataFrame
+        # LÃª o arquivo CSV e retorna um DataFrame
         return pd.read_csv(arquivo)
     return None
 
-# Função para realizar o pré-processamento e limpeza dos dados
+# FunÃ§Ã£o para realizar o prÃ©-processamento e limpeza dos dados
 def limpar_dados(data):
     # Selecionar colunas relevantes
     relevant_columns = [
@@ -22,10 +22,10 @@ def limpar_dados(data):
     # Remover duplicados
     filtered_data = filtered_data.drop_duplicates()
 
-    # Filtrar anos no futuro (considerar máximo o ano atual)
+    # Filtrar anos no futuro (considerar mÃ¡ximo o ano atual)
     filtered_data = filtered_data[filtered_data['Year'] <= 2024]
 
-    # Limitar quilometragem e preço com base no percentil 99 para remover outliers extremos
+    # Limitar quilometragem e preÃ§o com base no percentil 99 para remover outliers extremos
     km_99 = filtered_data["KM's driven"].quantile(0.99)
     price_99 = filtered_data["Price"].quantile(0.99)
     filtered_data = filtered_data[
@@ -33,18 +33,18 @@ def limpar_dados(data):
         (filtered_data["Price"] <= price_99)
     ]
 
-    # Codificar variáveis categóricas
+    # Codificar variÃ¡veis categÃ³ricas
     encoded_data = pd.get_dummies(filtered_data, columns=['Fuel', 'Assembly', 'Transmission'], drop_first=True)
 
     return encoded_data
 
-# Função para salvar o DataFrame limpo
+# FunÃ§Ã£o para salvar o DataFrame limpo
 def salvar_arquivo(data):
     # Salvar o DataFrame como um arquivo CSV
     data.to_csv('OLX_cars_novo.csv', index=False)
     st.success("Arquivo limpo salvo com sucesso como 'OLX_cars_novo.csv'.")
 
-# Função principal
+# FunÃ§Ã£o principal
 def main():
     st.title("Processamento de Dados de Carros Usados")
 
