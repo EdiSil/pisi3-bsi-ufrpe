@@ -42,7 +42,7 @@ def treinar_modelo_e_avaliar(data, variaveis, alvo):
 def salvar_modelo(model, nome_arquivo="modelo_random_forest.pkl"):
     with open(nome_arquivo, 'wb') as arquivo:
         pickle.dump(model, arquivo)
-    st.success(f"Modelo salvo como {novo-random_forest.pkl}")
+    st.success(f"Modelo salvo como {nome_arquivo}")
 
 # Função para carregar o modelo salvo
 def carregar_modelo(nome_arquivo="modelo_random_forest.pkl"):
