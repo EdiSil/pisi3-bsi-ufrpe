@@ -24,7 +24,6 @@ def treinar_modelo_e_avaliar(descricao_modelo, data, variaveis, alvo):
     rmse (float): Erro quadrático médio (RMSE).
     r2 (float): Coeficiente de determinação (R²).
     """
-    
     # 1. Preparar os dados de entrada e saída
     X = data[variaveis]  # Variáveis preditoras
     y = data[alvo]       # Variável alvo (preço dos carros)
@@ -133,6 +132,7 @@ def main():
 # Executando a aplicação Streamlit
 if __name__ == "__main__":
     main()
+
 
 
 
