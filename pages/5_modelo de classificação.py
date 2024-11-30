@@ -6,7 +6,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Função para preparar os dados
+# FunÃ§Ã£o para preparar os dados
 def preparar_dados(file_path):
     # Carregar os dados do CSV
     data = pd.read_csv(file_path)
@@ -18,7 +18,7 @@ def preparar_dados(file_path):
     # Tratar valores ausentes e duplicados
     filtered_data = filtered_data.drop_duplicates()
 
-    # Tratar outliers (ano maior que 2024 ou km e preço acima do 99º percentil)
+    # Tratar outliers (ano maior que 2024 ou km e preÃ§o acima do 99Âº percentil)
     filtered_data = filtered_data[filtered_data['Year'] <= 2024]  # Remover anos futuros
     km_99 = filtered_data["KM's driven"].quantile(0.99)
     price_99 = filtered_data["Price"].quantile(0.99)
@@ -27,29 +27,29 @@ def preparar_dados(file_path):
         (filtered_data["Price"] <= price_99)
     ]
 
-    # Converter variáveis categóricas para numéricas
+    # Converter variÃ¡veis categÃ³ricas para numÃ©ricas
     encoded_data = pd.get_dummies(filtered_data, columns=['Fuel', 'Assembly', 'Transmission'], drop_first=True)
 
     return encoded_data
 
-# Função para treinar o modelo e avaliar o desempenho
+# FunÃ§Ã£o para treinar o modelo e avaliar o desempenho
 def treinar_modelo_e_avaliar(X_train, X_test, y_train, y_test):
     # Criar o modelo Random Forest
     rf_model = RandomForestRegressor(random_state=42)
     rf_model.fit(X_train, y_train)
 
-    # Fazer previsões nos dados de teste
+    # Fazer previsÃµes nos dados de teste
     y_pred = rf_model.predict(X_test)
 
     # Avaliar a performance do modelo
-    rmse = mean_squared_error(y_test, y_pred, squared=False)  # Raiz do Erro Quadrático Médio
-    r2 = r2_score(y_test, y_pred)  # Coeficiente R²
+    rmse = mean_squared_error(y_test, y_pred, squared=False)  # Raiz do Erro QuadrÃ¡tico MÃ©dio
+    r2 = r2_score(y_test, y_pred)  # Coeficiente RÂ²
 
     return rf_model, y_pred, rmse, r2
 
-# Função principal da aplicação Streamlit
+# FunÃ§Ã£o principal da aplicaÃ§Ã£o Streamlit
 def main():
-    st.title("Modelo de Preço de Carros com Random Forest")
+    st.title("Modelo de PreÃ§o de Carros com Random Forest")
 
     # Carregar o dataset
     file_path = 'OLX_cars_novo.csv'  # Caminho para o arquivo CSV
@@ -62,7 +62,7 @@ def main():
     st.write("### Dados Carregados e Preparados:")
     st.write(encoded_data.head())
 
-    # Dividir entre variáveis preditoras (X) e alvo (y)
+    # Dividir entre variÃ¡veis preditoras (X) e alvo (y)
     X = encoded_data.drop(columns=['Price'])
     y = encoded_data['Price']
 
@@ -72,24 +72,24 @@ def main():
     # Treinar o modelo e avaliar o desempenho
     rf_model, y_pred, rmse, r2 = treinar_modelo_e_avaliar(X_train, X_test, y_train, y_test)
 
-    # Exibir as métricas de desempenho
-    st.write(f"### Avaliação do Modelo Random Forest:")
-    st.write(f"**RMSE (Raiz do Erro Quadrático Médio):** {rmse:.2f}")
-    st.write(f"**R² (Coeficiente de Determinação):** {r2:.2f}")
+    # Exibir as mÃ©tricas de desempenho
+    st.write(f"### AvaliaÃ§Ã£o do Modelo Random Forest:")
+    st.write(f"**RMSE (Raiz do Erro QuadrÃ¡tico MÃ©dio):** {rmse:.2f}")
+    st.write(f"**RÂ² (Coeficiente de DeterminaÃ§Ã£o):** {r2:.2f}")
 
-    # Exibir gráfico de comparação entre os valores reais e previstos
-    st.write("### Comparação entre Valores Reais e Previstos:")
+    # Exibir grÃ¡fico de comparaÃ§Ã£o entre os valores reais e previstos
+    st.write("### ComparaÃ§Ã£o entre Valores Reais e Previstos:")
     comparar_df = pd.DataFrame({'Real': y_test, 'Previsto': y_pred})
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.lineplot(data=comparar_df, ax=ax)
-    ax.set_title("Comparação entre Valores Reais e Previstos")
-    ax.set_xlabel("Índice")
-    ax.set_ylabel("Preço")
+    ax.set_title("ComparaÃ§Ã£o entre Valores Reais e Previstos")
+    ax.set_xlabel("Ãndice")
+    ax.set_ylabel("PreÃ§o")
     ax.legend(title="Legenda", labels=["Real", "Previsto"])
     st.pyplot(fig)
 
-    # Exibir gráfico de importância das features
-    st.write("### Importância das Features no Modelo:")
+    # Exibir grÃ¡fico de importÃ¢ncia das features
+    st.write("### ImportÃ¢ncia das Features no Modelo:")
     importancia_features = pd.DataFrame({
         'Feature': X.columns,
         'Importance': rf_model.feature_importances_
@@ -97,11 +97,11 @@ def main():
 
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(x='Importance', y='Feature', data=importancia_features, ax=ax)
-    ax.set_title('Importância das Variáveis no Modelo')
-    ax.set_xlabel('Importância')
-    ax.set_ylabel('Características')
+    ax.set_title('ImportÃ¢ncia das VariÃ¡veis no Modelo')
+    ax.set_xlabel('ImportÃ¢ncia')
+    ax.set_ylabel('CaracterÃ­sticas')
     st.pyplot(fig)
 
-# Executando a aplicação Streamlit
+# Executando a aplicaÃ§Ã£o Streamlit
 if __name__ == "__main__":
     main()
