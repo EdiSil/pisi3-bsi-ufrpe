@@ -46,12 +46,12 @@ def exibir_resultados(data, clusters, kmeans):
 
     # Exibir gráfico de dispersão dos clusters
     st.write("Gráfico de Dispersão dos Clusters")
-    plt.figure(figsize=(8, 6))
-    sns.scatterplot(x=data.iloc[:, 0], y=data.iloc[:, 1], hue=data['Cluster'], palette='viridis')
-    plt.title('Distribuição dos Clusters')
-    plt.xlabel(data.columns[0])
-    plt.ylabel(data.columns[1])
-    st.pyplot()
+    fig, ax = plt.subplots(figsize=(8, 6))  # Criar figura e eixo
+    sns.scatterplot(x=data.iloc[:, 0], y=data.iloc[:, 1], hue=data['Cluster'], palette='viridis', ax=ax)
+    ax.set_title('Distribuição dos Clusters')
+    ax.set_xlabel(data.columns[0])
+    ax.set_ylabel(data.columns[1])
+    st.pyplot(fig)  # Passar a figura criada
 
     # Elbow Method para determinar o número ideal de clusters
     st.write("Método do Cotovelo para Determinação do Número de Clusters")
@@ -62,12 +62,12 @@ def exibir_resultados(data, clusters, kmeans):
         wcss.append(kmeans.inertia_)
 
     # Gráfico do Método do Cotovelo
-    plt.figure(figsize=(8, 6))
-    plt.plot(range(1, 11), wcss)
-    plt.title('Método do Cotovelo')
-    plt.xlabel('Número de Clusters')
-    plt.ylabel('WCSS')
-    st.pyplot()
+    fig, ax = plt.subplots(figsize=(8, 6))  # Criar nova figura para o gráfico do cotovelo
+    ax.plot(range(1, 11), wcss)
+    ax.set_title('Método do Cotovelo')
+    ax.set_xlabel('Número de Clusters')
+    ax.set_ylabel('WCSS')
+    st.pyplot(fig)  # Passar a figura criada
 
     # Exibir os primeiros rótulos de cluster
     st.write("Primeiros 10 rótulos de cluster:")
