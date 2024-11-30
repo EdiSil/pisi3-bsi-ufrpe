@@ -56,14 +56,24 @@ def treinar_modelo_e_avaliar(data, variaveis, alvo):
     
     return model, X_train, X_test, y_train, y_test, y_pred, rmse, r2
 
-# Função para exibir o gráfico de comparação entre valores reais e previstos
-def grafico_comparacao(y_test, y_pred):
+# Função para exibir o gráfico de comparação entre valores reais e previstos com opções de sobreposição
+def grafico_comparacao(y_test, y_pred, adicionar_linha_ideal, adicionar_linha_tendencia):
     """
-    Função para exibir o gráfico de dispersão (scatter plot) dos valores reais e previstos.
+    Função para exibir o gráfico de dispersão (scatter plot) dos valores reais e previstos com opções de sobreposição.
     """
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(y_test, y_pred, color='blue', alpha=0.5)
-    ax.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', lw=2, label="Linha Ideal (y = x)")
+    
+    # Plotando o gráfico de dispersão
+    ax.scatter(y_test, y_pred, color='blue', alpha=0.5, label="Valores Reais vs. Previstos")
+    
+    # Adicionando a linha ideal (y = x), se o usuário escolher
+    if adicionar_linha_ideal:
+        ax.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', lw=2, label="Linha Ideal (y = x)")
+    
+    # Adicionando uma linha de tendência (regressão linear) se o usuário escolher
+    if adicionar_linha_tendencia:
+        sns.regplot(x=y_test, y=y_pred, scatter=False, ax=ax, color='green', line_kws={"lw": 2, "ls": "--"}, label="Linha de Tendência")
+    
     ax.set_title("Comparação entre Valores Reais e Previstos")
     ax.set_xlabel("Valor Real")
     ax.set_ylabel("Valor Previsto")
@@ -116,8 +126,12 @@ def main():
         # Comparar valores reais e previstos (top 20)
         tabela_comparacao(y_test, y_pred)
 
-        # Exibir o gráfico de comparação Real vs Previsto
-        grafico_comparacao(y_test, y_pred)
+        # Opções de sobreposição no gráfico
+        adicionar_linha_ideal = st.checkbox("Adicionar Linha Ideal (y = x)", value=True)
+        adicionar_linha_tendencia = st.checkbox("Adicionar Linha de Tendência (Regressão Linear)", value=False)
+
+        # Exibir o gráfico de comparação Real vs Previsto com as opções escolhidas
+        grafico_comparacao(y_test, y_pred, adicionar_linha_ideal, adicionar_linha_tendencia)
 
 # Executando a aplicação Streamlit
 if __name__ == "__main__":
