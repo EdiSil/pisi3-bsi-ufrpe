@@ -25,6 +25,23 @@ def carregar_dados(url):
         st.error(f"Erro ao carregar os dados: {e}")
         return pd.DataFrame()
 
+# Função para exibir os valores únicos de cada coluna relevante
+def exibir_valores_unicos(data, colunas):
+    """
+    Exibe os valores únicos de cada coluna selecionada no dataset.
+
+    Args:
+        data (pd.DataFrame): Dataset a ser analisado.
+        colunas (list): Lista de colunas para exibir os valores únicos.
+    """
+    st.write("### Valores Únicos por Atributo")
+    for coluna in colunas:
+        if coluna in data.columns:
+            valores_unicos = data[coluna].unique()
+            st.write(f"**{coluna}**: {valores_unicos}")
+        else:
+            st.warning(f"A coluna '{coluna}' não está presente no dataset.")
+
 # Função para gerar e exibir a matriz de correlação
 def exibir_matriz_correlacao(data):
     """
@@ -76,8 +93,9 @@ def main():
     data = carregar_dados(url_csv)
 
     if not data.empty:
-        st.write("### Primeiras Linhas do Dataset")
-        st.write(data.head())  # Exibir as primeiras linhas do dataset
+        # Exibir os valores únicos para as colunas selecionadas
+        colunas_relevantes = ['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']
+        exibir_valores_unicos(data, colunas_relevantes)
 
         # Exibir a matriz de correlação
         exibir_matriz_correlacao(data)
