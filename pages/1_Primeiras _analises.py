@@ -70,42 +70,38 @@ else:
     else:
         # 1. Distribuição de Preços por Ano de Fabricação
         st.subheader("Distribuição de Preços por Ano de Fabricação")
-        plot_graph(sns.boxplot, data=df, x='Year', y='Price', palette='Set2')
+        try:
+            plot_graph(sns.boxplot, data=df, x='Year', y='Price', palette='Set2')
+            plt.title("Distribuição de Preços por Ano de Fabricação")
+        except Exception as e:
+            st.error(f"Erro ao gerar gráfico: {e}")
 
         # 2. Distribuição de Quilometragem dos Carros
         st.subheader("Distribuição de Quilometragem dos Carros")
         plot_graph(sns.histplot, data=df, x="KM's driven", kde=True, color='blue', bins=30)
+        plt.title("Distribuição de Quilometragem dos Carros")
+        plt.xlabel("Quilometragem (KM)")
+        plt.ylabel("Frequência")
 
-        # 3. Distribuição de Preços por Tipo de Combustível
+        # 3. Distribuição de Preços dos Carros
+        st.subheader("Distribuição de Preços dos Carros")
+        plot_graph(sns.histplot, data=df, x='Price', kde=True, color='green', bins=30)
+        plt.title("Distribuição de Preços dos Carros")
+        plt.xlabel("Preço (USD)")
+        plt.ylabel("Frequência")
+
+        # 4. Distribuição de Preços por Tipo de Combustível
         st.subheader("Distribuição de Preços por Tipo de Combustível")
         combustivel_data = df.melt(id_vars=['Price'], value_vars=['Fuel_Diesel', 'Fuel_Petrol'],
                                    var_name='Fuel_Type', value_name='Is_Fuel_Type')
         combustivel_data = combustivel_data[combustivel_data['Is_Fuel_Type'] == 1]
         plot_graph(sns.boxplot, data=combustivel_data, x='Fuel_Type', y='Price', palette='Set1')
+        plt.title("Distribuição de Preços por Tipo de Combustível")
+        plt.xticks([0, 1], ['Diesel', 'Petrol'])
 
-        # 4. Relação entre Preço e Ano por Tipo de Combustível
-        st.subheader("Relação entre Preço e Ano por Tipo de Combustível")
-        plot_graph(sns.scatterplot, data=combustivel_data, x='Year', y='Price', hue='Fuel_Type', palette='cool')
-
-        # 5. Correlação entre todas as variáveis numéricas
-        st.subheader("Mapa de Correlação")
-        corr = df[['Year', 'Price', 'KM\'s driven']].corr()
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.heatmap(corr, annot=True, fmt=".2f", cmap='coolwarm', ax=ax)
-        plt.title("Correlação entre Variáveis")
-        st.pyplot(fig)
-
-        # 6. Frequência por Tipo de Combustível e Transmissão
-        st.subheader("Frequência por Tipo de Combustível e Transmissão")
-        df['Fuel_Type'] = df[['Fuel_Diesel', 'Fuel_Petrol']].idxmax(axis=1)
-        transmission_count = df.groupby(['Fuel_Type', 'Transmission_Manual']).size().reset_index(name='Count')
-        transmission_count['Transmission'] = transmission_count['Transmission_Manual'].apply(lambda x: 'Manual' if x == 1 else 'Automático')
-        plot_graph(sns.barplot, data=transmission_count, x='Fuel_Type', y='Count', hue='Transmission', palette='Set3')
-
-        # 7. Distribuição de Quilometragem por Ano
-        st.subheader("Distribuição de Quilometragem por Ano")
-        plot_graph(sns.boxplot, data=df, x='Year', y="KM's driven", palette='Set2')
-
-        # 8. Relação entre Preço e Quilometragem
+        # 5. Correlação entre Preço e Quilometragem
         st.subheader("Correlação entre Preço e Quilometragem")
         plot_graph(sns.scatterplot, data=df, x="KM's driven", y='Price', color='orange')
+        plt.title("Correlação entre Preço e Quilometragem")
+        plt.xlabel("Quilometragem (KM)")
+        plt.ylabel("Preço (USD)")
