@@ -38,6 +38,7 @@ def plot_graph(func, *args, **kwargs):
     func(*args, **kwargs, ax=ax)
     plt.tight_layout()
     st.pyplot(fig)
+    plt.close(fig)
 
 # Carregar e limpar dados
 df = load_and_clean_data()
@@ -89,12 +90,12 @@ else:
 
         # 4. Distribuição de Preços por Tipo de Combustível
         st.subheader("Distribuição de Preços por Tipo de Combustível")
-        combustivel_data = df.melt(id_vars=['Price         combustivel_data = df.melt(id_vars=['Price'], value_vars=['Fuel_Diesel', 'Fuel_Petrol'],
+        combustivel_data = df.melt(id_vars=['Price'], value_vars=['Fuel_Diesel', 'Fuel_Petrol'],
                                    var_name='Fuel_Type', value_name='Is_Fuel_Type')
         combustivel_data = combustivel_data[combustivel_data['Is_Fuel_Type'] == 1]
+        combustivel_data['Fuel_Type'] = combustivel_data['Fuel_Type'].str.replace('Fuel_', '')
         plot_graph(sns.boxplot, data=combustivel_data, x='Fuel_Type', y='Price', palette='Set1')
         plt.title("Distribuição de Preços por Tipo de Combustível")
-        plt.xticks([0, 1], ['Diesel', 'Petrol'])
 
         # 5. Correlação entre Preço e Quilometragem
         st.subheader("Correlação entre Preço e Quilometragem")
@@ -102,5 +103,3 @@ else:
         plt.title("Correlação entre Preço e Quilometragem")
         plt.xlabel("Quilometragem (KM)")
         plt.ylabel("Preço (USD)")
-
-# Finalização do script
