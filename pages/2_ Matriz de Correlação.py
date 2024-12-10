@@ -3,68 +3,87 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 
-# Função para carregar os dados diretamente da URL do GitHub
-def carregar_dados():
+# Configuração do tema do Seaborn
+sns.set_theme(style="whitegrid")
+
+# Função para carregar os dados diretamente da URL
+@st.cache_data
+def carregar_dados(url):
     """
-    Esta função carrega os dados diretamente do arquivo CSV hospedado no GitHub.
+    Carrega os dados de um arquivo CSV hospedado em uma URL.
+
+    Args:
+        url (str): URL do arquivo CSV.
+
+    Returns:
+        pd.DataFrame: Dataset carregado.
     """
-    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
     try:
-        # Carregar os dados do CSV
-        data = pd.read_csv(url_csv)
-        return data
+        dados = pd.read_csv(url)
+        return dados
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
-        return None
+        return pd.DataFrame()
 
-# Função para gerar a matriz de correlação e heatmap
-def plotar_matriz_correlacao(data):
+# Função para gerar e exibir a matriz de correlação
+def exibir_matriz_correlacao(data):
     """
-    Esta função gera a matriz de correlação entre todas as variáveis numéricas do dataset
-    e exibe um heatmap para facilitar a visualização das correlações.
+    Exibe a matriz de correlação e o heatmap das variáveis numéricas.
+
+    Args:
+        data (pd.DataFrame): Dataset a ser analisado.
     """
-    st.write("### Matriz de Correlação entre Variáveis")
+    st.write("### Matriz de Correlação")
     
     # Selecionar apenas as colunas numéricas
-    data_numerico = data.select_dtypes(include=["number"])
+    colunas_numericas = data.select_dtypes(include=["number"])
 
-    if data_numerico.empty:
-        st.error("O dataset não contém colunas numéricas para calcular a correlação.")
+    if colunas_numericas.empty:
+        st.error("O dataset não possui colunas numéricas para gerar uma matriz de correlação.")
         return
 
-    # Calculando a matriz de correlação
-    corr = data_numerico.corr()
+    # Calcular a matriz de correlação
+    matriz_corr = colunas_numericas.corr()
 
-    # Configuração do tamanho da figura para o heatmap
-    fig, ax = plt.subplots(figsize=(12, 8))
-    
-    # Gerando o heatmap da matriz de correlação
-    sns.heatmap(corr, annot=True, fmt=".2f", cmap='coolwarm', linewidths=0.5, linecolor='black', square=True, ax=ax)
-    
-    # Adicionando título ao gráfico
-    ax.set_title('Matriz de Correlação', fontsize=16)
-    
-    # Exibindo o gráfico no Streamlit
+    # Plotar o heatmap
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(
+        matriz_corr,
+        annot=True,
+        fmt=".2f",
+        cmap="coolwarm",
+        linewidths=0.5,
+        linecolor="black",
+        square=True,
+        ax=ax
+    )
+    ax.set_title("Heatmap da Matriz de Correlação", fontsize=16)
+
+    # Exibir o gráfico no Streamlit
     st.pyplot(fig)
 
-# Função principal para exibir todas as visualizações
+# Função principal para execução do app
 def main():
+    """
+    Função principal do aplicativo Streamlit.
+    """
+    st.title("Matriz de Correlação de Dados")
+
+    # URL do dataset
+    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
+
     # Carregar os dados
-    data = carregar_dados()
+    data = carregar_dados(url_csv)
 
-    # Verificando se os dados foram carregados corretamente
-    if data is not None:
-        st.title("Análise Exploratória de Dados - OLX Carros")
-        
-        # Mostrar as primeiras linhas do dataset
-        st.write("### Primeiras Linhas do Dataset:")
-        st.write(data.head())  # Exibe as primeiras linhas do dataset
-        
-        # Visualizar a matriz de correlação
-        plotar_matriz_correlacao(data)
+    if not data.empty:
+        st.write("### Primeiras Linhas do Dataset")
+        st.write(data.head())  # Exibir as primeiras linhas do dataset
+
+        # Exibir a matriz de correlação
+        exibir_matriz_correlacao(data)
     else:
-        st.error("Dados não carregados. Verifique a disponibilidade do dataset.")
+        st.error("Não foi possível carregar os dados.")
 
-# Executando a função principal
+# Executar o app
 if __name__ == "__main__":
     main()
