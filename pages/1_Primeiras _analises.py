@@ -42,10 +42,11 @@ if transmissao:
 
 # Função para plotar gráficos
 def plot_graph(func, *args, **kwargs):
-    plt.figure(figsize=(10, 6))
+    # Criando uma nova figura
+    fig, ax = plt.subplots(figsize=(10, 6))
     func(*args, **kwargs)
     plt.tight_layout()
-    st.pyplot()
+    st.pyplot(fig)  # Passando o objeto figura para o st.pyplot()
 
 # 1. Distribuição de Preços por Ano de Fabricação
 st.subheader('Distribuição de Preços por Ano de Fabricação')
@@ -91,10 +92,10 @@ plt.title('Distribuição de Preços ao Longo dos Anos')
 # 9. Matriz de Correlação
 st.subheader('Matriz de Correlação')
 corr_matrix = df[['Year', 'KM\'s driven', 'Price']].corr()
-plt.figure(figsize=(8, 6))
-sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+fig, ax = plt.subplots(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f', ax=ax)
 plt.title('Matriz de Correlação entre Ano, Quilometragem e Preço')
-st.pyplot()
+st.pyplot(fig)
 
 # 10. Média de Preços por Combustível e Tipo de Transmissão
 st.subheader('Média de Preços por Combustível e Tipo de Transmissão')
