@@ -77,21 +77,21 @@ else:
             st.error(f"Erro ao gerar gráfico: {e}")
 
         # 2. Distribuição de Quilometragem dos Carros
-        st.subheader("Distribuição de Quilometragem dos Carros")
+        st.subheader("Distribuição da Quilometragem dos Carros")
         plot_graph(sns.histplot, data=df, x="KM's driven", kde=True, color='blue', bins=30)
         plt.title("Distribuição de Quilometragem dos Carros")
         plt.xlabel("Quilometragem (KM)")
         plt.ylabel("Frequência")
 
         # 3. Distribuição de Preços dos Carros
-        st.subheader("Distribuição de Preços dos Carros")
+        st.subheader("Distribuição dos Preços dos Carros")
         plot_graph(sns.histplot, data=df, x='Price', kde=True, color='green', bins=30)
         plt.title("Distribuição de Preços dos Carros")
         plt.xlabel("Preço (USD)")
         plt.ylabel("Frequência")
 
         # 4. Distribuição de Preços por Tipo de Combustível
-        st.subheader("Distribuição de Preços por Tipo de Combustível")
+        st.subheader("Distribuição dos Preços por Tipo de Combustível")
         combustivel_data = df.melt(id_vars=['Price'], value_vars=['Fuel_Diesel', 'Fuel_Petrol'],
                                    var_name='Fuel_Type', value_name='Is_Fuel_Type')
         combustivel_data = combustivel_data[combustivel_data['Is_Fuel_Type'] == 1]
