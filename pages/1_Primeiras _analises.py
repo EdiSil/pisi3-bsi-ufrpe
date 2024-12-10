@@ -10,13 +10,7 @@ df = pd.read_csv(url_csv)
 # Excluir colunas desnecessárias para análise
 df = df[['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']]
 
-# Configurações do Streamlit
-st.set_page_config(page_title="Primeiras Análises", layout="wide")
-
-# Título da aplicação
-st.title('Análises de Carros Usados')
-
-# Filtro para o ano de fabricação
+# Filtros para o ano de fabricação
 anos = st.sidebar.multiselect("Selecione o(s) ano(s) para filtrar", df['Year'].unique())
 if anos:
     df = df[df['Year'].isin(anos)]
@@ -30,10 +24,6 @@ if combustivel:
 transmissao = st.sidebar.selectbox("Selecione o tipo de transmissão", ['Transmission_Manual'])
 if transmissao:
     df = df[df[transmissao].notnull()]
-
-# Exibindo uma visão geral dos dados
-st.subheader("Primeiras Linhas do Dataset")
-st.write(df.head())
 
 # 1. Boxplot de Preço por Ano de Fabricação
 st.subheader('1. Distribuição de Preços por Ano de Fabricação')
