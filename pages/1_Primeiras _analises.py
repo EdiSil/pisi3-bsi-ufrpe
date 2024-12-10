@@ -3,70 +3,128 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
 
-# Carregar o dataset diretamente do URL
+# Carregar o dataset
 url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
 df = pd.read_csv(url_csv)
 
-# Verificar as colunas disponíveis no dataset
-st.write("Colunas disponíveis no dataset:", df.columns)
+# Excluir colunas desnecessárias para análise
+df = df[['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']]
 
-# Exibir os primeiros registros para entender o formato dos dados
-st.write("Primeiras linhas dos dados carregados:", df.head())
+# Configurações do Streamlit
+st.set_page_config(page_title="Primeiras Análises", layout="wide")
 
-# Limpeza de dados nulos para as colunas relevantes
-df = df.dropna(subset=['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual'])
+# Título da aplicação
+st.title('Análises de Carros Usados')
 
-# Adicionar título à aplicação Streamlit
-st.title('Análise de Carros Usados - Primeiras Análises')
+# Filtro para o ano de fabricação
+anos = st.sidebar.multiselect("Selecione o(s) ano(s) para filtrar", df['Year'].unique())
+if anos:
+    df = df[df['Year'].isin(anos)]
 
-# Filtros no sidebar para selecionar combustíveis e tipo de transmissão
-fuel_type = st.sidebar.multiselect("Selecione o tipo de combustível", df['Fuel_Diesel'].unique())
-transmission_type = st.sidebar.multiselect("Selecione o tipo de transmissão", df['Transmission_Manual'].unique())
+# Filtro para o tipo de combustível
+combustivel = st.sidebar.multiselect("Selecione o(s) tipo(s) de combustível", ['Fuel_Diesel', 'Fuel_Petrol'])
+if combustivel:
+    df = df[df[combustivel].notnull()]
 
-# Filtragem de dados
-df_filtered = df[df['Fuel_Diesel'].isin(fuel_type)] if fuel_type else df
-df_filtered = df_filtered[df_filtered['Transmission_Manual'].isin(transmission_type)] if transmission_type else df_filtered
+# Filtro para o tipo de transmissão
+transmissao = st.sidebar.selectbox("Selecione o tipo de transmissão", ['Transmission_Manual'])
+if transmissao:
+    df = df[df[transmissao].notnull()]
 
-st.write(f"Dados filtrados para os combustíveis: {', '.join(fuel_type) if fuel_type else 'Todos os combustíveis'}")
-st.write(f"Dados filtrados para as transmissões: {', '.join(transmission_type) if transmission_type else 'Todas as transmissões'}")
+# Exibindo uma visão geral dos dados
+st.subheader("Primeiras Linhas do Dataset")
+st.write(df.head())
 
-# Boxplot de Variação do Preço Pelo Ano de Fabricação
-st.subheader("Boxplot de Variação do Preço Pelo Ano de Fabricação")
-sns.boxplot(data=df_filtered, x='Year', y='Price', palette='Set2')
+# 1. Boxplot de Preço por Ano de Fabricação
+st.subheader('1. Distribuição de Preços por Ano de Fabricação')
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df, x='Year', y='Price', palette='Set2')
 plt.xticks(rotation=90)
+plt.title('Distribuição de Preços por Ano de Fabricação')
+plt.tight_layout()
 st.pyplot()
 
-# Boxplot de Variação da Quilometragem pelo Ano de Fabricação
-st.subheader("Boxplot de Variação da Quilometragem Pelo Ano de Fabricação")
-sns.boxplot(data=df_filtered, x='Year', y='KM\'s driven', palette='Set2')
+# 2. Histograma de Quilometragem (KM's driven)
+st.subheader('2. Distribuição de Quilometragem dos Carros')
+plt.figure(figsize=(10, 6))
+sns.histplot(df['KM\'s driven'], kde=True, color='blue', bins=30)
+plt.title('Distribuição de Quilometragem dos Carros')
+plt.xlabel('Quilometragem (KM)')
+plt.ylabel('Frequência')
+plt.tight_layout()
 st.pyplot()
 
-# Boxplot de Variação do Preço Pelo Tipo de Combustível (Diesel e Gasolina)
-st.subheader("Boxplot de Variação do Preço Pelo Tipo de Combustível")
-sns.boxplot(data=df_filtered, x='Fuel_Diesel', y='Price', palette='Set1')
+# 3. Histograma de Preços
+st.subheader('3. Distribuição de Preços dos Carros')
+plt.figure(figsize=(10, 6))
+sns.histplot(df['Price'], kde=True, color='green', bins=30)
+plt.title('Distribuição de Preços dos Carros')
+plt.xlabel('Preço (R$)')
+plt.ylabel('Frequência')
+plt.tight_layout()
 st.pyplot()
 
-# Boxplot de Variação da Quilometragem Pelo Tipo de Combustível
-st.subheader("Boxplot de Variação da Quilometragem Pelo Tipo de Combustível")
-sns.boxplot(data=df_filtered, x='Fuel_Diesel', y='KM\'s driven', palette='Set1')
+# 4. Boxplot de Preço por Tipo de Combustível
+st.subheader('4. Distribuição de Preços por Tipo de Combustível')
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df, x='Fuel_Diesel', y='Price', palette='Set1')
+plt.xticks([0, 1], ['Diesel', 'Gasolina'])
+plt.title('Distribuição de Preços por Tipo de Combustível')
+plt.tight_layout()
 st.pyplot()
 
-# Boxplot de Variação do Preço Pelo Local de Montagem
-st.subheader("Boxplot de Variação do Preço Pelo Local de Montagem")
-sns.boxplot(data=df_filtered, x='Assembly_Local', y='Price', palette='Set1')
-plt.xticks(rotation=90)
+# 5. Boxplot de Preço por Local de Montagem
+st.subheader('5. Distribuição de Preços por Local de Montagem')
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df, x='Assembly_Local', y='Price', palette='Set1')
+plt.xticks(rotation=45)
+plt.title('Distribuição de Preços por Local de Montagem')
+plt.tight_layout()
 st.pyplot()
 
-# Boxplot de Variação do Preço Pelo Tipo de Transmissão (Manual)
-st.subheader("Boxplot de Variação do Preço Pelo Tipo de Transmissão")
-sns.boxplot(data=df_filtered, x='Transmission_Manual', y='Price', palette='Set1')
+# 6. Boxplot de Quilometragem por Tipo de Transmissão
+st.subheader('6. Distribuição de Quilometragem por Tipo de Transmissão')
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=df, x='Transmission_Manual', y='KM\'s driven', palette='Set2')
+plt.xticks([0, 1], ['Manual', 'Automática'])
+plt.title('Distribuição de Quilometragem por Tipo de Transmissão')
+plt.tight_layout()
 st.pyplot()
 
-# Histograma de Preço vs Quilometragem
-st.subheader("Histograma - Variação de Preço com Quilometragem")
-sns.histplot(df_filtered, x='KM\'s driven', hue='Price', multiple="stack", kde=True, palette='coolwarm')
+# 7. Gráfico de Dispersão entre Preço e Quilometragem
+st.subheader('7. Correlação entre Preço e Quilometragem')
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=df, x='KM\'s driven', y='Price', color='orange')
+plt.title('Correlação entre Preço e Quilometragem')
+plt.xlabel('Quilometragem (KM)')
+plt.ylabel('Preço (R$)')
+plt.tight_layout()
 st.pyplot()
 
-# Exibir os dados filtrados para o usuário
-st.subheader("Dados Filtrados")
-st.write(df_filtered)
+# 8. Distribuição de Preços por Ano (Histograma com KDE)
+st.subheader('8. Distribuição de Preços ao Longo dos Anos')
+plt.figure(figsize=(10, 6))
+sns.histplot(df, x='Price', hue='Year', kde=True, palette='viridis', multiple='stack')
+plt.title('Distribuição de Preços ao Longo dos Anos')
+plt.xlabel('Preço (R$)')
+plt.ylabel('Frequência')
+plt.tight_layout()
+st.pyplot()
+
+# 9. Matriz de Correlação entre Ano, Quilometragem e Preço
+st.subheader('9. Matriz de Correlação')
+correlation_matrix = df[['Year', 'KM\'s driven', 'Price']].corr()
+plt.figure(figsize=(8, 6))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+plt.title('Matriz de Correlação')
+plt.tight_layout()
+st.pyplot()
+
+# 10. Média de Preços por Combustível e Tipo de Transmissão
+st.subheader('10. Média de Preços por Combustível e Tipo de Transmissão')
+df_avg_price = df.groupby(['Fuel_Diesel', 'Transmission_Manual'])['Price'].mean().reset_index()
+plt.figure(figsize=(10, 6))
+sns.barplot(data=df_avg_price, x='Fuel_Diesel', y='Price', hue='Transmission_Manual', palette='Set2')
+plt.title('Média de Preços por Combustível e Tipo de Transmissão')
+plt.tight_layout()
+st.pyplot()
