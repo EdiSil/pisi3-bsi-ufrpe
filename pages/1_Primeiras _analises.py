@@ -97,7 +97,7 @@ else:
         combustivel_data = combustivel_data[combustivel_data['Is_Fuel_Type'] == 1]
         plot_graph(sns.boxplot, data=combustivel_data, x='Fuel_Type', y='Price', palette='Set1')
         plt.title("Distribuição de Preços por Tipo de Combustível")
-        plt.xticks([0, 1], ['Diesel', 'Gasolina'])
+        plt.xticks([0, 1], ['Diesel', 'Petrol'])
 
         # 5. Correlação entre Preço e Quilometragem
         st.subheader("Correlação entre Preço e Quilometragem")
