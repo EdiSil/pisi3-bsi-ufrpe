@@ -81,4 +81,26 @@ else:
         plt.ylabel("Frequência")
 
         # 3. Distribuição de Preços dos Carros
-        st.sub
+        st.subheader("Distribuição de Preços dos Carros")
+        plot_graph(sns.histplot, data=df, x='Price', kde=True, color='green', bins=30)
+        plt.title("Distribuição de Preços dos Carros")
+        plt.xlabel("Preço (USD)")
+        plt.ylabel("Frequência")
+
+        # 4. Distribuição de Preços por Tipo de Combustível
+        st.subheader("Distribuição de Preços por Tipo de Combustível")
+        combustivel_data = df.melt(id_vars=['Price         combustivel_data = df.melt(id_vars=['Price'], value_vars=['Fuel_Diesel', 'Fuel_Petrol'],
+                                   var_name='Fuel_Type', value_name='Is_Fuel_Type')
+        combustivel_data = combustivel_data[combustivel_data['Is_Fuel_Type'] == 1]
+        plot_graph(sns.boxplot, data=combustivel_data, x='Fuel_Type', y='Price', palette='Set1')
+        plt.title("Distribuição de Preços por Tipo de Combustível")
+        plt.xticks([0, 1], ['Diesel', 'Petrol'])
+
+        # 5. Correlação entre Preço e Quilometragem
+        st.subheader("Correlação entre Preço e Quilometragem")
+        plot_graph(sns.scatterplot, data=df, x="KM's driven", y='Price', color='orange')
+        plt.title("Correlação entre Preço e Quilometragem")
+        plt.xlabel("Quilometragem (KM)")
+        plt.ylabel("Preço (USD)")
+
+# Finalização do script
