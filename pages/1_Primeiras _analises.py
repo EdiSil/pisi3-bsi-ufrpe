@@ -15,50 +15,69 @@ url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OL
 # Carregar o arquivo CSV diretamente da URL
 df = pd.read_csv(url_csv)
 
-# Exibição inicial dos dados carregados
-st.subheader("Prévia dos Dados Carregados")
-st.write(df.head())
+# Verificar as colunas do dataframe para saber os nomes corretos
+st.write("Colunas disponíveis no dataset:", df.columns)
 
-# Seção de filtros para interação do usuário
+# Filtros para interação do usuário
 st.sidebar.header("Filtros")
-marcas = st.sidebar.multiselect("Selecione as marcas para filtrar", df['marca'].unique())
-if marcas:
-    df = df[df['marca'].isin(marcas)]
+year_filter = st.sidebar.slider("Selecione o Ano de Fabricação", min_value=int(df['Year'].min()), max_value=int(df['Year'].max()), value=(int(df['Year'].min()), int(df['Year'].max())))
+df_filtered = df[(df['Year'] >= year_filter[0]) & (df['Year'] <= year_filter[1])]
 
-# Análise 1: Boxplot da Marca x Quilometragem
-st.subheader("Boxplot: Marca x Quilometragem")
+# Boxplot: Preço x Ano de Fabricação
+st.subheader("Boxplot: Preço x Ano de Fabricação")
 plt.figure(figsize=(12, 6))
-sns.boxplot(data=df, x='marca', y='quilometragem')
+sns.boxplot(data=df_filtered, x='Year', y='Price', palette='Set2')
 plt.xticks(rotation=45)
+plt.title('Distribuição de Preços ao Longo dos Anos')
+plt.xlabel('Ano de Fabricação')
+plt.ylabel('Preço')
 st.pyplot(plt.gcf())
 
-# Análise 2: Histograma - Variação do Preço pelo Ano de Fabricação
-st.subheader("Histograma: Variação do Preço pelo Ano de Fabricação")
+# Histogram: Preço vs Quilometragem (KM's driven)
+st.subheader("Histograma: Preço vs Quilometragem")
 plt.figure(figsize=(12, 6))
-sns.histplot(data=df, x='ano_fabricacao', y='preco', bins=30, kde=True)
-plt.xlabel("Ano de Fabricação")
-plt.ylabel("Preço")
+sns.histplot(data=df_filtered, x='KM\'s driven', y='Price', bins=30, kde=True, color='blue')
+plt.title('Variação do Preço com Base na Quilometragem')
+plt.xlabel('Quilometragem (KM\'s driven)')
+plt.ylabel('Preço')
 st.pyplot(plt.gcf())
 
-# Análise 3: Boxplot - Variação do Preço pelo Modelo do Veículo
-st.subheader("Boxplot: Variação do Preço pelo Modelo do Veículo")
+# Boxplot: Variação do Preço com Base no Preço Condition
+st.subheader("Boxplot: Preço x Condição do Preço")
 plt.figure(figsize=(12, 6))
-sns.boxplot(data=df, x='modelo', y='preco')
-plt.xticks(rotation=45)
+sns.boxplot(data=df_filtered, x='Price Condition', y='Price', palette='Set1')
+plt.title('Distribuição de Preços de Acordo com a Condição do Preço')
+plt.xlabel('Condição do Preço')
+plt.ylabel('Preço')
 st.pyplot(plt.gcf())
 
-# Análise 4: Boxplot - Variação da Quilometragem pelo Ano
-st.subheader("Boxplot: Variação da Quilometragem pelo Ano de Fabricação")
+# Boxplot: Variação do Preço por Tipo de Combustível (Diesel vs. Petrol)
+st.subheader("Boxplot: Preço x Tipo de Combustível")
 plt.figure(figsize=(12, 6))
-sns.boxplot(data=df, x='ano_fabricacao', y='quilometragem')
-plt.xticks(rotation=45)
+sns.boxplot(data=df_filtered, x='Fuel_Diesel', y='Price', palette='Set2')
+sns.boxplot(data=df_filtered, x='Fuel_Petrol', y='Price', palette='Set2')
+plt.title('Distribuição de Preços por Tipo de Combustível')
+plt.xlabel('Tipo de Combustível')
+plt.ylabel('Preço')
 st.pyplot(plt.gcf())
 
-# Análise 5: Boxplot - Variação da Quilometragem pelo Preço
-st.subheader("Boxplot: Variação da Quilometragem pelo Preço")
+# Boxplot: Variação do Preço pela Localização de Montagem
+st.subheader("Boxplot: Preço x Local de Montagem")
 plt.figure(figsize=(12, 6))
-sns.boxplot(data=df, x='quilometragem', y='preco')
-plt.xticks(rotation=45)
+sns.boxplot(data=df_filtered, x='Assembly_Local', y='Price', palette='Set3')
+plt.title('Distribuição de Preços por Local de Montagem')
+plt.xlabel('Local de Montagem')
+plt.ylabel('Preço')
 st.pyplot(plt.gcf())
 
-st.markdown("### Utilize os filtros no painel lateral para personalizar as análises!")
+# Boxplot: Variação do Preço pela Transmissão Manual
+st.subheader("Boxplot: Preço x Transmissão Manual")
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=df_filtered, x='Transmission_Manual', y='Price', palette='Set3')
+plt.title('Distribuição de Preços por Tipo de Transmissão')
+plt.xlabel('Transmissão Manual')
+plt.ylabel('Preço')
+st.pyplot(plt.gcf())
+
+# Análise interativa do painel
+st.markdown("### Utilize os filtros para personalizar a análise de acordo com o seu interesse!")
