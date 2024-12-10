@@ -1,92 +1,65 @@
-import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import streamlit as st
 
-# Configuração do layout da aplicação
-st.set_page_config(page_title="Análise de Dados de Carros Usados", layout="wide")
-
-# Título do painel
-st.title("Análise de Dados de Carros Usados")
-
-# URL para carregar o arquivo CSV
+# Carregar o dataset diretamente do URL
 url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
-
-# Carregar o arquivo CSV diretamente da URL
 df = pd.read_csv(url_csv)
 
-# Filtros para interação do usuário
-st.sidebar.header("Filtros")
-year_filter = st.sidebar.slider("Selecione o Ano de Fabricação", min_value=int(df['Year'].min()), max_value=int(df['Year'].max()), value=(int(df['Year'].min()), int(df['Year'].max())))
-df_filtered = df[(df['Year'] >= year_filter[0]) & (df['Year'] <= year_filter[1])]
+# Verificar as colunas disponíveis
+st.write("Colunas disponíveis no dataset:", df.columns)
 
-# Boxplot: Preço x Ano de Fabricação
-st.subheader("Boxplot: Preço x Ano de Fabricação")
-plt.figure(figsize=(12, 6))
-sns.boxplot(data=df_filtered, x='Year', y='Price', palette='Set2')
-plt.xticks(rotation=45)
-plt.title('Distribuição de Preços ao Longo dos Anos')
-plt.xlabel('Ano de Fabricação')
-plt.ylabel('Preço')
-st.pyplot(plt.gcf())
+# Limpeza de dados nulos para as colunas relevantes
+df = df.dropna(subset=['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual'])
 
-# Histogram: Preço vs Quilometragem (KM's driven)
-st.subheader("Histograma: Preço vs Quilometragem")
-plt.figure(figsize=(12, 6))
-sns.histplot(data=df_filtered, x='KM\'s driven', y='Price', bins=30, kde=True, color='blue')
-plt.title('Variação do Preço com Base na Quilometragem')
-plt.xlabel('Quilometragem (KM\'s driven)')
-plt.ylabel('Preço')
-st.pyplot(plt.gcf())
+# Adicionar título à aplicação Streamlit
+st.title('Análise de Carros Usados - Primeiras Análises')
 
-# Boxplot: Variação do Preço com Base no Preço Condition
-st.subheader("Boxplot: Preço x Condição do Preço")
-# Corrigir erro relacionado ao 'Price Condition'. Certifique-se de que a coluna não contém valores NaN ou inconsistentes
-df_filtered['Price Condition'] = df_filtered['Price Condition'].fillna('Desconhecido')
-plt.figure(figsize=(12, 6))
-sns.boxplot(data=df_filtered, x='Price Condition', y='Price', palette='Set1')
-plt.title('Distribuição de Preços de Acordo com a Condição do Preço')
-plt.xlabel('Condição do Preço')
-plt.ylabel('Preço')
-st.pyplot(plt.gcf())
+# Filtros no sidebar para selecionar marcas
+marcas = st.sidebar.multiselect("Selecione as marcas para filtrar", df['marca'].unique())
+df_filtered = df[df['marca'].isin(marcas)] if marcas else df
 
-# Boxplot: Variação do Preço por Tipo de Combustível (Diesel vs. Petrol)
-st.subheader("Boxplot: Preço x Tipo de Combustível")
-# Corrigir erro similar: garantir que as colunas 'Fuel_Diesel' e 'Fuel_Petrol' tenham valores válidos
-df_filtered['Fuel_Diesel'] = df_filtered['Fuel_Diesel'].fillna('Desconhecido')
-df_filtered['Fuel_Petrol'] = df_filtered['Fuel_Petrol'].fillna('Desconhecido')
+# Exibição dos dados filtrados
+st.write(f"Dados filtrados para as marcas: {', '.join(marcas) if marcas else 'Todas as marcas'}")
 
-plt.figure(figsize=(12, 6))
-sns.boxplot(data=df_filtered, x='Fuel_Diesel', y='Price', palette='Set2')
-sns.boxplot(data=df_filtered, x='Fuel_Petrol', y='Price', palette='Set2')
-plt.title('Distribuição de Preços por Tipo de Combustível')
-plt.xlabel('Tipo de Combustível')
-plt.ylabel('Preço')
-st.pyplot(plt.gcf())
+# Boxplot da Marca vs Quilometragem
+st.subheader("Boxplot da Marca x Quilometragem")
+sns.boxplot(data=df_filtered, x='marca', y='KM\'s driven', palette='Set2')
+plt.xticks(rotation=90)
+st.pyplot()
 
-# Boxplot: Variação do Preço pela Localização de Montagem
-st.subheader("Boxplot: Preço x Local de Montagem")
-# Corrigir erro semelhante
-df_filtered['Assembly_Local'] = df_filtered['Assembly_Local'].fillna('Desconhecido')
+# Histograma da Variação do Preço pelo Ano de Fabricação
+st.subheader("Histograma - Variação do Preço Pelo Ano de Fabricação")
+sns.histplot(df_filtered, x='Year', hue='Price', multiple="stack", palette='coolwarm', kde=True)
+st.pyplot()
 
-plt.figure(figsize=(12, 6))
-sns.boxplot(data=df_filtered, x='Assembly_Local', y='Price', palette='Set3')
-plt.title('Distribuição de Preços por Local de Montagem')
-plt.xlabel('Local de Montagem')
-plt.ylabel('Preço')
-st.pyplot(plt.gcf())
+# Boxplot de Variação do Preço Pelo Modelo do Veículo
+st.subheader("Boxplot de Variação do Preço Pelo Modelo do Veículo")
+sns.boxplot(data=df_filtered, x='modelo', y='Price', palette='Set1')
+plt.xticks(rotation=90)
+st.pyplot()
 
-# Boxplot: Variação do Preço pela Transmissão Manual
-st.subheader("Boxplot: Preço x Transmissão Manual")
-# Corrigir erro semelhante
-df_filtered['Transmission_Manual'] = df_filtered['Transmission_Manual'].fillna('Desconhecido')
+# Boxplot de Variação do Preço Pelo Combustível (Diesel x Gasolina)
+st.subheader("Boxplot - Variação do Preço Pelo Combustível")
+sns.boxplot(data=df_filtered, x='Fuel_Diesel', y='Price', palette='Set1')
+st.pyplot()
 
-plt.figure(figsize=(12, 6))
-sns.boxplot(data=df_filtered, x='Transmission_Manual', y='Price', palette='Set3')
-plt.title('Distribuição de Preços por Tipo de Transmissão')
-plt.xlabel('Transmissão Manual')
-plt.ylabel('Preço')
-st.pyplot(plt.gcf())
+# Boxplot de Variação do Preço Pelo Tipo de Transmissão
+st.subheader("Boxplot - Variação do Preço Pelo Tipo de Transmissão")
+sns.boxplot(data=df_filtered, x='Transmission_Manual', y='Price', palette='Set1')
+st.pyplot()
 
-# Análise interativa do painel
-st.markdown("### Utilize os filtros para personalizar a análise de acordo com o seu interesse!")
+# Boxplot de Variação da Quilometragem pelo Ano de Fabricação
+st.subheader("Boxplot - Variação da Quilometragem Pelo Ano de Fabricação")
+sns.boxplot(data=df_filtered, x='Year', y='KM\'s driven', palette='Set2')
+st.pyplot()
+
+# Boxplot de Variação da Quilometragem pelo Preço
+st.subheader("Boxplot - Variação da Quilometragem Pelo Preço")
+sns.boxplot(data=df_filtered, x='Price', y='KM\'s driven', palette='Set2')
+st.pyplot()
+
+# Mostrar os dados filtrados para o usuário
+st.subheader("Dados Filtrados")
+st.write(df_filtered)
