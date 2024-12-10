@@ -25,42 +25,22 @@ def carregar_dados(url):
         st.error(f"Erro ao carregar os dados: {e}")
         return pd.DataFrame()
 
-# Função para exibir os valores únicos de cada coluna relevante
-def exibir_valores_unicos(data, colunas):
-    """
-    Exibe os valores únicos de cada coluna selecionada no dataset.
-
-    Args:
-        data (pd.DataFrame): Dataset a ser analisado.
-        colunas (list): Lista de colunas para exibir os valores únicos.
-    """
-    st.write("### Valores Únicos por Atributo")
-    for coluna in colunas:
-        if coluna in data.columns:
-            valores_unicos = data[coluna].unique()
-            st.write(f"**{coluna}**: {valores_unicos}")
-        else:
-            st.warning(f"A coluna '{coluna}' não está presente no dataset.")
-
 # Função para gerar e exibir a matriz de correlação
-def exibir_matriz_correlacao(data):
+def exibir_matriz_correlacao(data, colunas_selecionadas):
     """
-    Exibe a matriz de correlação e o heatmap das variáveis numéricas.
+    Exibe a matriz de correlação e o heatmap das variáveis numéricas selecionadas pelo usuário.
 
     Args:
         data (pd.DataFrame): Dataset a ser analisado.
+        colunas_selecionadas (list): Lista de colunas selecionadas pelo usuário para análise.
     """
     st.write("### Matriz de Correlação")
-    
-    # Selecionar apenas as colunas numéricas
-    colunas_numericas = data.select_dtypes(include=["number"])
 
-    if colunas_numericas.empty:
-        st.error("O dataset não possui colunas numéricas para gerar uma matriz de correlação.")
-        return
+    # Filtrar o dataset pelas colunas selecionadas
+    data_filtrada = data[colunas_selecionadas]
 
     # Calcular a matriz de correlação
-    matriz_corr = colunas_numericas.corr()
+    matriz_corr = data_filtrada.corr()
 
     # Plotar o heatmap
     fig, ax = plt.subplots(figsize=(10, 8))
@@ -93,12 +73,23 @@ def main():
     data = carregar_dados(url_csv)
 
     if not data.empty:
-        # Exibir os valores únicos para as colunas selecionadas
-        colunas_relevantes = ['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']
-        exibir_valores_unicos(data, colunas_relevantes)
+        # Exibir opções de seleção para as colunas
+        st.write("### Selecione as colunas para análise de correlação:")
+        colunas_disponiveis = data.select_dtypes(include=["number"]).columns.tolist()
 
-        # Exibir a matriz de correlação
-        exibir_matriz_correlacao(data)
+        # Permitir que o usuário selecione múltiplas colunas
+        colunas_selecionadas = st.multiselect(
+            "Selecione as colunas:",
+            colunas_disponiveis,
+            default=colunas_disponiveis  # Definir as colunas por padrão como todas numericas
+        )
+
+        # Verificar se o usuário selecionou colunas
+        if colunas_selecionadas:
+            # Exibir a matriz de correlação com as colunas selecionadas
+            exibir_matriz_correlacao(data, colunas_selecionadas)
+        else:
+            st.error("Por favor, selecione ao menos uma coluna.")
     else:
         st.error("Não foi possível carregar os dados.")
 
