@@ -3,12 +3,20 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
 
+# Função para converter preços de reais (BRL) para dólares (USD)
+def convert_to_usd(brl):
+    conversion_rate = 5.2  # Taxa de conversão (1 BRL = 5.2 USD, ajustável)
+    return brl / conversion_rate
+
 # Carregar o dataset
 url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
 df = pd.read_csv(url_csv)
 
 # Excluir colunas desnecessárias para análise
 df = df[['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']]
+
+# Converter os preços de R$ para US$
+df['Price'] = df['Price'].apply(lambda x: convert_to_usd(x))
 
 # Filtros interativos via sidebar
 anos = st.sidebar.multiselect("Selecione o(s) ano(s) para filtrar", df['Year'].unique())
@@ -42,7 +50,7 @@ def plot_graph(fig, ax, title, xlabel=None, ylabel=None, xticks=None, yticks=Non
 st.subheader('1. Distribuição de Preços por Ano de Fabricação')
 fig, ax = plt.subplots(figsize=figsize)
 sns.boxplot(data=df, x='Year', y='Price', palette='Set2', ax=ax)
-plot_graph(fig, ax, 'Distribuição de Preços por Ano de Fabricação', xlabel='Ano de Fabricação', ylabel='Preço (R$)', rotation=90)
+plot_graph(fig, ax, 'Distribuição de Preços por Ano de Fabricação', xlabel='Ano de Fabricação', ylabel='Preço (US$)', rotation=90)
 
 # 2. Histograma de Quilometragem (KM's driven)
 st.subheader('2. Distribuição de Quilometragem dos Carros')
@@ -54,19 +62,19 @@ plot_graph(fig, ax, 'Distribuição de Quilometragem dos Carros', xlabel='Quilom
 st.subheader('3. Distribuição de Preços dos Carros')
 fig, ax = plt.subplots(figsize=figsize)
 sns.histplot(df['Price'], kde=True, color='green', bins=30, ax=ax)
-plot_graph(fig, ax, 'Distribuição de Preços dos Carros', xlabel='Preço (R$)', ylabel='Frequência')
+plot_graph(fig, ax, 'Distribuição de Preços dos Carros', xlabel='Preço (US$)', ylabel='Frequência')
 
 # 4. Boxplot de Preço por Tipo de Combustível
 st.subheader('4. Distribuição de Preços por Tipo de Combustível')
 fig, ax = plt.subplots(figsize=figsize)
 sns.boxplot(data=df, x='Fuel_Diesel', y='Price', palette='Set1', ax=ax)
-plot_graph(fig, ax, 'Distribuição de Preços por Tipo de Combustível', xlabel='Tipo de Combustível', ylabel='Preço (R$)', xticks=['Diesel', 'Gasolina'])
+plot_graph(fig, ax, 'Distribuição de Preços por Tipo de Combustível', xlabel='Tipo de Combustível', ylabel='Preço (US$)', xticks=['Diesel', 'Gasolina'])
 
 # 5. Boxplot de Preço por Local de Montagem
 st.subheader('5. Distribuição de Preços por Local de Montagem')
 fig, ax = plt.subplots(figsize=figsize)
 sns.boxplot(data=df, x='Assembly_Local', y='Price', palette='Set1', ax=ax)
-plot_graph(fig, ax, 'Distribuição de Preços por Local de Montagem', xlabel='Local de Montagem', ylabel='Preço (R$)', rotation=45)
+plot_graph(fig, ax, 'Distribuição de Preços por Local de Montagem', xlabel='Local de Montagem', ylabel='Preço (US$)', rotation=45)
 
 # 6. Boxplot de Quilometragem por Tipo de Transmissão
 st.subheader('6. Distribuição de Quilometragem por Tipo de Transmissão')
@@ -78,13 +86,13 @@ plot_graph(fig, ax, 'Distribuição de Quilometragem por Tipo de Transmissão', 
 st.subheader('7. Correlação entre Preço e Quilometragem')
 fig, ax = plt.subplots(figsize=figsize)
 sns.scatterplot(data=df, x='KM\'s driven', y='Price', color='orange', ax=ax)
-plot_graph(fig, ax, 'Correlação entre Preço e Quilometragem', xlabel='Quilometragem (KM)', ylabel='Preço (R$)')
+plot_graph(fig, ax, 'Correlação entre Preço e Quilometragem', xlabel='Quilometragem (KM)', ylabel='Preço (US$)')
 
 # 8. Distribuição de Preços por Ano (Histograma com KDE)
 st.subheader('8. Distribuição de Preços ao Longo dos Anos')
 fig, ax = plt.subplots(figsize=figsize)
 sns.histplot(df, x='Price', hue='Year', kde=True, palette='viridis', multiple='stack', ax=ax)
-plot_graph(fig, ax, 'Distribuição de Preços ao Longo dos Anos', xlabel='Preço (R$)', ylabel='Frequência')
+plot_graph(fig, ax, 'Distribuição de Preços ao Longo dos Anos', xlabel='Preço (US$)', ylabel='Frequência')
 
 # 9. Matriz de Correlação entre Ano, Quilometragem e Preço
 st.subheader('9. Matriz de Correlação')
@@ -100,4 +108,4 @@ st.subheader('10. Média de Preços por Combustível e Tipo de Transmissão')
 df_avg_price = df.groupby(['Fuel_Diesel', 'Transmission_Manual'])['Price'].mean().reset_index()
 fig, ax = plt.subplots(figsize=figsize)
 sns.barplot(data=df_avg_price, x='Fuel_Diesel', y='Price', hue='Transmission_Manual', palette='Set2', ax=ax)
-plot_graph(fig, ax, 'Média de Preços por Combustível e Tipo de Transmissão', xlabel='Tipo de Combustível', ylabel='Preço Médio (R$)')
+plot_graph(fig, ax, 'Média de Preços por Combustível e Tipo de Transmissão', xlabel='Tipo de Combustível', ylabel='Preço Médio (US$)')
