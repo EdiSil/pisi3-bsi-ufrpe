@@ -59,6 +59,17 @@ def exibir_matriz_correlacao(data, colunas_selecionadas):
     # Exibir o gráfico no Streamlit
     st.pyplot(fig)
 
+    # Explicação sobre a matriz de correlação
+    st.write("""
+    ### Principais Observações:
+
+    **Year e Price**: A correlação positiva de 0.68 indica uma relação direta moderada. Ou seja, à medida que o ano aumenta, o preço tende a aumentar também.
+
+    **Year e KM's driven**: A correlação negativa de -0.39 sugere uma relação inversa fraca. Isto implica que carros mais novos tendem a ter menos quilometragem.
+
+    **KM's driven e Price**: A correlação não está visível na matriz, mas podemos inferir que, devido à relação inversa entre "Year" e "KM's driven" e a relação direta entre "Year" e "Price", a correlação entre "KM's driven" e "Price" provavelmente é negativa.
+    """)
+
 # Função principal para execução do app
 def main():
     """
@@ -74,7 +85,6 @@ def main():
 
     if not data.empty:
         # Exibir opções de seleção para as colunas
-        st.write("### Selecione as colunas para análise de correlação:")
         colunas_disponiveis = data.select_dtypes(include=["number"]).columns.tolist()
 
         # Permitir que o usuário selecione múltiplas colunas
