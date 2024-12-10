@@ -3,133 +3,101 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import streamlit as st
 
-# Carregar o dataset
-url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
-df = pd.read_csv(url_csv)
+# Função para carregar e limpar os dados
+@st.cache_data
+def load_and_clean_data():
+    # Carregar o dataset
+    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
+    df = pd.read_csv(url_csv)
 
-# Limpeza de dados: remover ou substituir valores nulos
-df = df[['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']]
+    # Limpeza de dados: manter apenas as colunas de interesse
+    df = df[['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']]
 
-# Converter 'Year' para numérico e remover linhas com valores nulos
-df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
-df.dropna(subset=['Year', 'Price'], inplace=True)
+    # Limpeza de valores nulos e conversão de tipo de dados
+    df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
+    df.dropna(subset=['Year', 'Price'], inplace=True)
+    
+    # Convertendo Preço para dólares
+    df['Price'] = df['Price'] * 0.19  # Aproximadamente 1 BRL = 0.19 USD
 
-# Filtros na barra lateral
-anos = st.sidebar.multiselect("Selecione o(s) ano(s) para filtrar", df['Year'].unique())
+    return df
+
+# Carregar e preparar os dados
+df = load_and_clean_data()
+
+# Filtros na barra lateral para permitir interatividade
+anos = st.sidebar.multiselect("Selecione o(s) ano(s)", df['Year'].unique())
+combustivel = st.sidebar.multiselect("Selecione o(s) combustível(is)", ['Fuel_Diesel', 'Fuel_Petrol'])
+transmissao = st.sidebar.selectbox("Selecione a transmissão", ['Transmission_Manual'])
+
+# Aplicando os filtros
 if anos:
     df = df[df['Year'].isin(anos)]
 
-combustivel = st.sidebar.multiselect("Selecione o(s) tipo(s) de combustível", ['Fuel_Diesel', 'Fuel_Petrol'])
 if combustivel:
     df = df[df[combustivel].notnull()]
 
-transmissao = st.sidebar.selectbox("Selecione o tipo de transmissão", ['Transmission_Manual'])
 if transmissao:
     df = df[df[transmissao].notnull()]
 
-# Convertendo preços para dólares (aproximadamente 1 BRL = 0.19 USD)
-df['Price'] = df['Price'] * 0.19
+# Função para plotar gráficos
+def plot_graph(func, *args, **kwargs):
+    plt.figure(figsize=(10, 6))
+    func(*args, **kwargs)
+    plt.tight_layout()
+    st.pyplot()
 
 # 1. Distribuição de Preços por Ano de Fabricação
-st.subheader('1. Distribuição de Preços por Ano de Fabricação')
-try:
-    plt.figure(figsize=(10, 6))
-    sns.boxplot(data=df, x='Year', y='Price', palette='Set2')
-    plt.title('Distribuição de Preços por Ano de Fabricação')
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-    st.pyplot()
-except ValueError as e:
-    st.error(f"Erro ao gerar o gráfico: {str(e)}")
-    st.warning("Tentando uma paleta diferente...")
-    plt.figure(figsize=(10, 6))
-    sns.boxplot(data=df, x='Year', y='Price', palette='Set1')
-    plt.title('Distribuição de Preços por Ano de Fabricação')
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-    st.pyplot()
+st.subheader('Distribuição de Preços por Ano de Fabricação')
+plot_graph(sns.boxplot, data=df, x='Year', y='Price', palette='Set2')
+plt.title('Distribuição de Preços por Ano')
 
-# 2. Distribuição de Quilometragem dos Carros
-st.subheader('2. Distribuição de Quilometragem dos Carros')
-plt.figure(figsize=(10, 6))
-sns.histplot(df['KM\'s driven'], kde=True, color='blue', bins=30)
+# 2. Distribuição de Quilometragem
+st.subheader('Distribuição de Quilometragem')
+plot_graph(sns.histplot, df['KM\'s driven'], kde=True, color='blue', bins=30)
 plt.title('Distribuição de Quilometragem dos Carros')
-plt.xlabel('Quilometragem (KM)')
-plt.ylabel('Frequência')
-plt.tight_layout()
-st.pyplot()
 
-# 3. Distribuição de Preços dos Carros
-st.subheader('3. Distribuição de Preços dos Carros')
-plt.figure(figsize=(10, 6))
-sns.histplot(df['Price'], kde=True, color='green', bins=30)
+# 3. Distribuição de Preços
+st.subheader('Distribuição de Preços')
+plot_graph(sns.histplot, df['Price'], kde=True, color='green', bins=30)
 plt.title('Distribuição de Preços dos Carros')
-plt.xlabel('Preço (USD)')
-plt.ylabel('Frequência')
-plt.tight_layout()
-st.pyplot()
 
 # 4. Distribuição de Preços por Tipo de Combustível
-st.subheader('4. Distribuição de Preços por Tipo de Combustível')
-plt.figure(figsize=(10, 6))
-sns.boxplot(data=df, x='Fuel_Diesel', y='Price', palette='Set1')
-plt.xticks([0, 1], ['Diesel', 'Gasolina'])
-plt.title('Distribuição de Preços por Tipo de Combustível')
-plt.tight_layout()
-st.pyplot()
+st.subheader('Distribuição de Preços por Tipo de Combustível')
+plot_graph(sns.boxplot, data=df, x='Fuel_Diesel', y='Price', palette='Set1')
+plt.title('Distribuição de Preços por Combustível')
 
 # 5. Distribuição de Preços por Local de Montagem
-st.subheader('5. Distribuição de Preços por Local de Montagem')
-plt.figure(figsize=(10, 6))
-sns.boxplot(data=df, x='Assembly_Local', y='Price', palette='Set1')
+st.subheader('Distribuição de Preços por Local de Montagem')
+plot_graph(sns.boxplot, data=df, x='Assembly_Local', y='Price', palette='Set1')
 plt.xticks(rotation=45)
 plt.title('Distribuição de Preços por Local de Montagem')
-plt.tight_layout()
-st.pyplot()
 
 # 6. Distribuição de Quilometragem por Tipo de Transmissão
-st.subheader('6. Distribuição de Quilometragem por Tipo de Transmissão')
-plt.figure(figsize=(10, 6))
-sns.boxplot(data=df, x='Transmission_Manual', y='KM\'s driven', palette='Set2')
-plt.xticks([0, 1], ['Manual', 'Automática'])
+st.subheader('Distribuição de Quilometragem por Tipo de Transmissão')
+plot_graph(sns.boxplot, data=df, x='Transmission_Manual', y='KM\'s driven', palette='Set2')
 plt.title('Distribuição de Quilometragem por Tipo de Transmissão')
-plt.tight_layout()
-st.pyplot()
 
 # 7. Correlação entre Preço e Quilometragem
-st.subheader('7. Correlação entre Preço e Quilometragem')
-plt.figure(figsize=(10, 6))
-sns.scatterplot(data=df, x='KM\'s driven', y='Price', color='orange')
+st.subheader('Correlação entre Preço e Quilometragem')
+plot_graph(sns.scatterplot, data=df, x='KM\'s driven', y='Price', color='orange')
 plt.title('Correlação entre Preço e Quilometragem')
-plt.xlabel('Quilometragem (KM)')
-plt.ylabel('Preço (USD)')
-plt.tight_layout()
-st.pyplot()
 
 # 8. Distribuição de Preços ao Longo dos Anos
-st.subheader('8. Distribuição de Preços ao Longo dos Anos')
-plt.figure(figsize=(10, 6))
-sns.histplot(df, x='Price', hue='Year', kde=True, palette='viridis', multiple='stack')
+st.subheader('Distribuição de Preços ao Longo dos Anos')
+plot_graph(sns.histplot, df, x='Price', hue='Year', kde=True, palette='viridis', multiple='stack')
 plt.title('Distribuição de Preços ao Longo dos Anos')
-plt.xlabel('Preço (USD)')
-plt.ylabel('Frequência')
-plt.tight_layout()
-st.pyplot()
 
 # 9. Matriz de Correlação
-st.subheader('9. Matriz de Correlação entre Ano, Quilometragem e Preço')
-correlation_matrix = df[['Year', 'KM\'s driven', 'Price']].corr()
+st.subheader('Matriz de Correlação')
+corr_matrix = df[['Year', 'KM\'s driven', 'Price']].corr()
 plt.figure(figsize=(8, 6))
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f')
-plt.title('Matriz de Correlação')
-plt.tight_layout()
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f')
+plt.title('Matriz de Correlação entre Ano, Quilometragem e Preço')
 st.pyplot()
 
 # 10. Média de Preços por Combustível e Tipo de Transmissão
-st.subheader('10. Média de Preços por Combustível e Tipo de Transmissão')
+st.subheader('Média de Preços por Combustível e Tipo de Transmissão')
 df_avg_price = df.groupby(['Fuel_Diesel', 'Transmission_Manual'])['Price'].mean().reset_index()
-plt.figure(figsize=(10, 6))
-sns.barplot(data=df_avg_price, x='Fuel_Diesel', y='Price', hue='Transmission_Manual', palette='Set2')
+plot_graph(sns.barplot, data=df_avg_price, x='Fuel_Diesel', y='Price', hue='Transmission_Manual', palette='Set2')
 plt.title('Média de Preços por Combustível e Tipo de Transmissão')
-plt.tight_layout()
-st.pyplot()
