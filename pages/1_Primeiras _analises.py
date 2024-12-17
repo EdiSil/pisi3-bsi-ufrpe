@@ -2,33 +2,32 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from utils.build import build_header, breakrows, top_categories
-from utils.charts import boxplot, scatter, treemap, hist, bar, select_chart
+from utils.charts import boxplot, scatter, hist, bar, select_chart
 
 
 class DataAnalysisApp:
     """
     Classe principal para executar a aplicação de análise exploratória de dados.
     """
-
-    def __init__(self, data_url):
+    def __init__(self, data_path):
         """
-        Inicializa a classe com o caminho do dataset.
+        Inicializa a classe com o caminho do dataset local.
         """
-        self.data_url = data_url
+        self.data_path = data_path
         self.data = None
         self.data_group = None
         self.data_filtered = None
 
+    @st.cache_data
     def load_data(self):
         """
-        Carrega os dados do arquivo CSV a partir do GitHub.
+        Carrega os dados do arquivo CSV local.
         """
-        @st.cache_data
-        def load_csv(url):
-            return pd.read_csv(url)
-
-        self.data = load_csv(self.data_url)
-        st.success("Dados carregados com sucesso!")
+        try:
+            self.data = pd.read_csv(self.data_path)
+            st.success("Dados carregados com sucesso!")
+        except Exception as e:
+            st.error(f"Erro ao carregar o arquivo: {e}")
 
     def prepare_data(self):
         """
@@ -52,7 +51,7 @@ class DataAnalysisApp:
         build_header(
             title='Primeiras Análises',
             hdr='# PRIMEIRAS ANÁLISES E VISUALIZAÇÕES',
-            p='''<p>Vamos realizar as primeiras observações dos dados e suas correlações entre algumas variáveis</p>'''
+            p='<p>Vamos realizar as primeiras observações dos dados e suas correlações entre algumas variáveis</p>'
         )
 
     def display_boxplot(self):
@@ -126,17 +125,18 @@ class DataAnalysisApp:
         """
         self.display_header()
         self.load_data()
-        self.prepare_data()
-        self.display_boxplot()
-        self.display_histogram()
-        self.display_bar_chart()
-        self.display_scatter_charts()
+        if self.data is not None:  # Verifica se os dados foram carregados
+            self.prepare_data()
+            self.display_boxplot()
+            self.display_histogram()
+            self.display_bar_chart()
+            self.display_scatter_charts()
 
 
-# URL do dataset
-DATA_URL = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
+# Caminho do dataset local
+DATA_PATH = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
 
 # Inicializa e executa o aplicativo
 if __name__ == "__main__":
-    app = DataAnalysisApp(DATA_URL)
+    app = DataAnalysisApp(DATA_PATH)
     app.run()
