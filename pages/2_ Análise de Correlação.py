@@ -1,107 +1,62 @@
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+import plotly.express as px
 import streamlit as st
-from scipy import stats
+import plotly.graph_objects as go
+import numpy as np
 
-# Classe principal para a aplicacao
-class DataAnalysisApp:
-    def __init__(self):
-        self.data = None
+class CarAnalysisApp:
+    def __init__(self, file_url):
+        self.file_url = file_url
+        self.df = None
+        self.load_data()
 
-    def load_data(self, file_url):
-        """Carrega os dados do arquivo CSV a partir de uma URL."""
-        try:
-            self.data = pd.read_csv(file_url)
-            return True
-        except Exception as e:
-            st.error(f"Erro ao carregar os dados: {e}")
-            return False
+    def load_data(self):
+        """Carregar os dados CSV diretamente da URL"""
+        self.df = pd.read_csv(self.file_url)
 
-    def display_data(self):
-        """Exibe as primeiras linhas dos dados."""
-        if self.data is not None:
-            st.subheader("Dados Carregados")
-            st.dataframe(self.data.head())
+        # Convertemos para valores numéricos para análise de correlação
+        self.df['preco'] = pd.to_numeric(self.df['preco'], errors='coerce')
+        self.df['ano'] = pd.to_numeric(self.df['ano'], errors='coerce')
+        self.df['quilometragem'] = pd.to_numeric(self.df['quilometragem'], errors='coerce')
 
-    def plot_correlation_matrix(self):
-        """Calcula e exibe a matriz de correlação como um heatmap."""
-        if self.data is not None:
-            st.subheader("Matriz de Correlação")
-            try:
-                # Calcular a matriz de correlação
-                correlation_matrix = self.data.corr()
-                
-                # Configurar o tamanho da figura
-                plt.figure(figsize=(12, 8))
-                
-                # Criar o heatmap
-                sns.heatmap(
-                    correlation_matrix, 
-                    annot=True, 
-                    fmt=".2f", 
-                    cmap='coolwarm', 
-                    square=True, 
-                    cbar_kws={"shrink": .8}
-                )
-                plt.title('Matriz de Correlação', fontsize=16)
-                plt.xticks(rotation=45)
-                plt.yticks(rotation=45)
-                
-                # Mostrar o gráfico
-                st.pyplot(plt)
-            except Exception as e:
-                st.error(f"Erro ao gerar a matriz de correlação: {e}")
+    def correlation_matrix(self):
+        """Calcula a matriz de correlação"""
+        correlation_cols = ['preco', 'ano', 'quilometragem']
+        correlation_matrix = self.df[correlation_cols].corr()
 
-    def perform_anova(self, categorical_var, numerical_var):
-        """Realiza o teste ANOVA entre variáveis categóricas e numéricas."""
-        try:
-            # Agrupar os dados pela variável categórica
-            groups = [group[numerical_var].dropna().values for _, group in self.data.groupby(categorical_var)]
-            
-            # Realizar o teste ANOVA
-            f_statistic, p_value = stats.f_oneway(*groups)
-            return f_statistic, p_value
-        except Exception as e:
-            st.error(f"Erro ao realizar ANOVA: {e}")
-            return None, None
+        # Gerar Heatmap interativo usando Plotly
+        fig = go.Figure(data=go.Heatmap(
+            z=correlation_matrix.values,
+            x=correlation_matrix.columns,
+            y=correlation_matrix.columns,
+            colorscale='Viridis',
+            colorbar=dict(title="Correlação")
+        ))
 
-    def run(self):
-        """Executa a aplicação Streamlit."""
-        st.title("Análise de Correlação e ANOVA")
+        fig.update_layout(
+            title="Matriz de Correlação",
+            xaxis_title="Variáveis",
+            yaxis_title="Variáveis",
+            template="plotly_dark"
+        )
+        return fig
 
-        # Endereço do arquivo CSV
-        file_url = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/data/OLX_cars_dataset002.csv"
-        
-        if self.load_data(file_url):
-            self.display_data()
-            self.plot_correlation_matrix()
+    def show_app(self):
+        """Exibe a interface do Streamlit"""
+        st.title("Análise de Dados de Veículos")
+        st.markdown("""
+            Neste aplicativo, você pode visualizar a matriz de correlação entre as variáveis `preco`, `ano` e `quilometragem`.
+        """)
 
-            # Análise ANOVA
-            st.header("Análise de Variáveis Categóricas")
-            categorical_columns = self.data.select_dtypes(include=['object']).columns
-            numerical_columns = self.data.select_dtypes(include=['number']).columns
+        st.subheader('Matriz de Correlação e Heatmap')
 
-            if not categorical_columns.any() or not numerical_columns.any():
-                st.warning("Os dados não contêm colunas categóricas ou numéricas suficientes.")
-                return
+        # Exibir a Matriz de Correlação com Heatmap
+        correlation_fig = self.correlation_matrix()
+        st.plotly_chart(correlation_fig, use_container_width=True)
 
-            categorical_var = st.selectbox("Selecione a variável categórica:", categorical_columns)
-            numerical_var = st.selectbox("Selecione a variável numérica:", numerical_columns)
+# URL do arquivo CSV
+file_url = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
 
-            if st.button("Realizar ANOVA"):
-                f_statistic, p_value = self.perform_anova(categorical_var, numerical_var)
-                if f_statistic is not None and p_value is not None:
-                    st.write(f"**Estatística F:** {f_statistic:.2f}")
-                    st.write(f"**Valor p:** {p_value:.4f}")
-
-                    # Interpretação dos resultados
-                    if p_value < 0.05:
-                        st.success("Rejeitamos a hipótese nula: há uma diferença significativa entre os grupos.")
-                    else:
-                        st.info("Não rejeitamos a hipótese nula: não há diferença significativa entre os grupos.")
-
-# Executa o aplicativo
-if __name__ == "__main__":
-    app = DataAnalysisApp()
-    app.run()
+# Criar e executar a aplicação
+app = CarAnalysisApp(file_url)
+app.show_app()
