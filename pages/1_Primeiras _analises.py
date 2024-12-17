@@ -21,7 +21,7 @@ def load_and_clean_data():
     df['KM\'s driven'] = pd.to_numeric(df['KM\'s driven'], errors='coerce')
 
     # Filtrar valores válidos
-    df = df[(df['Year'] >= 1990) & (df['Year'] <= 2023)]  # Filtrar anos válidos
+    df = df[(df['Year'] >= 1994) & (df['Year'] <= 2023)]  # Filtrar anos válidos
     df = df[df['Price'] > 0]  # Filtrar preços positivos
     df = df.dropna(subset=['Year', 'Price', 'KM\'s driven'])  # Remover linhas com valores ausentes
 
