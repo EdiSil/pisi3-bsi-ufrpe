@@ -152,7 +152,7 @@ class DataAnalysisApp:
 
 
 # Caminho do dataset local
-DATA_PATH = "/mnt/data/OLX_cars_dataset002.csv"
+DATA_PATH = "https://github.com/EdiSil/pisi3-bsi-ufrpe/blob/main/data/OLX_cars_dataset002.csv"
 
 # Inicializa e executa o aplicativo
 if __name__ == "__main__":
