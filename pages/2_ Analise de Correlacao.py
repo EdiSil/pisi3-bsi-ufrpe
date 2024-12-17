@@ -1,63 +1,75 @@
 import pandas as pd
 import plotly.express as px
+import plotly.figure_factory as ff
 import streamlit as st
-import plotly.graph_objects as go
 
-# Função para carregar os dados a partir de uma URL
-def load_data():
-    url = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
-    df = pd.read_csv(url)
-    return df
+class CarDataAnalysis:
+    def __init__(self, data_url):
+        self.data_url = data_url
+        self.df = self.load_data()
 
-# Função para calcular e exibir a matriz de correlação
-def plot_correlation_matrix(df):
-    # Selecionando as colunas relevantes
-    df_corr = df[['marca', 'modelo', 'ano', 'quilometragem', 'preco', 'combustivel', 'tipo']].copy()
-    
-    # Convertendo para tipo numérico
-    df_corr['ano'] = pd.to_numeric(df_corr['ano'], errors='coerce')
-    df_corr['quilometragem'] = pd.to_numeric(df_corr['quilometragem'], errors='coerce')
-    df_corr['preco'] = pd.to_numeric(df_corr['preco'], errors='coerce')
-    
-    # Calculando a correlação
-    correlation_matrix = df_corr.corr()
+    # Função para carregar os dados
+    def load_data(self):
+        try:
+            # Carregar dados diretamente da URL
+            df = pd.read_csv(self.data_url)
+            # Limpar e tratar dados
+            df = self.clean_data(df)
+            return df
+        except Exception as e:
+            st.error(f"Erro ao carregar o arquivo: {e}")
+            return None
 
-    # Criando o heatmap interativo com Plotly
-    fig = go.Figure(data=go.Heatmap(
-        z=correlation_matrix.values,
-        x=correlation_matrix.columns,
-        y=correlation_matrix.columns,
-        colorscale='Viridis',  # Paleta de cores mais profissional
-        colorbar=dict(title="Correlação"),
-        hoverongaps=False
-    ))
+    # Função para limpar e preparar os dados
+    def clean_data(self, df):
+        # Selecionar apenas as colunas necessárias
+        df = df[['marca', 'modelo', 'ano', 'quilometragem', 'preco', 'combustivel', 'tipo']]
 
-    fig.update_layout(
-        title="Matriz de Correlação",
-        xaxis_title="Variáveis",
-        yaxis_title="Variáveis",
-        width=800,
-        height=800,
-        template="plotly_dark"  # Usando um template escuro para um visual mais elegante
-    )
+        # Converter colunas para numéricas onde for necessário
+        df['ano'] = pd.to_numeric(df['ano'], errors='coerce')
+        df['preco'] = pd.to_numeric(df['preco'], errors='coerce')
+        df['quilometragem'] = pd.to_numeric(df['quilometragem'], errors='coerce')
 
-    st.plotly_chart(fig)
+        # Remover linhas com valores nulos
+        df.dropna(inplace=True)
 
-# Função principal para executar o aplicativo Streamlit
-def app():
-    st.title('Análise de Dados de Carros - Matriz de Correlação')
+        return df
 
-    # Carregar os dados
-    df = load_data()
+    # Função para calcular a matriz de correlação
+    def calculate_correlation(self):
+        # Selecionar apenas colunas numéricas para a correlação
+        df_corr = self.df[['ano', 'quilometragem', 'preco']]
+        correlation_matrix = df_corr.corr()
+        return correlation_matrix
 
-    # Exibir uma amostra dos dados
-    st.write("Pré-visualização dos Dados Carregados:")
-    st.dataframe(df.head())
+    # Função para exibir o heatmap interativo
+    def plot_correlation_matrix(self):
+        # Calcular a matriz de correlação
+        correlation_matrix = self.calculate_correlation()
 
-    # Exibir a Matriz de Correlação
-    st.header('Matriz de Correlação')
-    plot_correlation_matrix(df)
+        # Plotly Heatmap
+        fig = ff.create_annotated_heatmap(
+            z=correlation_matrix.values,
+            x=correlation_matrix.columns.values,
+            y=correlation_matrix.columns.values,
+            colorscale='RdBu',
+            zmin=-1, zmax=1,
+            showscale=True
+        )
+        fig.update_layout(title='Matriz de Correlação', width=800, height=600)
+        st.plotly_chart(fig)
 
-# Executando a aplicação Streamlit
-if __name__ == "__main__":
-    app()
+# Configuração da aplicação Streamlit
+st.title('Análise de Correlação - OLX Carros')
+
+# Carregar dados a partir da URL
+data_url = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
+car_analysis = CarDataAnalysis(data_url)
+
+# Exibir os dados carregados
+st.subheader('Pré-visualização dos Dados:')
+st.dataframe(car_analysis.df.head())
+
+# Gerar a Matriz de Correlação e Heatmap
+st.subheader('Matriz de Correlação e Heatmap')
+car_analysis.plot_correlation_matrix()
