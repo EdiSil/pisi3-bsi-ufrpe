@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-# Classe principal da aplicacao
+# Classe principal da aplicação
 class CarAnalysisApp:
     def __init__(self, data_path):
         self.data_path = data_path
@@ -26,6 +26,13 @@ class CarAnalysisApp:
             self.brand_colors = px.colors.qualitative.Set2[:10]
         else:
             st.warning("Nenhum dado carregado ainda!")
+
+    def format_preco(self):
+        """Formata a coluna 'preco' para o formato monetário (R$)."""
+        if self.df is not None:
+            self.df['preco'] = self.df['preco'].apply(lambda x: f"R$ {x:,.2f}".replace(",", "."))
+        else:
+            st.warning("Dados não disponíveis para formatação.")
 
     def show_boxplot_by_quilometragem(self):
         """Exibe um boxplot das marcas por quilometragem."""
@@ -74,6 +81,7 @@ class CarAnalysisApp:
         st.title("Primeiras Análises")
         self.load_data()
         self.filter_top_10_brands()
+        self.format_preco()  # Formata a coluna de preço para Real (R$)
 
         # Exibindo gráficos
         self.show_boxplot_by_quilometragem()
