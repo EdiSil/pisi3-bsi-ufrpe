@@ -67,7 +67,7 @@ def exibir_matriz_correlacao(data, colunas_selecionadas):
 
     **Year e KM's driven**: A correlação negativa de -0.39 sugere uma relação inversa fraca. Isto implica que carros mais novos tendem a ter menos quilometragem.
 
-    **KM's driven e Price**: A correlação não está visível na matriz, mas podemos inferir que, devido à relação inversa entre "Year" e "KM's driven" e uma relação direta entre "Year" e "Price", a correlação entre "KM's driven" e "Price" provavelmente é negativa.
+    **KM's driven e Price**: A correlação entre 'KM's driven' e 'Price' não é visível diretamente, mas pode ser inferida. Carros mais novos têm menor quilometragem e preços mais altos (relação direta com 'Year'). Portanto, 'KM's driven' e 'Price' possuem uma correlação negativa ou seja, carros com quilometragem mais alta tendem a ter preços mais baixos. 
     """)
 
 # Função principal para execução do app
