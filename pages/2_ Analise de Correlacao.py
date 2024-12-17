@@ -1,75 +1,87 @@
 import pandas as pd
-import plotly.express as px
 import plotly.figure_factory as ff
+import plotly.express as px
 import streamlit as st
+import numpy as np
 
-class CarDataAnalysis:
+# Classe para Análise de Carros
+class CarAnalysis:
     def __init__(self, data_url):
-        self.data_url = data_url
-        self.df = self.load_data()
+        # Carregar dados diretamente da URL
+        self.df = pd.read_csv(data_url)
+        # Limpeza dos dados
+        self.df = self.clean_data()
 
-    # Função para carregar os dados
-    def load_data(self):
-        try:
-            # Carregar dados diretamente da URL
-            df = pd.read_csv(self.data_url)
-            # Limpar e tratar dados
-            df = self.clean_data(df)
-            return df
-        except Exception as e:
-            st.error(f"Erro ao carregar o arquivo: {e}")
-            return None
-
-    # Função para limpar e preparar os dados
-    def clean_data(self, df):
-        # Selecionar apenas as colunas necessárias
-        df = df[['marca', 'modelo', 'ano', 'quilometragem', 'preco', 'combustivel', 'tipo']]
-
-        # Converter colunas para numéricas onde for necessário
-        df['ano'] = pd.to_numeric(df['ano'], errors='coerce')
-        df['preco'] = pd.to_numeric(df['preco'], errors='coerce')
-        df['quilometragem'] = pd.to_numeric(df['quilometragem'], errors='coerce')
+    def clean_data(self):
+        # Limpeza de dados: remover valores nulos e garantir que as colunas relevantes sejam numéricas
+        relevant_columns = ['marca', 'modelo', 'ano', 'quilometragem', 'preco', 'combustivel', 'tipo']
+        # Remover colunas não relevantes
+        self.df = self.df[relevant_columns]
+        
+        # Converter colunas numéricas para o tipo correto
+        self.df['ano'] = pd.to_numeric(self.df['ano'], errors='coerce')
+        self.df['quilometragem'] = pd.to_numeric(self.df['quilometragem'], errors='coerce')
+        self.df['preco'] = pd.to_numeric(self.df['preco'], errors='coerce')
 
         # Remover linhas com valores nulos
-        df.dropna(inplace=True)
+        self.df = self.df.dropna(subset=['ano', 'quilometragem', 'preco'])
 
-        return df
+        return self.df
 
-    # Função para calcular a matriz de correlação
-    def calculate_correlation(self):
-        # Selecionar apenas colunas numéricas para a correlação
-        df_corr = self.df[['ano', 'quilometragem', 'preco']]
-        correlation_matrix = df_corr.corr()
-        return correlation_matrix
-
-    # Função para exibir o heatmap interativo
+    # Método para plotar a matriz de correlação interativa
     def plot_correlation_matrix(self):
-        # Calcular a matriz de correlação
-        correlation_matrix = self.calculate_correlation()
+        # Selecionar as colunas numéricas para a análise de correlação
+        corr_columns = ['ano', 'quilometragem', 'preco']
+        correlation_matrix = self.df[corr_columns].corr()
 
-        # Plotly Heatmap
+        # Criando o heatmap interativo com Plotly
         fig = ff.create_annotated_heatmap(
             z=correlation_matrix.values,
-            x=correlation_matrix.columns.values,
-            y=correlation_matrix.columns.values,
+            x=corr_columns,
+            y=corr_columns,
             colorscale='RdBu',
-            zmin=-1, zmax=1,
             showscale=True
         )
-        fig.update_layout(title='Matriz de Correlação', width=800, height=600)
+
+        fig.update_layout(
+            title="Matriz de Correlação",
+            xaxis_title="Variáveis",
+            yaxis_title="Variáveis",
+            template="plotly_white"
+        )
+
+        st.plotly_chart(fig)
+
+    # Método para exibir o gráfico de dispersão interativo
+    def plot_interactive_scatter(self):
+        fig = px.scatter(self.df, x='ano', y='preco', color='marca', 
+                         hover_data=['modelo', 'combustivel', 'tipo'], 
+                         title="Preço x Ano por Marca")
         st.plotly_chart(fig)
 
 # Configuração da aplicação Streamlit
-st.title('Análise de Correlação - OLX Carros')
+def run_app():
+    # URL do arquivo CSV
+    DATA_URL = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/data/OLX_cars_dataset002.csv"
+    
+    # Criação do objeto de análise
+    car_analysis = CarAnalysis(DATA_URL)
 
-# Carregar dados a partir da URL
-data_url = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
-car_analysis = CarDataAnalysis(data_url)
+    # Exibição dos dados no Streamlit
+    st.title("Análise de Correlação e Preços de Carros")
+    
+    # Exibir a tabela com as primeiras linhas dos dados
+    st.write("Dados Carregados:")
+    st.dataframe(car_analysis.df.head())
 
-# Exibir os dados carregados
-st.subheader('Pré-visualização dos Dados:')
-st.dataframe(car_analysis.df.head())
+    # Plotar a matriz de correlação
+    st.header("Matriz de Correlação")
+    car_analysis.plot_correlation_matrix()
 
-# Gerar a Matriz de Correlação e Heatmap
-st.subheader('Matriz de Correlação e Heatmap')
-car_analysis.plot_correlation_matrix()
+    # Plotar o gráfico de dispersão interativo
+    st.header("Gráfico Interativo: Preço x Ano por Marca")
+    car_analysis.plot_interactive_scatter()
+
+if __name__ == "__main__":
+    run_app()
+
