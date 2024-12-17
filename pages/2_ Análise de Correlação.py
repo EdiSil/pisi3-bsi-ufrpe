@@ -9,10 +9,10 @@ class DataAnalysisApp:
     def __init__(self):
         self.data = None
 
-    def load_data(self, file_path):
-        """Carrega os dados do arquivo CSV."""
+    def load_data(self, file_url):
+        """Carrega os dados do arquivo CSV a partir de uma URL."""
         try:
-            self.data = pd.read_csv(file_path)
+            self.data = pd.read_csv(file_url)
             return True
         except Exception as e:
             st.error(f"Erro ao carregar os dados: {e}")
@@ -70,37 +70,36 @@ class DataAnalysisApp:
         """Executa a aplicação Streamlit."""
         st.title("Análise de Correlação e ANOVA")
 
-        # Upload do arquivo CSV
-        file_path = st.file_uploader("Carregue seu arquivo CSV", type=['csv'])
+        # Endereço do arquivo CSV
+        file_url = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/data/OLX_cars_dataset002.csv"
+        
+        if self.load_data(file_url):
+            self.display_data()
+            self.plot_correlation_matrix()
 
-        if file_path is not None:
-            if self.load_data(file_path):
-                self.display_data()
-                self.plot_correlation_matrix()
+            # Análise ANOVA
+            st.header("Análise de Variáveis Categóricas")
+            categorical_columns = self.data.select_dtypes(include=['object']).columns
+            numerical_columns = self.data.select_dtypes(include=['number']).columns
 
-                # Análise ANOVA
-                st.header("Análise de Variáveis Categóricas")
-                categorical_columns = self.data.select_dtypes(include=['object']).columns
-                numerical_columns = self.data.select_dtypes(include=['number']).columns
+            if not categorical_columns.any() or not numerical_columns.any():
+                st.warning("Os dados não contêm colunas categóricas ou numéricas suficientes.")
+                return
 
-                if not categorical_columns.any() or not numerical_columns.any():
-                    st.warning("Os dados não contêm colunas categóricas ou numéricas suficientes.")
-                    return
+            categorical_var = st.selectbox("Selecione a variável categórica:", categorical_columns)
+            numerical_var = st.selectbox("Selecione a variável numérica:", numerical_columns)
 
-                categorical_var = st.selectbox("Selecione a variável categórica:", categorical_columns)
-                numerical_var = st.selectbox("Selecione a variável numérica:", numerical_columns)
+            if st.button("Realizar ANOVA"):
+                f_statistic, p_value = self.perform_anova(categorical_var, numerical_var)
+                if f_statistic is not None and p_value is not None:
+                    st.write(f"**Estatística F:** {f_statistic:.2f}")
+                    st.write(f"**Valor p:** {p_value:.4f}")
 
-                if st.button("Realizar ANOVA"):
-                    f_statistic, p_value = self.perform_anova(categorical_var, numerical_var)
-                    if f_statistic is not None and p_value is not None:
-                        st.write(f"**Estatística F:** {f_statistic:.2f}")
-                        st.write(f"**Valor p:** {p_value:.4f}")
-
-                        # Interpretação dos resultados
-                        if p_value < 0.05:
-                            st.success("Rejeitamos a hipótese nula: há uma diferença significativa entre os grupos.")
-                        else:
-                            st.info("Não rejeitamos a hipótese nula: não há diferença significativa entre os grupos.")
+                    # Interpretação dos resultados
+                    if p_value < 0.05:
+                        st.success("Rejeitamos a hipótese nula: há uma diferença significativa entre os grupos.")
+                    else:
+                        st.info("Não rejeitamos a hipótese nula: não há diferença significativa entre os grupos.")
 
 # Executa o aplicativo
 if __name__ == "__main__":
