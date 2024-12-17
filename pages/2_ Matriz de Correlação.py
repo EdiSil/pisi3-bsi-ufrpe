@@ -63,11 +63,11 @@ def exibir_matriz_correlacao(data, colunas_selecionadas):
     st.write("""
     ### Principais Observações:
 
-    **Year e Price**: A correlação positiva de 0.68 indica uma relação direta moderada. Ou seja, à medida que o ano aumenta, o preço tende a aumentar também.
+    **Year e Price**: A correlação positiva e forte de 0.68, representada pela cor vermelha escura. Isso indica que carros mais novos geralmente possuem preços mais altos. Essa relação é forte, mostrando uma clara tendência de valorização de carros mais recentes.
 
-    **Year e KM's driven**: A correlação negativa de -0.39 sugere uma relação inversa fraca. Isto implica que carros mais novos tendem a ter menos quilometragem.
+    **Year e KM's driven**: A correlação negativa sugere uma relação inversa e fraca de -0.39, representada pela cor azul claro. Isso indica que carros mais antigos tendem a ter menor quilometragem, mas a relação não é muito forte.
 
-    **KM's driven e Price**: A correlação entre 'KM's driven' e 'Price' não é visível diretamente, possuem uma correlação negativa ou seja, carros com quilometragem mais alta tendem a ter preços mais baixos. 
+    **KM's driven e Price**: A correlação é negativa e fraca, representada pela cor azul claro. Isso indica que carros com maior quilometragem tendem a ter preços mais baixos, mas a relação não é muito forte. 
     """)
 
 # Função principal para execução do app
