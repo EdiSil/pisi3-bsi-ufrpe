@@ -9,7 +9,7 @@ sns.set_theme(style="whitegrid")
 # Função para carregar e limpar os dados
 @st.cache_data
 def load_and_clean_data():
-    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset00.csv"
+    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
     df = pd.read_csv(url_csv)
 
     # Selecionar colunas relevantes
