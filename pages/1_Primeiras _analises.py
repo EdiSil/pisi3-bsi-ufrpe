@@ -53,7 +53,7 @@ else:
         df = df[df['Year'].isin(anos)]
 
     # Filtro por Tipo de Combustível
-    combustivel = st.sidebar.multiselect("Selecione o tipo de combustível", ['Fuel_Petrol'])
+    combustivel = st.sidebar.selectbox("Selecione o tipo de combustível", ['Fuel_Petrol'])
     if combustivel:
         combustiveis_cols = [col for col in combustivel if col in df.columns]
         if combustiveis_cols:
