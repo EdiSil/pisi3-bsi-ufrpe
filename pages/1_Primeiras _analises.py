@@ -1,160 +1,83 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 import plotly.express as px
 
-
-class DataAnalysisApp:
-    """
-    Classe principal para executar a aplicação de análise exploratória de dados.
-    """
+# Classe principal da aplicacao
+class CarAnalysisApp:
     def __init__(self, data_path):
-        """
-        Inicializa a classe com o caminho do dataset.
-        """
         self.data_path = data_path
-        self.data = None
-        self.data_group = None
-        self.data_filtered = None
+        self.df = None
 
     def load_data(self):
-        """
-        Carrega os dados do arquivo CSV.
-        """
+        """Carrega os dados a partir do caminho especificado."""
         try:
-            self.data = pd.read_csv(self.data_path)
-            st.success("✅ Dados carregados com sucesso!")
+            self.df = pd.read_csv(self.data_path)
+            st.success("Dados carregados com sucesso!")
         except Exception as e:
-            st.error(f"❌ Erro ao carregar o arquivo: {e}")
-            st.stop()
+            st.error(f"Erro ao carregar os dados: {e}")
 
-    def prepare_data(self):
-        """
-        Realiza os agrupamentos e filtragens necessários.
-        """
-        # Agrupamento com base em colunas definidas
-        self.data_group = (
-            self.data.groupby(['preco', 'marca', 'ano', 'modelo', 'combustivel', 'tipo', 'quilometragem'])
-            .size()
-            .reset_index(name='Total')
-        )
-        self.data_group.sort_values('Total', ascending=True, inplace=True)
+    def filter_top_10_brands(self):
+        """Filtra as 10 marcas com mais ocorrências no dataset."""
+        if self.df is not None:
+            top_brands = self.df['marca'].value_counts().head(10).index
+            self.df = self.df[self.df['marca'].isin(top_brands)]
+        else:
+            st.warning("Nenhum dado carregado ainda!")
 
-        # Filtragem das top 10 marcas
-        self.data_filtered = self.top_categories(data=self.data, top=10, label='marca')
+    def show_boxplot_by_quilometragem(self):
+        """Exibe um boxplot das marcas por quilometragem."""
+        st.subheader("Boxplot: Quilometragem por Marca")
+        if self.df is not None:
+            fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem')
+            st.plotly_chart(fig)
+        else:
+            st.warning("Dados não disponíveis para exibição.")
 
-    @staticmethod
-    def top_categories(data, top, label):
-        """
-        Filtra as 'top N' categorias de uma determinada coluna.
-        """
-        top_data = data[label].value_counts().head(top).index
-        return data[data[label].isin(top_data)]
+    def show_histogram_by_brand(self):
+        """Exibe um histograma da quantidade de veículos por marca."""
+        st.subheader("Histograma: Quantidade de Veículos por Marca")
+        if self.df is not None:
+            fig = px.histogram(self.df, x='marca', title='Histograma da Quantidade de Veículos por Marca')
+            st.plotly_chart(fig)
+        else:
+            st.warning("Dados não disponíveis para exibição.")
 
-    def display_header(self):
-        """
-        Exibe o cabeçalho da aplicação.
-        """
-        st.title("Primeiras Análises")
-        st.header("# PRIMEIRAS ANÁLISES E VISUALIZAÇÕES")
-        st.markdown(
-            """
-            <p>Vamos realizar as primeiras observações dos dados e suas correlações 
-            entre algumas variáveis para extrair informações úteis.</p>
-            """,
-            unsafe_allow_html=True,
-        )
+    def show_bar_chart_preco_ano(self):
+        """Exibe um gráfico de barras relacionando preço e ano."""
+        st.subheader("Gráfico de Barras: Preço por Ano")
+        if self.df is not None:
+            fig = px.bar(self.df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano')
+            st.plotly_chart(fig)
+        else:
+            st.warning("Dados não disponíveis para exibição.")
 
-    def display_boxplot(self):
-        """
-        Exibe um Boxplot das marcas por quilometragem.
-        """
-        st.subheader("BoxPlot da Marca por Quilometragem")
-        fig = px.box(
-            self.data_filtered,
-            x='marca',
-            y='quilometragem',
-            title='BoxPlot: Quilometragem por Marca',
-            color='marca'
-        )
-        st.plotly_chart(fig)
-        st.markdown(""" 
-        <p style='text-align:justify;'>As marcas têm uma concentração entre 20k e 60k quilômetros rodados. 
-        Algumas marcas como Hyundai, Nissan, Jeep e BMW têm veículos acima de 100k de quilometragem.</p>
-        """, unsafe_allow_html=True)
-
-    def display_histogram(self):
-        """
-        Exibe um histograma da quantidade de veículos por marca.
-        """
-        st.subheader("Histograma da Quantidade de Veículos por Marca")
-        fig = px.histogram(
-            self.data,
-            x='marca',
-            title='Histograma: Quantidade de Veículos por Marca',
-            color='marca'
-        )
-        st.plotly_chart(fig)
-
-    def display_bar_chart(self):
-        """
-        Exibe um gráfico de barras da relação entre preço e ano.
-        """
-        st.subheader("Gráfico de Barras: Preço x Ano")
-        data_ano = self.data.groupby(['ano'])['preco'].mean().reset_index()
-        fig = px.bar(
-            data_ano,
-            x='ano',
-            y='preco',
-            title='Gráfico de Barras: Média de Preço por Ano'
-        )
-        st.plotly_chart(fig)
-        st.markdown(""" 
-        <p style='text-align:justify;'>Observamos que os preços médios dos veículos tendem a ser mais elevados 
-        nos anos recentes entre 2014 e 2016.</p>
-        """, unsafe_allow_html=True)
-
-    def display_scatter_charts(self):
-        """
-        Exibe gráficos de dispersão interativos.
-        """
+    def show_scatter_plot(self):
+        """Exibe um gráfico de dispersão interativo."""
         st.subheader("Gráfico de Dispersão Interativo")
-        fig = px.scatter(
-            self.data,
-            x='marca',
-            y='quilometragem',
-            color='preco',
-            title="Dispersão: Quilometragem por Marca (Colorido por Preço)"
-        )
-        st.plotly_chart(fig)
+        if self.df is not None:
+            fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
+                             hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
+                             title='Gráfico de Dispersão: Preço x Quilometragem')
+            st.plotly_chart(fig)
+        else:
+            st.warning("Dados não disponíveis para exibição.")
 
-        st.subheader("Gráfico de Dispersão da Quilometragem")
-        fig_group = px.scatter(
-            self.data_group,
-            x='quilometragem',
-            y='preco',
-            size='Total',
-            color='marca',
-            title="Dispersão: Quilometragem x Preço (Agrupado)"
-        )
-        st.plotly_chart(fig_group)
-
-    def run(self):
-        """
-        Executa todos os métodos necessários para rodar a aplicação.
-        """
-        self.display_header()
+    def run_app(self):
+        """Executa todos os métodos da aplicação."""
+        st.title("Primeiras Análises")
         self.load_data()
-        self.prepare_data()
-        self.display_boxplot()
-        self.display_histogram()
-        self.display_bar_chart()
-        self.display_scatter_charts()
+        self.filter_top_10_brands()
 
+        # Exibindo gráficos
+        self.show_boxplot_by_quilometragem()
+        self.show_histogram_by_brand()
+        self.show_bar_chart_preco_ano()
+        self.show_scatter_plot()
 
-# Caminho do dataset local
-DATA_PATH = "https://github.com/EdiSil/pisi3-bsi-ufrpe/blob/main/data/OLX_cars_dataset002.csv"
+# Caminho do arquivo CSV
+data_path = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
 
-# Inicializa e executa o aplicativo
+# Inicializa o aplicativo
 if __name__ == "__main__":
-    app = DataAnalysisApp(DATA_PATH)
-    app.run()
+    app = CarAnalysisApp(data_path)
+    app.run_app()
