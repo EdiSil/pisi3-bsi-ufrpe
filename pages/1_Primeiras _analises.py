@@ -17,10 +17,22 @@ class CarAnalysisApp:
             st.error(f"Erro ao carregar os dados: {e}")
 
     def filter_top_10_brands(self):
-        """Filtra as 10 marcas com mais ocorrências no dataset."""
+        """Filtra as 10 marcas com mais ocorrências no dataset e ajusta os tipos."""
         if self.df is not None:
-            top_brands = self.df['marca'].value_counts().head(10).index
-            self.df = self.df[self.df['marca'].isin(top_brands)]
+            try:
+                # Força conversão dos tipos esperados
+                self.df['ano'] = pd.to_numeric(self.df['ano'], errors='coerce')
+                self.df['preco'] = pd.to_numeric(self.df['preco'], errors='coerce')
+                self.df['quilometragem'] = pd.to_numeric(self.df['quilometragem'], errors='coerce')
+
+                # Remove linhas com valores nulos após conversão
+                self.df.dropna(subset=['ano', 'preco', 'quilometragem', 'marca'], inplace=True)
+
+                # Filtra as top 10 marcas
+                top_brands = self.df['marca'].value_counts().head(10).index
+                self.df = self.df[self.df['marca'].isin(top_brands)]
+            except Exception as e:
+                st.error(f"Erro ao filtrar as top 10 marcas: {e}")
         else:
             st.warning("Nenhum dado carregado ainda!")
 
