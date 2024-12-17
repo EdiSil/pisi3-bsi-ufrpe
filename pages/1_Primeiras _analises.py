@@ -25,8 +25,8 @@ def load_and_clean_data():
     df = df[df['Price'] > 0]  # Filtrar preços positivos
     df = df.dropna(subset=['Year', 'Price', 'KM\'s driven'])  # Remover linhas com valores ausentes
 
-    # Converter preços para dólares (1 BRL = 0.19 USD)
-    df['Price'] = df['Price'] * 0.19
+    # Converter preços para dólares (1 BRL = 0.16 USD)
+    df['Price'] = df['Price'] * 0.16
 
     return df
 
