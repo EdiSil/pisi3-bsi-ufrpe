@@ -16,7 +16,6 @@ class DataAnalysisApp:
         self.data_group = None
         self.data_filtered = None
 
-    @st.cache_data
     def load_data(self):
         """
         Carrega os dados do arquivo CSV.
@@ -78,7 +77,7 @@ class DataAnalysisApp:
             color='marca'
         )
         st.plotly_chart(fig)
-        st.markdown("""
+        st.markdown(""" 
         <p style='text-align:justify;'>As marcas têm uma concentração entre 20k e 60k quilômetros rodados. 
         Algumas marcas como Hyundai, Nissan, Jeep e BMW têm veículos acima de 100k de quilometragem.</p>
         """, unsafe_allow_html=True)
@@ -109,7 +108,7 @@ class DataAnalysisApp:
             title='Gráfico de Barras: Média de Preço por Ano'
         )
         st.plotly_chart(fig)
-        st.markdown("""
+        st.markdown(""" 
         <p style='text-align:justify;'>Observamos que os preços médios dos veículos tendem a ser mais elevados 
         nos anos recentes entre 2014 e 2016.</p>
         """, unsafe_allow_html=True)
