@@ -58,11 +58,18 @@ class CarAnalysis:
 
         st.plotly_chart(fig)
 
-    # Método para exibir o gráfico de dispersão interativo
+    # Método para exibir o gráfico de dispersão interativo (Preço x Ano por Marca)
     def plot_interactive_scatter(self):
         fig = px.scatter(self.df, x='ano', y='preco', color='marca', 
                          hover_data=['modelo', 'combustivel', 'tipo'], 
                          title="Preço x Ano por Marca")
+        st.plotly_chart(fig)
+
+    # Método para exibir o gráfico de dispersão interativo (Preço x Combustível por Marca)
+    def plot_interactive_scatter_fuel(self):
+        fig = px.scatter(self.df, x='preco', y='combustivel', color='marca',
+                         hover_data=['modelo', 'ano', 'tipo'],
+                         title="Preço x Combustível por Marca")
         st.plotly_chart(fig)
 
 # Configuração da aplicação Streamlit
@@ -80,9 +87,13 @@ def run_app():
     st.header("Matriz de Correlação")
     car_analysis.plot_correlation_matrix()
 
-    # Plotar o gráfico de dispersão interativo
+    # Plotar o gráfico de dispersão interativo (Preço x Ano por Marca)
     st.header("Gráfico Interativo: Preço x Ano por Marca")
     car_analysis.plot_interactive_scatter()
+
+    # Plotar o gráfico de dispersão interativo (Preço x Combustível por Marca)
+    st.header("Gráfico Interativo: Preço x Combustível por Marca")
+    car_analysis.plot_interactive_scatter_fuel()
 
 if __name__ == "__main__":
     run_app()
