@@ -73,12 +73,8 @@ def run_app():
     # Criação do objeto de análise
     car_analysis = CarAnalysis(DATA_URL)
 
-    # Exibição dos dados no Streamlit
+    # Exibição do título da aplicação
     st.title("Análise de Correlação e Preços de Carros")
-    
-    # Exibir a tabela com as primeiras linhas dos dados
-    st.write("Dados Carregados:")
-    st.dataframe(car_analysis.df.head())
 
     # Plotar a matriz de correlação
     st.header("Matriz de Correlação")
