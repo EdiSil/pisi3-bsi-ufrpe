@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-# Classe principal da aplicação
+# Classe principal da aplicacao
 class CarAnalysisApp:
     def __init__(self, data_path):
         self.data_path = data_path
@@ -26,13 +26,6 @@ class CarAnalysisApp:
             self.brand_colors = px.colors.qualitative.Set2[:10]
         else:
             st.warning("Nenhum dado carregado ainda!")
-
-    def format_preco(self):
-        """Formata a coluna 'preco' para o formato monetário (R$)."""
-        if self.df is not None:
-            self.df['preco'] = self.df['preco'].apply(lambda x: f"R$ {x:,.2f}".replace(",", "."))
-        else:
-            st.warning("Dados não disponíveis para formatação.")
 
     def show_boxplot_by_quilometragem(self):
         """Exibe um boxplot das marcas por quilometragem."""
@@ -65,8 +58,8 @@ class CarAnalysisApp:
             st.warning("Dados não disponíveis para exibição.")
 
     def show_scatter_plot(self):
-        """Exibe um gráfico de dispersão."""
-        st.subheader("Gráfico de Dispersão preco, quilometragem, marca")
+        """Exibe um gráfico de dispersão interativo."""
+        st.subheader("Gráfico de Dispersão Interativo")
         if self.df is not None:
             fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
@@ -81,7 +74,6 @@ class CarAnalysisApp:
         st.title("Primeiras Análises")
         self.load_data()
         self.filter_top_10_brands()
-        self.format_preco()  # Formata a coluna de preço para Real (R$)
 
         # Exibindo gráficos
         self.show_boxplot_by_quilometragem()
