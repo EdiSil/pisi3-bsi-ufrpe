@@ -65,11 +65,16 @@ class CarAnalysis:
                          title="Preço x Ano por Marca")
         st.plotly_chart(fig)
 
-    # Método para exibir o gráfico de dispersão interativo (Preço x Combustível por Marca)
-    def plot_interactive_scatter_fuel(self):
-        fig = px.scatter(self.df, x='preco', y='combustivel', color='marca',
-                         hover_data=['modelo', 'ano', 'tipo'],
-                         title="Preço x Combustível por Marca")
+    # Método para exibir o histograma interativo entre Preço e Combustível por Marca
+    def plot_interactive_histogram_fuel(self):
+        fig = px.histogram(self.df, x='preco', color='combustivel', barmode='overlay', 
+                           title="Histograma: Preço x Combustível por Marca",
+                           color_discrete_map={"Gasolina": "pink", "Álcool": "purple", "Diesel": "blue"})
+        fig.update_layout(
+            xaxis_title="Preço",
+            yaxis_title="Contagem",
+            template="plotly_white"
+        )
         st.plotly_chart(fig)
 
 # Configuração da aplicação Streamlit
@@ -91,9 +96,9 @@ def run_app():
     st.header("Gráfico Interativo: Preço x Ano por Marca")
     car_analysis.plot_interactive_scatter()
 
-    # Plotar o gráfico de dispersão interativo (Preço x Combustível por Marca)
-    st.header("Gráfico Interativo: Preço x Combustível por Marca")
-    car_analysis.plot_interactive_scatter_fuel()
+    # Plotar o histograma interativo (Preço x Combustível por Marca)
+    st.header("Histograma Interativo: Preço x Combustível por Marca")
+    car_analysis.plot_interactive_histogram_fuel()
 
 if __name__ == "__main__":
     run_app()
