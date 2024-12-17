@@ -1,3 +1,4 @@
+# Funcionando 
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -12,29 +13,9 @@ class CarAnalysisApp:
         """Carrega os dados a partir do caminho especificado."""
         try:
             self.df = pd.read_csv(self.data_path)
+            st.success("Dados carregados com sucesso!")
         except Exception as e:
             st.error(f"Erro ao carregar os dados: {e}")
-
-    def clean_data(self):
-        """Limpa e ajusta os dados principais."""
-        if self.df is not None:
-            try:
-                # Remove espacos extras nos nomes das colunas
-                self.df.columns = self.df.columns.str.strip().str.lower()
-                
-                # Converte colunas relevantes para numerico
-                self.df['ano'] = pd.to_numeric(self.df['ano'], errors='coerce')
-                self.df['preco'] = pd.to_numeric(self.df['preco'], errors='coerce')
-                self.df['quilometragem'] = pd.to_numeric(self.df['quilometragem'], errors='coerce')
-                
-                # Remove linhas com valores nulos nas colunas principais
-                self.df.dropna(subset=['ano', 'preco', 'quilometragem', 'marca'], inplace=True)
-                
-                # Remove anos ou preços inválidos (ex: preço negativo ou ano absurdo)
-                self.df = self.df[(self.df['ano'] > 1900) & (self.df['ano'] <= 2024)]
-                self.df = self.df[self.df['preco'] > 0]
-            except Exception as e:
-                st.error(f"Erro ao limpar os dados: {e}")
 
     def filter_top_10_brands(self):
         """Filtra as 10 marcas com mais ocorrências no dataset."""
@@ -48,13 +29,7 @@ class CarAnalysisApp:
         """Exibe um boxplot das marcas por quilometragem."""
         st.subheader("Boxplot: Quilometragem por Marca")
         if self.df is not None:
-            fig = px.box(
-                self.df, 
-                x='marca', 
-                y='quilometragem', 
-                title='Boxplot das Marcas por Quilometragem',
-                template='plotly_white'  # Fundo branco
-            )
+            fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem')
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -63,12 +38,7 @@ class CarAnalysisApp:
         """Exibe um histograma da quantidade de veículos por marca."""
         st.subheader("Histograma: Quantidade de Veículos por Marca")
         if self.df is not None:
-            fig = px.histogram(
-                self.df, 
-                x='marca', 
-                title='Histograma da Quantidade de Veículos por Marca',
-                color_discrete_sequence=px.colors.sequential.Magenta  # Paleta do pink ao roxo
-            )
+            fig = px.histogram(self.df, x='marca', title='Histograma da Quantidade de Veículos por Marca')
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -77,14 +47,7 @@ class CarAnalysisApp:
         """Exibe um gráfico de barras relacionando preço e ano."""
         st.subheader("Gráfico de Barras: Preço por Ano")
         if self.df is not None:
-            fig = px.bar(
-                self.df, 
-                x='ano', 
-                y='preco', 
-                color='marca', 
-                title='Relação entre Preço e Ano',
-                color_discrete_sequence=['#800080', '#FF69B4']  # Roxo e Pink
-            )
+            fig = px.bar(self.df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano')
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -93,15 +56,9 @@ class CarAnalysisApp:
         """Exibe um gráfico de dispersão interativo."""
         st.subheader("Gráfico de Dispersão Interativo")
         if self.df is not None:
-            fig = px.scatter(
-                self.df, 
-                x='preco', 
-                y='quilometragem', 
-                color='marca', 
-                hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
-                title='Gráfico de Dispersão: Preço x Quilometragem',
-                color_discrete_sequence=['#800080', '#FF69B4']  # Roxo e Pink
-            )
+            fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
+                             hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
+                             title='Gráfico de Dispersão: Preço x Quilometragem')
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -110,7 +67,6 @@ class CarAnalysisApp:
         """Executa todos os métodos da aplicação."""
         st.title("Primeiras Análises")
         self.load_data()
-        self.clean_data()
         self.filter_top_10_brands()
 
         # Exibindo gráficos
