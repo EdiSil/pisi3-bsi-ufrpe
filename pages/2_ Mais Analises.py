@@ -43,6 +43,12 @@ class CarAnalysis:
             showscale=True
         )
 
+        # Atualizar escala de correlação (valores personalizados)
+        fig.update_traces(colorscale='RdBu', zmin=-1.0, zmax=1.0, colorbar=dict(
+            tickvals=[-1.0, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1.0],
+            ticktext=['-1.0', '-0.75', '-0.5', '-0.25', '0', '0.25', '0.5', '0.75', '1.0']
+        ))
+
         fig.update_layout(
             title="Matriz de Correlação",
             xaxis_title="Variáveis",
@@ -84,4 +90,3 @@ def run_app():
 
 if __name__ == "__main__":
     run_app()
-
