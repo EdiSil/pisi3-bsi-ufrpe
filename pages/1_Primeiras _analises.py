@@ -1,4 +1,3 @@
-# Funcionando 
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -8,6 +7,7 @@ class CarAnalysisApp:
     def __init__(self, data_path):
         self.data_path = data_path
         self.df = None
+        self.brand_colors = None
 
     def load_data(self):
         """Carrega os dados a partir do caminho especificado."""
@@ -22,6 +22,8 @@ class CarAnalysisApp:
         if self.df is not None:
             top_brands = self.df['marca'].value_counts().head(10).index
             self.df = self.df[self.df['marca'].isin(top_brands)]
+            # Criando uma paleta de cores baseada nas 10 principais marcas
+            self.brand_colors = px.colors.qualitative.Set2[:10]
         else:
             st.warning("Nenhum dado carregado ainda!")
 
@@ -29,7 +31,8 @@ class CarAnalysisApp:
         """Exibe um boxplot das marcas por quilometragem."""
         st.subheader("Boxplot: Quilometragem por Marca")
         if self.df is not None:
-            fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem')
+            fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
+                         color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -38,7 +41,8 @@ class CarAnalysisApp:
         """Exibe um histograma da quantidade de veículos por marca."""
         st.subheader("Histograma: Quantidade de Veículos por Marca")
         if self.df is not None:
-            fig = px.histogram(self.df, x='marca', title='Histograma da Quantidade de Veículos por Marca')
+            fig = px.histogram(self.df, x='marca', title='Histograma da Quantidade de Veículos por Marca',
+                               color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -47,7 +51,8 @@ class CarAnalysisApp:
         """Exibe um gráfico de barras relacionando preço e ano."""
         st.subheader("Gráfico de Barras: Preço por Ano")
         if self.df is not None:
-            fig = px.bar(self.df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano')
+            fig = px.bar(self.df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
+                         color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -58,7 +63,8 @@ class CarAnalysisApp:
         if self.df is not None:
             fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
-                             title='Gráfico de Dispersão: Preço x Quilometragem')
+                             title='Gráfico de Dispersão: Preço x Quilometragem', 
+                             color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
