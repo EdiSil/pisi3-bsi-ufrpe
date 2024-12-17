@@ -67,9 +67,10 @@ class CarAnalysis:
 
     # Método para exibir o histograma interativo entre Preço e Combustível por Marca
     def plot_interactive_histogram_fuel(self):
+        # Alterar a paleta de cores para Gasolina (Roxa) e GNV (Pink)
         fig = px.histogram(self.df, x='preco', color='combustivel', barmode='overlay', 
                            title="Histograma: Preço x Combustível por Marca",
-                           color_discrete_map={"Gasolina": "pink", "Álcool": "purple", "Diesel": "blue"})
+                           color_discrete_map={"Gasolina": "purple", "GNV": "pink", "Álcool": "blue", "Diesel": "green"})
         fig.update_layout(
             xaxis_title="Preço",
             yaxis_title="Contagem",
