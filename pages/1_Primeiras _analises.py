@@ -1,107 +1,142 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 import streamlit as st
+import pandas as pd
+import plotly.express as px
+from utils.build import build_header, breakrows, top_categories
+from utils.charts import boxplot, scatter, treemap, hist, bar, select_chart
 
-# Configurar tema do Seaborn
-sns.set_theme(style="whitegrid")
 
-# Função para carregar e limpar os dados
-@st.cache_data
-def load_and_clean_data():
-    url_csv = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_novo.csv"
-    df = pd.read_csv(url_csv)
+class DataAnalysisApp:
+    """
+    Classe principal para executar a aplicação de análise exploratória de dados.
+    """
 
-    # Selecionar colunas relevantes
-    df = df[['Year', 'KM\'s driven', 'Price', 'Fuel_Diesel', 'Fuel_Petrol', 'Assembly_Local', 'Transmission_Manual']]
+    def __init__(self, data_url):
+        """
+        Inicializa a classe com o caminho do dataset.
+        """
+        self.data_url = data_url
+        self.data = None
+        self.data_group = None
+        self.data_filtered = None
 
-    # Converter colunas para tipos apropriados
-    df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
-    df['Price'] = pd.to_numeric(df['Price'], errors='coerce')
-    df['KM\'s driven'] = pd.to_numeric(df['KM\'s driven'], errors='coerce')
+    def load_data(self):
+        """
+        Carrega os dados do arquivo CSV a partir do GitHub.
+        """
+        @st.cache_data
+        def load_csv(url):
+            return pd.read_csv(url)
 
-    # Filtrar valores válidos
-    df = df[(df['Year'] >= 1994) & (df['Year'] <= 2023)]  # Filtrar anos válidos
-    df = df[df['Price'] > 0]  # Filtrar preços positivos
-    df = df.dropna(subset=['Year', 'Price', 'KM\'s driven'])  # Remover linhas com valores ausentes
+        self.data = load_csv(self.data_url)
+        st.success("Dados carregados com sucesso!")
 
-    # Converter preços para dólares (1 BRL = 0.16 USD)
-    df['Price'] = df['Price'] * 0.16
+    def prepare_data(self):
+        """
+        Prepara os dados realizando agrupamentos e filtragens necessárias.
+        """
+        # Agrupamento
+        self.data_group = (
+            self.data.groupby(['preco', 'marca', 'ano', 'modelo', 'combustivel', 'tipo', 'quilometragem'])
+            .size()
+            .reset_index(name='Total')
+        )
+        self.data_group.sort_values('Total', ascending=True, inplace=True)
 
-    return df
+        # Filtragem das top 10 marcas
+        self.data_filtered = top_categories(data=self.data, top=10, label='marca')
 
-# Função para plotar gráficos
-def plot_graph(func, *args, **kwargs):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    func(*args, **kwargs, ax=ax)
-    plt.tight_layout()
-    st.pyplot(fig)
+    def display_header(self):
+        """
+        Exibe o cabeçalho da página.
+        """
+        build_header(
+            title='Primeiras Análises',
+            hdr='# PRIMEIRAS ANÁLISES E VISUALIZAÇÕES',
+            p='''<p>Vamos realizar as primeiras observações dos dados e suas correlações entre algumas variáveis</p>'''
+        )
 
-# Carregar e limpar dados
-df = load_and_clean_data()
+    def display_boxplot(self):
+        """
+        Exibe um boxplot das marcas por quilometragem.
+        """
+        breakrows()
+        boxplot(
+            data=self.data_filtered,
+            title='BoxPlot da Marca por Quilometragem',
+            x='marca',
+            y='quilometragem',
+            p="""
+                <p style='text-align:justify;'> As marcas têm uma concentração entre 20k e 60k quilômetros rodados.
+                Algumas marcas como Hyundai, Nissan, Jeep e BMW têm veículos passando dos 100k de quilometragem.</p>
+            """
+        )
 
-# Verificar se o DataFrame contém dados válidos
-if df.empty:
-    st.error("Nenhum dado disponível após a limpeza. Verifique os filtros.")
-else:
-    # Filtros na barra lateral
-    st.sidebar.header("Filtros")
-    
-    # Filtro por Ano de Fabricação
-    anos = st.sidebar.multiselect("Selecione o(s) ano(s)", sorted(df['Year'].unique()))
-    if anos:
-        df = df[df['Year'].isin(anos)]
+    def display_histogram(self):
+        """
+        Exibe um histograma da quantidade de veículos por marca.
+        """
+        breakrows()
+        hist(
+            title='Histograma da Marca',
+            data=self.data,
+            x='marca'
+        )
 
-    # Filtro por Tipo de Combustível
-    combustivel = st.sidebar.selectbox("Selecione o tipo de combustível", ['Fuel_Petrol'])
-    if combustivel:
-        combustiveis_cols = [col for col in combustivel if col in df.columns]
-        if combustiveis_cols:
-            df = df[df[combustiveis_cols].any(axis=1)]
+    def display_bar_chart(self):
+        """
+        Exibe um gráfico de barras da relação entre preço e ano.
+        """
+        breakrows()
+        data_ano = self.data.groupby(['ano'])['preco'].size().reset_index()
+        bar(
+            title='Gráfico de Barras: Preço x Ano',
+            data=data_ano,
+            x='ano',
+            y='preco',
+            p="""
+                <p>Observamos que os preços dos veículos tendem a ser mais caros
+                com a variação de ano entre 2014 e 2016.</p>
+            """
+        )
 
-    # Filtro por Tipo de Transmissão
-    transmissao = st.sidebar.selectbox("Selecione o tipo de transmissão", ['Manual'])
-    if transmissao:
-        df = df[df['Transmission_Manual'] == 1]
+    def display_scatter_charts(self):
+        """
+        Exibe gráficos de dispersão interativos.
+        """
+        breakrows()
+        select_chart(
+            self.data,
+            x='marca',
+            options=self.data.columns,
+            type_graph=px.scatter,
+            type_txt='Distribuição da'
+        )
+        breakrows()
+        select_chart(
+            self.data_group,
+            x='quilometragem',
+            options=self.data.columns,
+            type_graph=px.scatter,
+            type_txt='Distribuição da'
+        )
 
-    # Verificar novamente se o DataFrame contém dados após filtros
-    if df.empty:
-        st.error("Nenhum dado disponível após aplicar os filtros selecionados.")
-    else:
-        # 1. Distribuição de Preços por Ano de Fabricação
-        st.subheader("Distribuição de Preços por Ano de Fabricação")
-        try:
-            plot_graph(sns.boxplot, data=df, x='Year', y='Price', palette='Set2')
-            plt.title("Distribuição de Preços por Ano de Fabricação")
-        except Exception as e:
-            st.error(f"Erro ao gerar gráfico: {e}")
+    def run(self):
+        """
+        Executa todos os métodos para rodar a aplicação.
+        """
+        self.display_header()
+        self.load_data()
+        self.prepare_data()
+        self.display_boxplot()
+        self.display_histogram()
+        self.display_bar_chart()
+        self.display_scatter_charts()
 
-        # 2. Distribuição de Quilometragem dos Carros
-        st.subheader("Distribuição da Quilometragem dos Carros")
-        plot_graph(sns.histplot, data=df, x="KM's driven", kde=True, color='blue', bins=30)
-        plt.title("Distribuição de Quilometragem dos Carros")
-        plt.xlabel("Quilometragem (KM)")
-        plt.ylabel("Frequência")
 
-        # 3. Distribuição de Preços dos Carros
-        st.subheader("Distribuição dos Preços dos Carros")
-        plot_graph(sns.histplot, data=df, x='Price', kde=True, color='green', bins=30)
-        plt.title("Distribuição de Preços dos Carros")
-        plt.xlabel("Preço (USD)")
-        plt.ylabel("Frequência")
+# URL do dataset
+DATA_URL = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
 
-        # 4. Distribuição de Preços por Tipo de Combustível
-        st.subheader("Distribuição dos Preços por Tipo de Combustível")
-        combustivel_data = df.melt(id_vars=['Price'], value_vars=['Fuel_Diesel', 'Fuel_Petrol'],
-                                   var_name='Fuel_Type', value_name='Is_Fuel_Type')
-        combustivel_data = combustivel_data[combustivel_data['Is_Fuel_Type'] == 1]
-        plot_graph(sns.boxplot, data=combustivel_data, x='Fuel_Type', y='Price', palette='Set1')
-        plt.title("Distribuição de Preços por Tipo de Combustível")
-        plt.xticks([0, 1], ['Diesel', 'Petrol'])
-
-        # 5. Correlação entre Preço e Quilometragem
-        st.subheader("Correlação entre Preço e Quilometragem")
-        plot_graph(sns.scatterplot, data=df, x="KM's driven", y='Price', color='orange')
-        plt.title("Correlação entre Preço e Quilometragem")
-        plt.xlabel("Quilometragem (KM)")
-        plt.ylabel("Preço (USD)")
+# Inicializa e executa o aplicativo
+if __name__ == "__main__":
+    app = DataAnalysisApp(DATA_URL)
+    app.run()
