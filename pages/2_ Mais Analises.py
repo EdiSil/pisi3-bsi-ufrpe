@@ -70,10 +70,10 @@ class CarAnalysis:
         # Filtrando os dados para as colunas relevantes
         df_filtered = self.df[['marca', 'preco', 'combustivel']]
 
-        # Definindo a paleta de cores personalizada
+        # Definindo a paleta de cores personalizada (do rosa ao roxo)
         color_map = {
-            'Gasolina': 'purple',
-            'Gnv': 'pink'
+            'Gasolina': '#FF66B2',  # Cor rosa
+            'Gnv': '#800080'  # Cor roxa
         }
 
         # Criando o histograma com Plotly
@@ -82,7 +82,19 @@ class CarAnalysis:
                            title="Histograma: Preço x Combustível por Marca",
                            color_discrete_map=color_map, barmode='group')
 
-        # Exibindo o gráfico
+        # Personalizando o layout do gráfico para aparência profissional
+        fig.update_layout(
+            title="Histograma: Preço x Combustível por Marca",
+            xaxis_title="Combustível",
+            yaxis_title="Preço",
+            template="plotly_white",
+            font=dict(family="Arial, sans-serif", size=12, color="black"),
+            title_x=0.5,  # Centralizando o título
+            showlegend=True,
+            barmode='stack',  # Empilhamento das barras para facilitar a comparação
+            margin=dict(l=40, r=40, t=40, b=40)  # Definindo margens para maior clareza
+        )
+
         st.plotly_chart(fig)
 
 # Configuração da aplicação Streamlit
