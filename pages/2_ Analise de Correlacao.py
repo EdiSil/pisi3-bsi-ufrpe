@@ -27,7 +27,9 @@ class CorrelationAnalysisApp:
         # Criar um heatmap interativo usando Plotly
         fig = px.imshow(correlation_matrix,
                         labels=dict(x="Variáveis", y="Variáveis", color="Correlação"),
-                        color_continuous_scale='RdBu_r', title="Matriz de Correlação")
+                        color_continuous_scale='pinkyl', # Usando o gradiente de pink a roxo
+                        zmin=-1, zmax=1, # Ajustando a escala de correlação
+                        title="Matriz de Correlação")
         return fig
 
     def run_app(self):
