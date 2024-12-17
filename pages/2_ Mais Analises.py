@@ -58,40 +58,11 @@ class CarAnalysis:
 
         st.plotly_chart(fig)
 
-    # Método para exibir o gráfico de dispersão interativo (Preço x Ano por Marca)
+    # Método para exibir o gráfico de dispersão interativo
     def plot_interactive_scatter(self):
         fig = px.scatter(self.df, x='ano', y='preco', color='marca', 
                          hover_data=['modelo', 'combustivel', 'tipo'], 
                          title="Preço x Ano por Marca")
-        st.plotly_chart(fig)
-
-    # Método para exibir o histograma interativo (Preço x Combustível por Marca)
-    def plot_interactive_histogram_fuel(self):
-        # Alterar a paleta de cores para Gasolina (Roxa) e GNV (Pink)
-        fig = px.histogram(self.df, x='preco', color='combustivel', barmode='overlay', 
-                           title="Histograma: Preço x Combustível por Marca",
-                           color_discrete_map={"Gasolina": "purple", "GNV": "pink", "Álcool": "blue", "Diesel": "green"})
-        
-        # Remover 'Contagem' e adicionar 'Combustível' no eixo Y
-        fig.update_layout(
-            yaxis_title="Combustível",
-            xaxis_title="Preço",
-            template="plotly_white",
-            showlegend=True
-        )
-        
-        # Adicionando a legenda de Marca à direita
-        fig.update_layout(
-            legend=dict(
-                x=1, 
-                y=1, 
-                traceorder='normal',
-                title="Marca",
-                font=dict(size=12),
-                borderwidth=2
-            )
-        )
-        
         st.plotly_chart(fig)
 
 # Configuração da aplicação Streamlit
@@ -109,13 +80,9 @@ def run_app():
     st.header("Matriz de Correlação")
     car_analysis.plot_correlation_matrix()
 
-    # Plotar o gráfico de dispersão interativo (Preço x Ano por Marca)
+    # Plotar o gráfico de dispersão interativo
     st.header("Gráfico Interativo: Preço x Ano por Marca")
     car_analysis.plot_interactive_scatter()
-
-    # Plotar o histograma interativo (Preço x Combustível por Marca)
-    st.header("Histograma Interativo: Preço x Combustível por Marca")
-    car_analysis.plot_interactive_histogram_fuel()
 
 if __name__ == "__main__":
     run_app()
