@@ -13,26 +13,39 @@ class CarAnalysisApp:
         try:
             self.df = pd.read_csv(self.data_path)
             st.success("Dados carregados com sucesso!")
+            st.write("**Pré-visualização dos Dados:**")
+            st.dataframe(self.df.head())  # Exibe as primeiras linhas
         except Exception as e:
             st.error(f"Erro ao carregar os dados: {e}")
 
-    def filter_top_10_brands(self):
-        """Filtra as 10 marcas com mais ocorrências no dataset e ajusta os tipos."""
+    def clean_data(self):
+        """Limpa e ajusta os dados principais."""
         if self.df is not None:
             try:
-                # Força conversão dos tipos esperados
+                # Remove espacos extras nos nomes das colunas
+                self.df.columns = self.df.columns.str.strip().str.lower()
+                
+                # Converte colunas relevantes para numerico
                 self.df['ano'] = pd.to_numeric(self.df['ano'], errors='coerce')
                 self.df['preco'] = pd.to_numeric(self.df['preco'], errors='coerce')
                 self.df['quilometragem'] = pd.to_numeric(self.df['quilometragem'], errors='coerce')
-
-                # Remove linhas com valores nulos após conversão
+                
+                # Remove linhas com valores nulos nas colunas principais
                 self.df.dropna(subset=['ano', 'preco', 'quilometragem', 'marca'], inplace=True)
-
-                # Filtra as top 10 marcas
-                top_brands = self.df['marca'].value_counts().head(10).index
-                self.df = self.df[self.df['marca'].isin(top_brands)]
+                
+                # Remove anos ou preços inválidos (ex: preço negativo ou ano absurdo)
+                self.df = self.df[(self.df['ano'] > 1900) & (self.df['ano'] <= 2024)]
+                self.df = self.df[self.df['preco'] > 0]
+                
+                st.success("Dados limpos com sucesso!")
             except Exception as e:
-                st.error(f"Erro ao filtrar as top 10 marcas: {e}")
+                st.error(f"Erro ao limpar os dados: {e}")
+
+    def filter_top_10_brands(self):
+        """Filtra as 10 marcas com mais ocorrências no dataset."""
+        if self.df is not None:
+            top_brands = self.df['marca'].value_counts().head(10).index
+            self.df = self.df[self.df['marca'].isin(top_brands)]
         else:
             st.warning("Nenhum dado carregado ainda!")
 
@@ -78,6 +91,7 @@ class CarAnalysisApp:
         """Executa todos os métodos da aplicação."""
         st.title("Primeiras Análises")
         self.load_data()
+        self.clean_data()
         self.filter_top_10_brands()
 
         # Exibindo gráficos
