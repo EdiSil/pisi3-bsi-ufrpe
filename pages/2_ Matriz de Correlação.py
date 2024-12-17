@@ -63,7 +63,7 @@ def exibir_matriz_correlacao(data, colunas_selecionadas):
     st.write("""
     ### Principais Observações:
 
-    **Year e Price**: A correlação positiva e forte de 0.68, representada pela cor vermelha escura. Isso indica que carros mais novos geralmente possuem preços mais altos. Essa relação é forte, mostrando uma clara tendência de valorização de carros mais recentes.
+    **Year e Price**: A correlação positiva e forte de 0.68, representada pela cor vermelha escura. Isso indica que carros mais novos geralmente possuem preços mais altos. Mostrando uma clara tendência de valorização de carros mais recentes.
 
     **Year e KM's driven**: A correlação negativa sugere uma relação inversa e fraca de -0.39, representada pela cor azul claro. Isso indica que carros mais antigos tendem a ter menor quilometragem, mas a relação não é muito forte.
 
