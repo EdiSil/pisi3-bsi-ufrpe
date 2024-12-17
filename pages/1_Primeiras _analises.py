@@ -58,8 +58,8 @@ class CarAnalysisApp:
             st.warning("Dados não disponíveis para exibição.")
 
     def show_scatter_plot(self):
-        """Exibe um gráfico de dispersão interativo."""
-        st.subheader("Gráfico de Dispersão Interativo")
+        """Exibe um gráfico de dispersão."""
+        st.subheader("Gráfico de Dispersão preco, quilometragem, marca")
         if self.df is not None:
             fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
