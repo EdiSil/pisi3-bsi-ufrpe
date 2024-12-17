@@ -2,61 +2,77 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 import plotly.graph_objects as go
-import numpy as np
 
 class CarAnalysisApp:
-    def __init__(self, file_url):
-        self.file_url = file_url
-        self.df = None
-        self.load_data()
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.df = self.load_data()
+        self.clean_data()
 
     def load_data(self):
-        """Carregar os dados CSV diretamente da URL"""
-        self.df = pd.read_csv(self.file_url)
+        """Carrega os dados CSV a partir de uma URL ou caminho local."""
+        return pd.read_csv(self.file_path)
 
-        # Convertemos para valores numéricos para análise de correlação
+    def clean_data(self):
+        """Limpa os dados, convertendo as colunas para os tipos apropriados."""
+        # Conversão das colunas numéricas
         self.df['preco'] = pd.to_numeric(self.df['preco'], errors='coerce')
         self.df['ano'] = pd.to_numeric(self.df['ano'], errors='coerce')
         self.df['quilometragem'] = pd.to_numeric(self.df['quilometragem'], errors='coerce')
 
-    def correlation_matrix(self):
-        """Calcula a matriz de correlação"""
-        correlation_cols = ['preco', 'ano', 'quilometragem']
-        correlation_matrix = self.df[correlation_cols].corr()
+        # Remover linhas com valores nulos em colunas importantes
+        self.df.dropna(subset=['marca', 'modelo', 'preco', 'ano', 'quilometragem', 'combustivel', 'tipo'], inplace=True)
 
-        # Gerar Heatmap interativo usando Plotly
+    def plot_correlation_matrix(self):
+        """Exibe a matriz de correlação interativa utilizando Plotly."""
+        correlation_matrix = self.df[['marca', 'modelo', 'ano', 'quilometragem', 'preco', 'combustivel', 'tipo']].corr()
+        
+        # Gerar heatmap interativo
         fig = go.Figure(data=go.Heatmap(
             z=correlation_matrix.values,
             x=correlation_matrix.columns,
             y=correlation_matrix.columns,
             colorscale='Viridis',
-            colorbar=dict(title="Correlação")
+            zmin=-1, zmax=1
         ))
-
+        
         fig.update_layout(
-            title="Matriz de Correlação",
-            xaxis_title="Variáveis",
-            yaxis_title="Variáveis",
-            template="plotly_dark"
+            title='Matriz de Correlação Interativa',
+            xaxis_title='Variáveis',
+            yaxis_title='Variáveis',
+            template='plotly_dark'
         )
+
         return fig
 
-    def show_app(self):
-        """Exibe a interface do Streamlit"""
-        st.title("Análise de Dados de Veículos")
-        st.markdown("""
-            Neste aplicativo, você pode visualizar a matriz de correlação entre as variáveis `preco`, `ano` e `quilometragem`.
-        """)
+    def plot_price_distribution_by_fuel_type(self):
+        """Exibe o gráfico de distribuição de preço por tipo de combustível."""
+        fig = px.box(self.df, x='combustivel', y='preco', title='Distribuição de Preço por Tipo de Combustível')
+        fig.update_layout(template='plotly_dark')
+        return fig
 
-        st.subheader('Matriz de Correlação e Heatmap')
+    def run_app(self):
+        """Executa o aplicativo Streamlit."""
+        st.title("Análise de Carros")
 
-        # Exibir a Matriz de Correlação com Heatmap
-        correlation_fig = self.correlation_matrix()
-        st.plotly_chart(correlation_fig, use_container_width=True)
+        # Exibe os dados carregados
+        st.write("Dados Carregados:")
+        st.dataframe(self.df.head())
+
+        # Matriz de Correlação
+        st.header("Matriz de Correlação")
+        correlation_fig = self.plot_correlation_matrix()
+        st.plotly_chart(correlation_fig)
+
+        # Gráfico de Distribuição de Preço por Combustível
+        st.header("Distribuição de Preço por Tipo de Combustível")
+        fuel_price_fig = self.plot_price_distribution_by_fuel_type()
+        st.plotly_chart(fuel_price_fig)
+
 
 # URL do arquivo CSV
-file_url = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
+file_path = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
 
-# Criar e executar a aplicação
-app = CarAnalysisApp(file_url)
-app.show_app()
+# Inicializa o aplicativo e executa
+app = CarAnalysisApp(file_path)
+app.run_app()
