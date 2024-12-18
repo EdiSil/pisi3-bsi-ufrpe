@@ -38,7 +38,7 @@ class CarAnalysis:
 
     def format_currency(self, value):
         """
-        Formata um valor no formato monetário brasileiro (R$).
+        Formata um valor no formato monetário brasileiro (R$) sem depender da localidade do sistema.
         """
         return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
@@ -70,6 +70,20 @@ class CarAnalysis:
 
         st.plotly_chart(fig)
 
+    def plot_interactive_scatter(self):
+        """
+        Exibe um gráfico de dispersão interativo entre 'ano' e 'preco' categorizado por 'marca'.
+        """
+        # Adicionar coluna de preço formatado para exibir no hover
+        self.df['preco_formatado'] = self.df['preco'].apply(self.format_currency)
+
+        fig = px.scatter(
+            self.df, x='ano', y='preco', color='marca',
+            hover_data={'modelo': True, 'combustivel': True, 'tipo': True, 'preco_formatado': True},
+            title="Preço x Ano por Marca",
+        )
+        st.plotly_chart(fig)
+
     def plot_interactive_histogram(self):
         """
         Exibe um histograma interativo mostrando a relação entre 'preco' e 'combustivel' por 'marca'.
@@ -80,14 +94,14 @@ class CarAnalysis:
         # Adicionar coluna de preço formatado para hover
         df_grouped['preco_formatado'] = df_grouped['preco'].apply(self.format_currency)
 
-        # Criando o histograma com barras sobrepostas
+        # Criando o histograma
         fig = px.bar(
             df_grouped,
             x='combustivel',
             y='preco',
             color='marca',
             title="Histograma: Preço x Combustível por Marca",
-            barmode='stack',  # Mudado para 'stack' para barras sobrepostas
+            barmode='group',
             hover_data={'marca': True, 'preco_formatado': True}
         )
 
@@ -110,6 +124,10 @@ def run_app():
     # Plotar a matriz de correlação
     st.header("Matriz de Correlação")
     car_analysis.plot_correlation_matrix()
+
+    # Plotar o gráfico de dispersão interativo
+    st.header("Gráfico Interativo: Preço x Ano por Marca")
+    car_analysis.plot_interactive_scatter()
 
     # Plotar o histograma interativo
     st.header("Histograma: Preço x Combustível por Marca")
