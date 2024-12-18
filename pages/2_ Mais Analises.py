@@ -3,6 +3,10 @@ import plotly.figure_factory as ff
 import plotly.express as px
 import streamlit as st
 import numpy as np
+import locale
+
+# Configurar a localidade para o formato monetário brasileiro
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 # Classe para Análise de Carros
 class CarAnalysis:
@@ -36,6 +40,12 @@ class CarAnalysis:
 
         return self.df
 
+    def format_currency(self, value):
+        """
+        Formata um valor no formato monetário brasileiro (R$).
+        """
+        return locale.currency(value, grouping=True)
+
     def plot_correlation_matrix(self):
         """
         Plota a matriz de correlação entre as colunas numéricas: 'ano', 'quilometragem', e 'preco'.
@@ -68,10 +78,18 @@ class CarAnalysis:
         """
         Exibe um gráfico de dispersão interativo entre 'ano' e 'preco' categorizado por 'marca'.
         """
+        # Adicionar coluna de preço formatado para exibir no hover
+        self.df['preco_formatado'] = self.df['preco'].apply(self.format_currency)
+
         fig = px.scatter(
             self.df, x='ano', y='preco', color='marca',
-            hover_data=['modelo', 'combustivel', 'tipo'],
-            title="Preço x Ano por Marca"
+            hover_data={'modelo': True, 'combustivel': True, 'tipo': True, 'preco_formatado': True},
+            title="Preço x Ano por Marca",
+        )
+        fig.update_traces(
+            hovertemplate="<b>Ano:</b> %{x}<br>"
+                          "<b>Preço:</b> %{customdata[3]}<br>"
+                          "<b>Marca:</b> %{marker.color}<br>"
         )
         st.plotly_chart(fig)
 
@@ -82,6 +100,9 @@ class CarAnalysis:
         # Agrupando por combustível e marca
         df_grouped = self.df.groupby(['combustivel', 'marca'], as_index=False).agg({'preco': 'sum'})
 
+        # Adicionar coluna de preço formatado para hover
+        df_grouped['preco_formatado'] = df_grouped['preco'].apply(self.format_currency)
+
         # Criando o histograma
         fig = px.bar(
             df_grouped,
@@ -90,7 +111,7 @@ class CarAnalysis:
             color='marca',
             title="Histograma: Preço x Combustível por Marca",
             barmode='group',
-            hover_data={'marca': True, 'preco': ':.2f'}
+            hover_data={'marca': True, 'preco_formatado': True}
         )
 
         # Ajustando o layout do gráfico
@@ -107,7 +128,7 @@ class CarAnalysis:
         fig.update_traces(
             hovertemplate="<b>Combustível:</b> %{x}<br>"
                           "<b>Marca:</b> %{customdata[0]}<br>"
-                          "<b>Soma do Preço:</b> R$ %{y:.2f}"
+                          "<b>Soma do Preço:</b> %{customdata[1]}"
         )
 
         st.plotly_chart(fig)
