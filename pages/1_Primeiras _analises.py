@@ -31,8 +31,21 @@ class CarAnalysisApp:
         """Exibe um boxplot das marcas por quilometragem."""
         st.subheader("Boxplot: Quilometragem por Marca")
         if self.df is not None:
+            # Criando a lista de valores personalizados para o eixo Y
+            quilometragem_ticks = [100000, 200000, 300000, 400000, 500000]
+            quilometragem_ticks_labels = ['100 Km', '200 Km', '300 Km', '400 Km', '500 Km']
+
             fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
                          color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
+
+            # Atualizando o título do eixo Y
+            fig.update_layout(
+                yaxis_title="Quilometragem",
+                yaxis=dict(
+                    tickvals=quilometragem_ticks,  # Definindo os valores
+                    ticktext=quilometragem_ticks_labels  # Definindo os rótulos correspondentes
+                )
+            )
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
