@@ -47,10 +47,7 @@ class CarAnalysis:
         )
 
         # Atualizar as propriedades do gráfico
-        fig.update_traces(colorscale='RdBu', zmin=-1.0, zmax=1.0, colorbar=dict(
-            tickvals=[-1.0, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1.0],
-            ticktext=['-1.0', '-0.75', '-0.5', '-0.25', '0', '0.25', '0.5', '0.75', '1.0']
-        ))
+        fig.update_traces(colorscale='RdBu', zmin=-1.0, zmax=1.0)
 
         fig.update_layout(
             title="Matriz de Correlação",
@@ -65,9 +62,11 @@ class CarAnalysis:
         """
         Exibe um gráfico de dispersão interativo entre 'ano' e 'preco' categorizado por 'marca'.
         """
-        fig = px.scatter(self.df, x='ano', y='preco', color='marca',
-                         hover_data=['modelo', 'combustivel', 'tipo'],
-                         title="Preço x Ano por Marca")
+        fig = px.scatter(
+            self.df, x='ano', y='preco', color='marca',
+            hover_data=['modelo', 'combustivel', 'tipo'],
+            title="Preço x Ano por Marca"
+        )
         st.plotly_chart(fig)
 
     def plot_interactive_histogram(self):
@@ -76,17 +75,12 @@ class CarAnalysis:
         """
         df_filtered = self.df[['marca', 'preco', 'combustivel']]
 
-        # Paleta de cores personalizada (do rosa ao roxo)
-        color_map = {
-            'Gasolina': '#FF66B2',  # Cor rosa
-            'GNV': '#800080'  # Cor roxa
-        }
-
         # Criando o histograma
-        fig = px.histogram(df_filtered, x="combustivel", y="preco", color="marca",
-                           category_orders={"combustivel": ['Gasolina', 'GNV']},
-                           title="Histograma: Preço x Combustível por Marca",
-                           color_discrete_map=color_map, barmode='group')
+        fig = px.histogram(
+            df_filtered, x="combustivel", y="preco", color="marca",
+            title="Histograma: Preço x Combustível por Marca",
+            barmode='group'
+        )
 
         # Customizações para o layout
         fig.update_layout(
@@ -95,15 +89,9 @@ class CarAnalysis:
             yaxis_title="Preço",
             template="plotly_white",
             font=dict(family="Arial, sans-serif", size=12, color="black"),
-            title_x=0.5,  # Centralizando o título
+            title_x=0.5,
             showlegend=True,
-            barmode='group',  # Barras lado a lado
-            margin=dict(l=40, r=40, t=40, b=40)  # Margens para maior clareza
-        )
-
-        # Personalização do hover
-        fig.update_traces(
-            hovertemplate="<b>Marca:</b> %{marker.color}<br><b>Preço:</b> %{y}<br><b>Combustível:</b> %{customdata[0]}<br><b>Modelo:</b> %{customdata[1]}<br><b>Tipo:</b> %{customdata[2]}"
+            margin=dict(l=40, r=40, t=40, b=40)
         )
 
         st.plotly_chart(fig)
@@ -112,7 +100,7 @@ class CarAnalysis:
 def run_app():
     # URL do arquivo CSV no GitHub
     DATA_URL = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/data/OLX_cars_dataset002.csv"
-    
+
     # Criação do objeto de análise de carros
     car_analysis = CarAnalysis(DATA_URL)
 
@@ -133,4 +121,3 @@ def run_app():
 
 if __name__ == "__main__":
     run_app()
-
