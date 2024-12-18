@@ -3,10 +3,6 @@ import plotly.figure_factory as ff
 import plotly.express as px
 import streamlit as st
 import numpy as np
-import locale
-
-# Configurar a localidade para o formato monetário brasileiro
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 # Classe para Análise de Carros
 class CarAnalysis:
@@ -42,9 +38,9 @@ class CarAnalysis:
 
     def format_currency(self, value):
         """
-        Formata um valor no formato monetário brasileiro (R$).
+        Formata um valor no formato monetário brasileiro (R$) sem depender da localidade do sistema.
         """
-        return locale.currency(value, grouping=True)
+        return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
     def plot_correlation_matrix(self):
         """
@@ -86,11 +82,6 @@ class CarAnalysis:
             hover_data={'modelo': True, 'combustivel': True, 'tipo': True, 'preco_formatado': True},
             title="Preço x Ano por Marca",
         )
-        fig.update_traces(
-            hovertemplate="<b>Ano:</b> %{x}<br>"
-                          "<b>Preço:</b> %{customdata[3]}<br>"
-                          "<b>Marca:</b> %{marker.color}<br>"
-        )
         st.plotly_chart(fig)
 
     def plot_interactive_histogram(self):
@@ -112,23 +103,6 @@ class CarAnalysis:
             title="Histograma: Preço x Combustível por Marca",
             barmode='group',
             hover_data={'marca': True, 'preco_formatado': True}
-        )
-
-        # Ajustando o layout do gráfico
-        fig.update_layout(
-            xaxis_title="Combustível",
-            yaxis_title="Soma do Preço (BRL)",
-            title_x=0.5,
-            template="plotly_white",
-            font=dict(family="Arial, sans-serif", size=12, color="black"),
-            showlegend=True,
-        )
-
-        # Ajustando o hovertemplate para exibir as informações corretamente
-        fig.update_traces(
-            hovertemplate="<b>Combustível:</b> %{x}<br>"
-                          "<b>Marca:</b> %{customdata[0]}<br>"
-                          "<b>Soma do Preço:</b> %{customdata[1]}"
         )
 
         st.plotly_chart(fig)
