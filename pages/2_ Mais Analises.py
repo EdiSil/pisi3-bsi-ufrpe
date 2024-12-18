@@ -39,7 +39,7 @@ class CarAnalysis:
 
         # Criar o heatmap interativo
         fig = ff.create_annotated_heatmap(
-            z=correlation_matrix.values,
+            z=correlation_matrix.values.round(2),  # Duas casas decimais no eixo Z
             x=corr_columns,
             y=corr_columns,
             colorscale='RdBu',
@@ -79,19 +79,24 @@ class CarAnalysis:
         fig = px.histogram(
             df_filtered, x="combustivel", y="preco", color="marca",
             title="Histograma: Preço x Combustível por Marca",
-            barmode='group'
+            barmode='group',
+            labels={"preco": "Soma do preco"}  # Alteração do rótulo para português
         )
 
         # Customizações para o layout
         fig.update_layout(
             title="Histograma: Preço x Combustível por Marca",
             xaxis_title="Combustível",
-            yaxis_title="Preço",
+            yaxis_title="Soma do preco",
             template="plotly_white",
             font=dict(family="Arial, sans-serif", size=12, color="black"),
             title_x=0.5,
             showlegend=True,
             margin=dict(l=40, r=40, t=40, b=40)
+        )
+
+        fig.update_traces(
+            hovertemplate="<b>Combustível:</b> %{x}<br><b>Soma do preco:</b> %{y:.2f}"  # Duas casas decimais no hover
         )
 
         st.plotly_chart(fig)
