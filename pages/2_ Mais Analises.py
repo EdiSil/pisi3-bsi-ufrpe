@@ -38,7 +38,7 @@ class CarAnalysis:
 
     def format_currency(self, value):
         """
-        Formata um valor no formato monetário brasileiro (R$).
+        Formata um valor no formato monetário brasileiro (R$) sem depender da localidade do sistema.
         """
         return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
@@ -103,14 +103,6 @@ class CarAnalysis:
             title="Histograma: Preço x Combustível por Marca",
             barmode='group',
             hover_data={'marca': True, 'preco_formatado': True}
-        )
-
-        # Atualizando hovertemplate para exibir preço formatado corretamente
-        fig.update_traces(
-            hovertemplate="<b>Marca:</b> %{customdata[0]}<br>"
-                          "<b>Combustível:</b> %{x}<br>"
-                          "<b>Preço:</b> %{customdata[1]}",  # Exibe preço_formatado no lugar de preco=k
-            customdata=np.stack((df_grouped['marca'], df_grouped['preco_formatado']), axis=-1)
         )
 
         st.plotly_chart(fig)
