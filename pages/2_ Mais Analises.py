@@ -88,11 +88,6 @@ class CarAnalysis:
                            title="Histograma: Preço x Combustível por Marca",
                            color_discrete_map=color_map, barmode='group')
 
-        # Personalização do hover
-        fig.update_traces(
-            hovertemplate="<b>Combustível:</b> %{x}<br><b>Preço:</b> %{y}<br><b>Marca:</b> %{marker.color}<br><b>Combustível:</b> %{customdata[0]}<br><extra></extra>"
-        )
-
         # Customizações para o layout
         fig.update_layout(
             title="Histograma: Preço x Combustível por Marca",
@@ -105,6 +100,9 @@ class CarAnalysis:
             barmode='group',  # Barras lado a lado
             margin=dict(l=40, r=40, t=40, b=40)  # Margens para maior clareza
         )
+
+        # Personalização do hover
+        fig.update_traces(hovertemplate="<b>Combustível: %{x}</b><br><i>Preço: %{y}</i><br><br><b>Marca:</b> %{marker.color}<br><b>Combustível:</b> %{customdata[0]}")
 
         st.plotly_chart(fig)
 
