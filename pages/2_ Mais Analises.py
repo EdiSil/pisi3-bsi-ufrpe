@@ -73,12 +73,12 @@ class CarAnalysis:
         # Definindo a paleta de cores personalizada (do rosa ao roxo)
         color_map = {
             'Gasolina': '#FF66B2',  # Cor rosa
-            'Gnv': '#800080'  # Cor roxa
+            'GNV': '#800080'  # Cor roxa
         }
 
         # Criando o histograma com Plotly
         fig = px.histogram(df_filtered, x="combustivel", y="preco", color="marca",
-                           category_orders={"combustivel": ['Gasolina', 'Gnv']},
+                           category_orders={"combustivel": ['Gasolina', 'GNV']},
                            title="Histograma: Preço x Combustível por Marca",
                            color_discrete_map=color_map, barmode='group')
 
@@ -91,9 +91,12 @@ class CarAnalysis:
             font=dict(family="Arial, sans-serif", size=12, color="black"),
             title_x=0.5,  # Centralizando o título
             showlegend=True,
-            barmode='stack',  # Empilhamento das barras para facilitar a comparação
+            barmode='group',  # Barras lado a lado
             margin=dict(l=40, r=40, t=40, b=40)  # Definindo margens para maior clareza
         )
+
+        # Ajuste na exibição do hover para mostrar "Soma do preço"
+        fig.update_traces(hovertemplate="<b>%{x}</b><br><i>%{y}</i><br><br><b>Soma do preço:</b> %{customdata[0]}")
 
         st.plotly_chart(fig)
 
