@@ -82,7 +82,7 @@ class CarAnalysisApp:
             # Agrupar os dados por ano e calcular a média do preço
             avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
 
-            # Formatando os valores de preço no formato de moeda brasileira manualmente
+            # Formatando os valores de preço no formato de moeda brasileira
             avg_price_per_year['preco'] = avg_price_per_year['preco'].apply(lambda x: format_brl(x))
 
             # Exibindo o gráfico de barras
