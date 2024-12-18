@@ -84,29 +84,6 @@ class CarAnalysis:
         )
         st.plotly_chart(fig)
 
-    def plot_interactive_histogram(self):
-        """
-        Exibe um histograma interativo mostrando a relação entre 'preco' e 'combustivel' por 'marca'.
-        """
-        # Agrupando por combustível e marca
-        df_grouped = self.df.groupby(['combustivel', 'marca'], as_index=False).agg({'preco': 'sum'})
-
-        # Adicionar coluna de preço formatado para hover
-        df_grouped['preco_formatado'] = df_grouped['preco'].apply(self.format_currency)
-
-        # Criando o histograma
-        fig = px.bar(
-            df_grouped,
-            x='combustivel',
-            y='preco',
-            color='marca',
-            title="Histograma: Preço x Combustível por Marca",
-            barmode='group',
-            hover_data={'marca': True, 'preco_formatado': True}
-        )
-
-        st.plotly_chart(fig)
-
 # Função principal para rodar a aplicação Streamlit
 def run_app():
     # URL do arquivo CSV no GitHub
@@ -128,10 +105,6 @@ def run_app():
     # Plotar o gráfico de dispersão interativo
     st.header("Gráfico Interativo: Preço x Ano por Marca")
     car_analysis.plot_interactive_scatter()
-
-    # Plotar o histograma interativo
-    st.header("Histograma: Preço x Combustível por Marca")
-    car_analysis.plot_interactive_histogram()
 
 if __name__ == "__main__":
     run_app()
