@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import locale
 
 # Classe principal da aplicação
 class CarAnalysisApp:
@@ -8,6 +9,9 @@ class CarAnalysisApp:
         self.data_path = data_path
         self.df = None
         self.brand_colors = None
+
+        # Definindo a localidade para formatar os valores como moeda brasileira
+        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
     def load_data(self):
         """Carrega os dados a partir do caminho especificado."""
@@ -74,6 +78,9 @@ class CarAnalysisApp:
             # Agrupar os dados por ano e calcular a média do preço
             avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
 
+            # Formatar os valores de preço no formato de moeda brasileiro
+            avg_price_per_year['preco'] = avg_price_per_year['preco'].apply(lambda x: locale.currency(x, grouping=True))
+
             # Exibindo o gráfico de barras
             fig = px.bar(avg_price_per_year, x='ano', y='preco', title='Relação entre Preço e Ano', 
                          color='ano', text='preco',
@@ -87,7 +94,7 @@ class CarAnalysisApp:
             )
 
             # Adicionando as informações de preço no topo das barras
-            fig.update_traces(texttemplate='%{text:.2f}', textposition='outside', insidetextanchor='start')
+            fig.update_traces(texttemplate='%{text}', textposition='outside', insidetextanchor='start')
 
             st.plotly_chart(fig)
         else:
