@@ -102,7 +102,7 @@ class CarAnalysis:
         )
 
         # Personalização do hover
-        fig.update_traces(hovertemplate="<b>%{x}</b><br><i>%{y}</i><br><br><b>Soma do preço:</b> %{customdata[0]}")
+        fig.update_traces(hovertemplate="<b>%{x}</b><br><i>%{y}</i><br><br><b>Marca:</b> %{customdata[0]}<br><b>Preço:</b> %{y}<br><b>Combustível:</b> %{customdata[1]}")
 
         st.plotly_chart(fig)
 
