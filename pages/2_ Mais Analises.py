@@ -79,17 +79,17 @@ class CarAnalysis:
         """
         Exibe um histograma interativo mostrando a relação entre 'preco' e 'combustivel' por 'marca'.
         """
-        # Criando um DataFrame agrupado para histogramas
+        # Agrupando por 'combustivel' e 'marca' e somando os preços
         df_grouped = self.df.groupby(['combustivel', 'marca'], as_index=False)['preco'].sum()
 
         # Criando o histograma
-        fig = px.histogram(
+        fig = px.bar(
             df_grouped, 
             x="combustivel", 
             y="preco", 
             color="marca",
             title="Histograma: Preço x Combustível por Marca",
-            barmode='group',
+            barmode='group'
         )
 
         # Personalizando o layout do gráfico
@@ -104,13 +104,11 @@ class CarAnalysis:
             margin=dict(l=40, r=40, t=40, b=40)
         )
 
-        # Adicionando hover com detalhes corretos
-        fig.for_each_trace(
-            lambda trace: trace.update(
-                hovertemplate="<b>Combustível:</b> %{x}<br>"
-                              "<b>Marca:</b> %{legendgroup}<br>"
-                              "<b>Soma do preço:</b> R$ %{y:.2f}"
-            )
+        # Ajustando o hover para mostrar corretamente 'Marca' dentro dos detalhes
+        fig.update_traces(
+            hovertemplate="<b>Marca:</b> %{marker.color}<br>"
+                          "<b>Combustível:</b> %{x}<br>"
+                          "<b>Soma do preço:</b> R$ %{y:.2f}"
         )
 
         st.plotly_chart(fig)
