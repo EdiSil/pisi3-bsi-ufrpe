@@ -79,36 +79,34 @@ class CarAnalysis:
         """
         Exibe um histograma interativo mostrando a relação entre 'preco' e 'combustivel' por 'marca'.
         """
-        # Agrupando por 'combustivel' e 'marca' e somando os preços
         df_grouped = self.df.groupby(['combustivel', 'marca'], as_index=False)['preco'].sum()
 
         # Criando o histograma
-        fig = px.bar(
-            df_grouped, 
-            x="combustivel", 
-            y="preco", 
+        fig = px.histogram(
+            df_grouped,
+            x="combustivel",
+            y="preco",
             color="marca",
             title="Histograma: Preço x Combustível por Marca",
-            barmode='group'
+            barmode='group',
+            text_auto=True
         )
 
-        # Personalizando o layout do gráfico
+        # Adicionando hovertemplate detalhado para as barras
+        fig.update_traces(
+            hovertemplate="<b>Combustível:</b> %{x}<br>"
+                          "<b>Marca:</b> %{customdata[0]}<br>"
+                          "<b>Soma do Preço:</b> R$ %{y:.2f}",
+            customdata=df_grouped[['marca']].values
+        )
+
+        # Ajustando o layout
         fig.update_layout(
             title="Histograma: Preço x Combustível por Marca",
             xaxis_title="Combustível",
-            yaxis_title="Soma do preço",
+            yaxis_title="Soma do Preço (R$)",
             template="plotly_white",
-            font=dict(family="Arial, sans-serif", size=12, color="black"),
             title_x=0.5,
-            showlegend=True,
-            margin=dict(l=40, r=40, t=40, b=40)
-        )
-
-        # Ajustando o hover para mostrar corretamente 'Marca' dentro dos detalhes
-        fig.update_traces(
-            hovertemplate="<b>Marca:</b> %{marker.color}<br>"
-                          "<b>Combustível:</b> %{x}<br>"
-                          "<b>Soma do preço:</b> R$ %{y:.2f}"
         )
 
         st.plotly_chart(fig)
