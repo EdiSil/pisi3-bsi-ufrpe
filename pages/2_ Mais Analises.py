@@ -6,16 +6,19 @@ import numpy as np
 
 # Classe para Análise de Carros
 class CarAnalysis:
-    def __init__(self, data_url):
+    def __init__(self, data_url, exchange_rate):
         """
-        Inicializa a classe com o URL dos dados CSV.
+        Inicializa a classe com o URL dos dados CSV e a taxa de câmbio.
         """
+        self.data_url = data_url
+        self.exchange_rate = exchange_rate
         self.df = pd.read_csv(data_url)
         self.df = self.clean_data()
 
     def clean_data(self):
         """
-        Realiza a limpeza dos dados: remove valores nulos e converte colunas numéricas.
+        Realiza a limpeza dos dados: remove valores nulos, converte colunas numéricas
+        e aplica conversão de moeda no preço.
         """
         relevant_columns = ['marca', 'modelo', 'ano', 'quilometragem', 'preco', 'combustivel', 'tipo']
         self.df = self.df[relevant_columns]
@@ -28,6 +31,9 @@ class CarAnalysis:
         # Remove as linhas com valores nulos nas colunas numéricas
         self.df = self.df.dropna(subset=['ano', 'quilometragem', 'preco'])
 
+        # Converte preço de Rúpia Paquistanesa para Real Brasileiro
+        self.df['preco'] = self.df['preco'] * self.exchange_rate
+
         return self.df
 
     def plot_correlation_matrix(self):
@@ -39,7 +45,7 @@ class CarAnalysis:
 
         # Criar o heatmap interativo
         fig = ff.create_annotated_heatmap(
-            z=correlation_matrix.values.round(2),  # Duas casas decimais no eixo Z
+            z=np.round(correlation_matrix.values, 2),  # Duas casas decimais no eixo Z
             x=corr_columns,
             y=corr_columns,
             colorscale='RdBu',
@@ -79,15 +85,14 @@ class CarAnalysis:
         fig = px.histogram(
             df_filtered, x="combustivel", y="preco", color="marca",
             title="Histograma: Preço x Combustível por Marca",
-            barmode='group',
-            labels={"preco": "Soma do preco"}  # Alteração do rótulo para português
+            barmode='group'
         )
 
         # Customizações para o layout
         fig.update_layout(
             title="Histograma: Preço x Combustível por Marca",
             xaxis_title="Combustível",
-            yaxis_title="Soma do preco",
+            yaxis_title="Soma do preco",  # Atualizado para "Soma do preco"
             template="plotly_white",
             font=dict(family="Arial, sans-serif", size=12, color="black"),
             title_x=0.5,
@@ -95,8 +100,9 @@ class CarAnalysis:
             margin=dict(l=40, r=40, t=40, b=40)
         )
 
+        # Adicionando hover com duas casas decimais no valor de preço
         fig.update_traces(
-            hovertemplate="<b>Combustível:</b> %{x}<br><b>Soma do preco:</b> %{y:.2f}"  # Duas casas decimais no hover
+            hovertemplate="<b>Marca:</b> %{color}<br><b>Soma do preco:</b> R$ %{y:.2f}<br><b>Combustível:</b> %{x}"
         )
 
         st.plotly_chart(fig)
@@ -105,9 +111,12 @@ class CarAnalysis:
 def run_app():
     # URL do arquivo CSV no GitHub
     DATA_URL = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/data/OLX_cars_dataset002.csv"
+    
+    # Taxa de câmbio de Rúpia Paquistanesa (PKR) para Real Brasileiro (BRL)
+    EXCHANGE_RATE = 0.027  # Exemplo: 1 PKR = 0.027 BRL
 
     # Criação do objeto de análise de carros
-    car_analysis = CarAnalysis(DATA_URL)
+    car_analysis = CarAnalysis(DATA_URL, EXCHANGE_RATE)
 
     # Exibição do título da aplicação
     st.title("Análise de Correlação e Preços de Carros")
