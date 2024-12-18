@@ -79,34 +79,35 @@ class CarAnalysis:
         """
         Exibe um histograma interativo mostrando a relação entre 'preco' e 'combustivel' por 'marca'.
         """
-        df_grouped = self.df.groupby(['combustivel', 'marca'], as_index=False)['preco'].sum()
+        # Agrupando por combustível e marca
+        df_grouped = self.df.groupby(['combustivel', 'marca'], as_index=False).agg({'preco': 'sum'})
 
         # Criando o histograma
-        fig = px.histogram(
+        fig = px.bar(
             df_grouped,
-            x="combustivel",
-            y="preco",
-            color="marca",
+            x='combustivel',
+            y='preco',
+            color='marca',
             title="Histograma: Preço x Combustível por Marca",
             barmode='group',
-            text_auto=True
+            hover_data={'marca': True, 'preco': ':.2f'}
         )
 
-        # Adicionando hovertemplate detalhado para as barras
+        # Ajustando o layout do gráfico
+        fig.update_layout(
+            xaxis_title="Combustível",
+            yaxis_title="Soma do Preço (BRL)",
+            title_x=0.5,
+            template="plotly_white",
+            font=dict(family="Arial, sans-serif", size=12, color="black"),
+            showlegend=True,
+        )
+
+        # Ajustando o hovertemplate para exibir as informações corretamente
         fig.update_traces(
             hovertemplate="<b>Combustível:</b> %{x}<br>"
                           "<b>Marca:</b> %{customdata[0]}<br>"
-                          "<b>Soma do Preço:</b> R$ %{y:.2f}",
-            customdata=df_grouped[['marca']].values
-        )
-
-        # Ajustando o layout
-        fig.update_layout(
-            title="Histograma: Preço x Combustível por Marca",
-            xaxis_title="Combustível",
-            yaxis_title="Soma do Preço (R$)",
-            template="plotly_white",
-            title_x=0.5,
+                          "<b>Soma do Preço:</b> R$ %{y:.2f}"
         )
 
         st.plotly_chart(fig)
@@ -115,7 +116,7 @@ class CarAnalysis:
 def run_app():
     # URL do arquivo CSV no GitHub
     DATA_URL = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/data/OLX_cars_dataset002.csv"
-    
+
     # Taxa de câmbio de Rúpia Paquistanesa (PKR) para Real Brasileiro (BRL)
     EXCHANGE_RATE = 0.027  # Exemplo: 1 PKR = 0.027 BRL
 
