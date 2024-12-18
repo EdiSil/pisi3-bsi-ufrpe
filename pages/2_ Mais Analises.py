@@ -38,7 +38,7 @@ class CarAnalysis:
 
     def format_currency(self, value):
         """
-        Formata um valor no formato monetário brasileiro (R$).
+        Formata um valor no formato monetário brasileiro (R$) sem depender da localidade do sistema.
         """
         return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
@@ -82,10 +82,27 @@ class CarAnalysis:
             hover_data={'modelo': True, 'combustivel': True, 'tipo': True, 'preco_formatado': True},
             title="Preço x Ano por Marca",
         )
+        st.plotly_chart(fig)
 
-        # Remover o 'preco' do hover_data e substituir por 'preco_formatado'
-        fig.update_traces(
-            hovertemplate="<b>Marca:</b> %{marker.color}<br><b>Ano:</b> %{x}<br><b>Preço:</b> %{customdata[0]}<br><b>Modelo:</b> %{customdata[1]}<br><b>Combustível:</b> %{customdata[2]}<br><b>Tipo:</b> %{customdata[3]}"
+    def plot_interactive_histogram(self):
+        """
+        Exibe um histograma interativo mostrando a relação entre 'preco' e 'combustivel' por 'marca'.
+        """
+        # Agrupando por combustível e marca
+        df_grouped = self.df.groupby(['combustivel', 'marca'], as_index=False).agg({'preco': 'sum'})
+
+        # Adicionar coluna de preço formatado para hover
+        df_grouped['preco_formatado'] = df_grouped['preco'].apply(self.format_currency)
+
+        # Criando o histograma
+        fig = px.bar(
+            df_grouped,
+            x='combustivel',
+            y='preco',
+            color='marca',
+            title="Histograma: Preço x Combustível por Marca",
+            barmode='group',
+            hover_data={'marca': True, 'preco_formatado': True}
         )
 
         st.plotly_chart(fig)
@@ -111,6 +128,10 @@ def run_app():
     # Plotar o gráfico de dispersão interativo
     st.header("Gráfico Interativo: Preço x Ano por Marca")
     car_analysis.plot_interactive_scatter()
+
+    # Plotar o histograma interativo
+    st.header("Histograma: Preço x Combustível por Marca")
+    car_analysis.plot_interactive_histogram()
 
 if __name__ == "__main__":
     run_app()
