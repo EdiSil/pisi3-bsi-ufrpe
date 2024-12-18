@@ -31,21 +31,18 @@ class CarAnalysisApp:
         """Exibe um boxplot das marcas por quilometragem."""
         st.subheader("Boxplot: Quilometragem por Marca")
         if self.df is not None:
-            # Criando a lista de valores personalizados para o eixo Y
             quilometragem_ticks = [100000, 200000, 300000, 400000, 500000]
             quilometragem_ticks_labels = ['100 Km', '200 Km', '300 Km', '400 Km', '500 Km']
 
-            # Exibindo o Boxplot com detalhes de marca e quilometragem
             fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
                          color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)},
-                         hover_data={'marca': True, 'quilometragem': True})  # Adicionando detalhes ao passar o mouse
+                         hover_data={'marca': True, 'quilometragem': True})
 
-            # Atualizando o título do eixo Y
             fig.update_layout(
                 yaxis_title="Quilometragem",
                 yaxis=dict(
-                    tickvals=quilometragem_ticks,  # Definindo os valores
-                    ticktext=quilometragem_ticks_labels  # Definindo os rótulos correspondentes
+                    tickvals=quilometragem_ticks,
+                    ticktext=quilometragem_ticks_labels
                 )
             )
             st.plotly_chart(fig)
@@ -56,19 +53,14 @@ class CarAnalysisApp:
         """Exibe um histograma da quantidade de veículos por marca."""
         st.subheader("Histograma: Quantidade de Veículos por Marca")
         if self.df is not None:
-            # Contando o número de veículos por marca
             vehicle_counts = self.df['marca'].value_counts().reset_index()
             vehicle_counts.columns = ['marca', 'unidades']
 
-            # Exibindo o histograma
             fig = px.bar(vehicle_counts, x='marca', y='unidades', title='Histograma da Quantidade de Veículos por Marca', 
                          color='marca', color_discrete_map={brand: color for brand, color in zip(vehicle_counts['marca'], self.brand_colors)},
-                         text='unidades')  # Mostrando o número de unidades nas barras
+                         text='unidades')
 
-            # Atualizando os detalhes no hover
             fig.update_traces(hovertemplate='Marca: %{x}<br>Unidades: %{y}')
-
-            # Atualizando o título do eixo Y
             fig.update_layout(yaxis_title="Unidades")
 
             st.plotly_chart(fig)
@@ -79,8 +71,24 @@ class CarAnalysisApp:
         """Exibe um gráfico de barras relacionando preço e ano."""
         st.subheader("Gráfico de Barras: Preço por Ano")
         if self.df is not None:
-            fig = px.bar(self.df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
-                         color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
+            # Agrupar os dados por ano e calcular a média do preço
+            avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
+
+            # Exibindo o gráfico de barras
+            fig = px.bar(avg_price_per_year, x='ano', y='preco', title='Relação entre Preço e Ano', 
+                         color='ano', text='preco',
+                         color_continuous_scale='Viridis')
+
+            # Atualizando o título do eixo Y e as informações no hover
+            fig.update_layout(
+                yaxis_title="Preço Médio (R$)",
+                xaxis_title="Ano",
+                hovermode="x unified"  # Agrupar os dados do hover por ano
+            )
+
+            # Adicionando as informações de preço no topo das barras
+            fig.update_traces(texttemplate='%{text:.2f}', textposition='outside', insidetextanchor='start')
+
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
