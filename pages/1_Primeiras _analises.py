@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-# Classe principal da aplicacao
+# Classe principal da aplicação
 class CarAnalysisApp:
     def __init__(self, data_path):
         self.data_path = data_path
@@ -43,6 +43,8 @@ class CarAnalysisApp:
         if self.df is not None:
             fig = px.histogram(self.df, x='marca', title='Histograma da Quantidade de Veículos por Marca',
                                color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
+            # Alterando o título do eixo Y para 'Quantidade'
+            fig.update_layout(yaxis_title="Quantidade")
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
