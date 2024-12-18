@@ -1,8 +1,10 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from babel import Locale
-from babel.numbers import format_currency
+
+# Função para formatar valores como moeda brasileira
+def format_brl(value):
+    return f"R${value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 # Classe principal da aplicação
 class CarAnalysisApp:
@@ -76,8 +78,8 @@ class CarAnalysisApp:
             # Agrupar os dados por ano e calcular a média do preço
             avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
 
-            # Formatando os valores de preço no formato de moeda brasileira usando Babel
-            avg_price_per_year['preco'] = avg_price_per_year['preco'].apply(lambda x: format_currency(x, 'BRL', locale='pt_BR'))
+            # Formatando os valores de preço no formato de moeda brasileira manualmente
+            avg_price_per_year['preco'] = avg_price_per_year['preco'].apply(lambda x: format_brl(x))
 
             # Exibindo o gráfico de barras
             fig = px.bar(avg_price_per_year, x='ano', y='preco', title='Relação entre Preço e Ano', 
