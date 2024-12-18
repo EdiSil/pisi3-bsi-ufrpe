@@ -68,7 +68,23 @@ class CarAnalysis:
             template="plotly_white"
         )
 
+        # Exibindo o gráfico no Streamlit
         st.plotly_chart(fig)
+
+        # Explicação sobre a correlação
+        st.markdown("""
+        **Explicando:**
+        
+        1° **Correlação entre "ano" e "preço":** 0.68 (Correlação positiva forte). Essa correlação sugere que veículos mais recentes (ano mais alto) tendem a ter um preço maior. O coeficiente de 0.68 indica uma relação linear positiva considerável. Isso é esperado, pois veículos novos geralmente têm maior valor de mercado em comparação aos veículos antigos.
+
+        2° **Correlação entre "quilometragem" e "preço":** -0.19 (Correlação negativa fraca). A correlação entre a quilometragem e o preço é negativa e fraca. Isso significa que, embora haja uma tendência de que veículos com mais quilometragem tenham um preço menor, essa relação não é forte. Em outras palavras, a quilometragem impacta o preço, mas há outros fatores mais relevantes influenciando essa variável.
+
+        3° **Correlação entre "ano" e "quilometragem":** -0.38 (Correlação negativa moderada). Essa correlação mostra que veículos mais novos tendem a ter menos quilometragem. O valor de -0.38 indica uma relação linear negativa moderada. Isso pode ser explicado pelo fato de veículos mais antigos, naturalmente, acumularem maior quilometragem com o tempo, enquanto veículos recentes ainda não tiveram tempo para percorrer grandes distâncias.
+
+        **Conclusão:** 
+        
+        Veículos mais novos tendem a ter preços mais altos e menor quilometragem. A quilometragem tem uma relação negativa fraca com o preço, sugerindo que outros fatores, como o estado de conservação, ano e modelo, podem ter mais impacto no preço do que apenas a quilometragem.
+        """)
 
     def plot_interactive_scatter(self):
         """
