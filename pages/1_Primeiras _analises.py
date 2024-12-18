@@ -1,12 +1,16 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Função para formatar valores como moeda brasileira
 def format_brl(value):
     return f"R${value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-# Classe principal da aplicação
+# Função para converter valores de string para float
+def convert_to_float(value):
+    return float(value.replace('R$', '').replace('.', '').replace(',', '.'))
+
 class CarAnalysisApp:
     def __init__(self, data_path):
         self.data_path = data_path
@@ -98,7 +102,7 @@ class CarAnalysisApp:
 
             # Adicionando uma linha de tendência para mostrar a evolução do preço
             fig.add_trace(
-                go.Scatter(x=avg_price_per_year['ano'], y=avg_price_per_year['preco'].apply(lambda x: float(x.replace('R$', '').replace('.', '').replace(',', '.'))), 
+                go.Scatter(x=avg_price_per_year['ano'], y=avg_price_per_year['preco'].apply(convert_to_float), 
                            mode='lines+markers', name='Tendência', line=dict(color='red'))
             )
 
