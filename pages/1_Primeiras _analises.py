@@ -56,10 +56,21 @@ class CarAnalysisApp:
         """Exibe um histograma da quantidade de veículos por marca."""
         st.subheader("Histograma: Quantidade de Veículos por Marca")
         if self.df is not None:
-            fig = px.histogram(self.df, x='marca', title='Histograma da Quantidade de Veículos por Marca',
-                               color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
-            # Alterando o título do eixo Y para 'Quantidade'
-            fig.update_layout(yaxis_title="Quantidade")
+            # Contando o número de veículos por marca
+            vehicle_counts = self.df['marca'].value_counts().reset_index()
+            vehicle_counts.columns = ['marca', 'unidades']
+
+            # Exibindo o histograma
+            fig = px.bar(vehicle_counts, x='marca', y='unidades', title='Histograma da Quantidade de Veículos por Marca', 
+                         color='marca', color_discrete_map={brand: color for brand, color in zip(vehicle_counts['marca'], self.brand_colors)},
+                         text='unidades')  # Mostrando o número de unidades nas barras
+
+            # Atualizando os detalhes no hover
+            fig.update_traces(hovertemplate='Marca: %{x}<br>Unidades: %{y}')
+
+            # Atualizando o título do eixo Y
+            fig.update_layout(yaxis_title="Unidades")
+
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
