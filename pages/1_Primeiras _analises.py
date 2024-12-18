@@ -1,14 +1,12 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-import locale
-
-# Configuração da localidade para formatação financeira brasileira
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+from babel import Locale
+from babel.numbers import format_currency
 
 # Função para formatar preço no padrão financeiro brasileiro
 def format_preco(preco):
-    return locale.currency(preco, grouping=True)
+    return format_currency(preco, 'BRL', locale='pt_BR')
 
 # Classe principal da aplicação
 class CarAnalysisApp:
