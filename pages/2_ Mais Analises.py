@@ -38,51 +38,9 @@ class CarAnalysis:
 
     def format_currency(self, value):
         """
-        Formata um valor no formato monetário brasileiro (R$) sem depender da localidade do sistema.
+        Formata um valor no formato monetário brasileiro (R$).
         """
         return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-
-    def plot_correlation_matrix(self):
-        """
-        Plota a matriz de correlação entre as colunas numéricas: 'ano', 'quilometragem', e 'preco'.
-        """
-        corr_columns = ['ano', 'quilometragem', 'preco']
-        correlation_matrix = self.df[corr_columns].corr()
-
-        # Criar o heatmap interativo
-        fig = ff.create_annotated_heatmap(
-            z=np.round(correlation_matrix.values, 2),  # Duas casas decimais no eixo Z
-            x=corr_columns,
-            y=corr_columns,
-            colorscale='RdBu',
-            showscale=True
-        )
-
-        # Atualizar as propriedades do gráfico
-        fig.update_traces(colorscale='RdBu', zmin=-1.0, zmax=1.0)
-
-        fig.update_layout(
-            title="Matriz de Correlação",
-            xaxis_title="Variáveis",
-            yaxis_title="Variáveis",
-            template="plotly_white"
-        )
-
-        st.plotly_chart(fig)
-
-    def plot_interactive_scatter(self):
-        """
-        Exibe um gráfico de dispersão interativo entre 'ano' e 'preco' categorizado por 'marca'.
-        """
-        # Adicionar coluna de preço formatado para exibir no hover
-        self.df['preco_formatado'] = self.df['preco'].apply(self.format_currency)
-
-        fig = px.scatter(
-            self.df, x='ano', y='preco', color='marca',
-            hover_data={'modelo': True, 'combustivel': True, 'tipo': True, 'preco_formatado': True},
-            title="Preço x Ano por Marca",
-        )
-        st.plotly_chart(fig)
 
     def plot_interactive_histogram(self):
         """
@@ -102,7 +60,15 @@ class CarAnalysis:
             color='marca',
             title="Histograma: Preço x Combustível por Marca",
             barmode='group',
-            hover_data={'marca': True, 'preco_formatado': True}
+            hover_data={'marca': True, 'preco_formatado': True},  # Usa preço formatado no hover
+        )
+
+        # Atualizando hovertemplate para exibir preço formatado corretamente
+        fig.update_traces(
+            hovertemplate="<b>Marca:</b> %{customdata[0]}<br>"
+                          "<b>Combustível:</b> %{x}<br>"
+                          "<b>Preço:</b> %{customdata[1]}",  # Exibe preço_formatado no lugar de preco=k
+            customdata=np.stack((df_grouped['marca'], df_grouped['preco_formatado']), axis=-1)
         )
 
         st.plotly_chart(fig)
@@ -120,14 +86,6 @@ def run_app():
 
     # Exibição do título da aplicação
     st.title("Análise de Correlação e Preços de Carros")
-
-    # Plotar a matriz de correlação
-    st.header("Matriz de Correlação")
-    car_analysis.plot_correlation_matrix()
-
-    # Plotar o gráfico de dispersão interativo
-    st.header("Gráfico Interativo: Preço x Ano por Marca")
-    car_analysis.plot_interactive_scatter()
 
     # Plotar o histograma interativo
     st.header("Histograma: Preço x Combustível por Marca")
