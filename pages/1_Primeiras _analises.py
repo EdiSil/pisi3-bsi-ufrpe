@@ -96,6 +96,12 @@ class CarAnalysisApp:
             # Adicionando as informações de preço no topo das barras
             fig.update_traces(texttemplate='%{text}', textposition='outside', insidetextanchor='start')
 
+            # Adicionando uma linha de tendência para mostrar a evolução do preço
+            fig.add_trace(
+                go.Scatter(x=avg_price_per_year['ano'], y=avg_price_per_year['preco'].apply(lambda x: float(x.replace('R$', '').replace('.', '').replace(',', '.'))), 
+                           mode='lines+markers', name='Tendência', line=dict(color='red'))
+            )
+
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
