@@ -85,15 +85,14 @@ class CarAnalysis:
         fig = px.histogram(
             df_filtered, x="combustivel", y="preco", color="marca",
             title="Histograma: Preço x Combustível por Marca",
-            barmode='group',
-            hover_data=['marca']  # Garante que a marca seja passada no hover
+            barmode='group'
         )
 
         # Customizações para o layout
         fig.update_layout(
             title="Histograma: Preço x Combustível por Marca",
             xaxis_title="Combustível",
-            yaxis_title="Soma do preco",  # Atualizado para "Soma do preco"
+            yaxis_title="Soma do preço",
             template="plotly_white",
             font=dict(family="Arial, sans-serif", size=12, color="black"),
             title_x=0.5,
@@ -101,10 +100,12 @@ class CarAnalysis:
             margin=dict(l=40, r=40, t=40, b=40)
         )
 
-        # Adicionando hover com duas casas decimais no valor de preço
+        # Adicionando hover com detalhes corretos
         fig.update_traces(
-            hovertemplate="<b>Marca:</b> %{hovertext}<br><b>Soma do preco:</b> R$ %{y:.2f}<br><b>Combustível:</b> %{x}",
-            hovertext=df_filtered['marca']  # Garantindo a correta exibição de 'marca'
+            hovertemplate="<b>Marca:</b> %{customdata[0]}<br>"
+                          "<b>Soma do preço:</b> R$ %{y:.2f}<br>"
+                          "<b>Combustível:</b> %{x}",
+            customdata=df_filtered[['marca']]  # Marca é passada corretamente para o hover
         )
 
         st.plotly_chart(fig)
