@@ -82,6 +82,12 @@ class CarAnalysis:
             hover_data={'modelo': True, 'combustivel': True, 'tipo': True, 'preco_formatado': True},
             title="Preço x Ano por Marca",
         )
+
+        # Remover o 'preco' do hover_data e substituir por 'preco_formatado'
+        fig.update_traces(
+            hovertemplate="<b>Marca:</b> %{marker.color}<br><b>Ano:</b> %{x}<br><b>Preço:</b> %{customdata[0]}<br><b>Modelo:</b> %{customdata[1]}<br><b>Combustível:</b> %{customdata[2]}<br><b>Tipo:</b> %{customdata[3]}"
+        )
+
         st.plotly_chart(fig)
 
 # Função principal para rodar a aplicação Streamlit
