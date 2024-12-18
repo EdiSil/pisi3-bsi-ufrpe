@@ -43,11 +43,8 @@ class CarAnalysisApp:
         if self.df is not None:
             fig = px.histogram(self.df, x='marca', title='Histograma da Quantidade de Veículos por Marca',
                                color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
-            # Atualizando o título do eixo Y para 'Quantidade'
+            # Alterando o título do eixo Y para 'Quantidade'
             fig.update_layout(yaxis_title="Quantidade")
-
-            # Atualizando a legenda do eixo Y para 'Total_de_Unidades'
-            fig.update_traces(name="Total_de_Unidades")
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
