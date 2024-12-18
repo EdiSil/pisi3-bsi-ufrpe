@@ -35,8 +35,10 @@ class CarAnalysisApp:
             quilometragem_ticks = [100000, 200000, 300000, 400000, 500000]
             quilometragem_ticks_labels = ['100 Km', '200 Km', '300 Km', '400 Km', '500 Km']
 
+            # Exibindo o Boxplot com detalhes de marca e quilometragem
             fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
-                         color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
+                         color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)},
+                         hover_data={'marca': True, 'quilometragem': True})  # Adicionando detalhes ao passar o mouse
 
             # Atualizando o título do eixo Y
             fig.update_layout(
