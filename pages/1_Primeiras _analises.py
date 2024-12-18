@@ -1,12 +1,10 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from babel import Locale
-from babel.numbers import format_currency
 
 # Função para formatar preço no padrão financeiro brasileiro
 def format_preco(preco):
-    return format_currency(preco, 'BRL', locale='pt_BR')
+    return f"R$ {preco:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
 
 # Classe principal da aplicação
 class CarAnalysisApp:
