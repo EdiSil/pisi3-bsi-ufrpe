@@ -89,6 +89,7 @@ class CarAnalysisApp:
                 value=(int(self.df['ano'].min()), int(self.df['ano'].max())),
                 step=1
             )
+            # Filtrando os dados com base no intervalo de anos selecionado
             filtered_df = self.df[(self.df['ano'] >= self.selected_years[0]) & (self.df['ano'] <= self.selected_years[1])]
 
             fig = px.bar(filtered_df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
@@ -111,7 +112,7 @@ class CarAnalysisApp:
             # Filtrando o DataFrame com base nas interações (ano e combustível)
             filtered_df = self.df[
                 (self.df['combustivel'] == self.selected_fuel) & 
-                (self.df['ano'] >= self.selected_years[0]) &
+                (self.df['ano'] >= self.selected_years[0]) & 
                 (self.df['ano'] <= self.selected_years[1])
             ]
 
