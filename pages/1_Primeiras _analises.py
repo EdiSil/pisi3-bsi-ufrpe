@@ -37,8 +37,7 @@ class CarAnalysisApp:
 
             # Exibindo o Boxplot com detalhes de marca e quilometragem
             fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
-                         color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)},
-                         hover_data={'marca': True, 'quilometragem': True})  # Adicionando detalhes ao passar o mouse
+                         color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
 
             # Atualizando o título do eixo Y
             fig.update_layout(
@@ -46,7 +45,8 @@ class CarAnalysisApp:
                 yaxis=dict(
                     tickvals=quilometragem_ticks,  # Definindo os valores
                     ticktext=quilometragem_ticks_labels  # Definindo os rótulos correspondentes
-                )
+                ),
+                showlegend=False  # Removendo a legenda
             )
             st.plotly_chart(fig)
         else:
@@ -69,7 +69,7 @@ class CarAnalysisApp:
             fig.update_traces(hovertemplate='Marca: %{x}<br>Unidades: %{y}')
 
             # Atualizando o título do eixo Y
-            fig.update_layout(yaxis_title="Unidades")
+            fig.update_layout(yaxis_title="Unidades", showlegend=False)  # Removendo a legenda
 
             st.plotly_chart(fig)
         else:
@@ -93,6 +93,10 @@ class CarAnalysisApp:
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
                              title='Gráfico de Dispersão: Preço x Quilometragem', 
                              color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
+
+            # Remover a legenda do gráfico de dispersão
+            fig.update_layout(showlegend=False)  # Removendo a legenda
+
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -116,3 +120,4 @@ data_path = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
+
