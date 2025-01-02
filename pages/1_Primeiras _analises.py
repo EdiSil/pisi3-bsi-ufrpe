@@ -79,7 +79,17 @@ class CarAnalysisApp:
         """Exibe um gráfico de barras relacionando preço e ano."""
         st.subheader("Gráfico de Barras: Preço por Ano")
         if self.df is not None:
-            fig = px.bar(self.df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
+            # Adicionando interatividade para seleção de uma faixa de anos
+            selected_years = st.slider(
+                "Selecione o intervalo de anos:",
+                min_value=int(self.df['ano'].min()),
+                max_value=int(self.df['ano'].max()),
+                value=(int(self.df['ano'].min()), int(self.df['ano'].max())),
+                step=1
+            )
+            filtered_df = self.df[(self.df['ano'] >= selected_years[0]) & (self.df['ano'] <= selected_years[1])]
+
+            fig = px.bar(filtered_df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
                          color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
             st.plotly_chart(fig)
         else:
@@ -89,7 +99,16 @@ class CarAnalysisApp:
         """Exibe um gráfico de dispersão interativo."""
         st.subheader("Gráfico de Dispersão Interativo")
         if self.df is not None:
-            fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
+            # Adicionando interatividade para selecionar o tipo de combustível
+            selected_fuel = st.selectbox(
+                "Selecione o tipo de combustível:",
+                options=self.df['combustivel'].unique(),
+                index=0
+            )
+
+            filtered_df = self.df[self.df['combustivel'] == selected_fuel]
+
+            fig = px.scatter(filtered_df, x='preco', y='quilometragem', color='marca', 
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
                              title='Gráfico de Dispersão: Preço x Quilometragem', 
                              color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
@@ -120,4 +139,3 @@ data_path = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
-
