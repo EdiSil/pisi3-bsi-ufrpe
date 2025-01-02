@@ -8,6 +8,8 @@ class CarAnalysisApp:
         self.data_path = data_path
         self.df = None
         self.brand_colors = None
+        self.selected_years = None
+        self.selected_fuel = None
 
     def load_data(self):
         """Carrega os dados a partir do caminho especificado."""
@@ -80,14 +82,14 @@ class CarAnalysisApp:
         st.subheader("Gráfico de Barras: Preço por Ano")
         if self.df is not None:
             # Adicionando interatividade para seleção de uma faixa de anos
-            selected_years = st.slider(
+            self.selected_years = st.slider(
                 "Selecione o intervalo de anos:",
                 min_value=int(self.df['ano'].min()),
                 max_value=int(self.df['ano'].max()),
                 value=(int(self.df['ano'].min()), int(self.df['ano'].max())),
                 step=1
             )
-            filtered_df = self.df[(self.df['ano'] >= selected_years[0]) & (self.df['ano'] <= selected_years[1])]
+            filtered_df = self.df[(self.df['ano'] >= self.selected_years[0]) & (self.df['ano'] <= self.selected_years[1])]
 
             fig = px.bar(filtered_df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
                          color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
@@ -100,13 +102,18 @@ class CarAnalysisApp:
         st.subheader("Gráfico de Dispersão Interativo")
         if self.df is not None:
             # Adicionando interatividade para selecionar o tipo de combustível
-            selected_fuel = st.selectbox(
+            self.selected_fuel = st.selectbox(
                 "Selecione o tipo de combustível:",
                 options=self.df['combustivel'].unique(),
                 index=0
             )
 
-            filtered_df = self.df[self.df['combustivel'] == selected_fuel]
+            # Filtrando o DataFrame com base nas interações (ano e combustível)
+            filtered_df = self.df[
+                (self.df['combustivel'] == self.selected_fuel) & 
+                (self.df['ano'] >= self.selected_years[0]) &
+                (self.df['ano'] <= self.selected_years[1])
+            ]
 
             fig = px.scatter(filtered_df, x='preco', y='quilometragem', color='marca', 
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
