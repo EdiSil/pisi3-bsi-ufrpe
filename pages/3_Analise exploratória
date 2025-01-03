@@ -18,7 +18,6 @@ class CarAnalysisApp:
         self.brand_colors = {}
 
     def load_data(self):
-        """Carrega os dados do arquivo CSV e realiza o pré-processamento."""
         try:
             self.df = pd.read_csv(self.data_path)
             self.df['preco'] = self.df['preco'].apply(convert_to_float)
@@ -27,94 +26,56 @@ class CarAnalysisApp:
             st.error(f"Erro ao carregar os dados: {e}")
 
     def filter_top_10_brands(self):
-        """Filtra as 10 marcas com mais veículos."""
         if self.df is not None:
             top_brands = self.df['marca'].value_counts().head(10).index
             self.df = self.df[self.df['marca'].isin(top_brands)]
             self.brand_colors = {brand: px.colors.qualitative.Plotly[i] for i, brand in enumerate(top_brands)}
 
     def show_boxplot_by_quilometragem(self):
-        """Exibe um boxplot das marcas por quilometragem."""
         st.subheader("Boxplot: Quilometragem por Marca")
         if self.df is not None:
-            fig = px.box(self.df, x='marca', y='quilometragem', 
-                         color='marca', 
-                         color_discrete_map=self.brand_colors,
-                         title='Distribuição da Quilometragem por Marca')
-            fig.update_layout(yaxis_title='Quilometragem (Km)', showlegend=False)
+            fig = px.box(self.df, x='marca', y='quilometragem',
+                         color='marca', color_discrete_map=self.brand_colors)
+            fig.update_layout(showlegend=False)
             st.plotly_chart(fig)
 
     def show_histogram_by_brand(self):
-        """Exibe um histograma da quantidade de veículos por marca."""
         st.subheader("Histograma: Quantidade de Veículos por Marca")
         if self.df is not None:
             vehicle_counts = self.df['marca'].value_counts().reset_index()
             vehicle_counts.columns = ['marca', 'unidades']
-
-            fig = px.bar(vehicle_counts, x='marca', y='unidades', 
-                         color='marca', 
-                         color_discrete_map=self.brand_colors,
-                         title='Quantidade de Veículos por Marca',
-                         text='unidades')
-            fig.update_traces(textposition='outside')
-            fig.update_layout(yaxis_title='Unidades', showlegend=False)
+            fig = px.bar(vehicle_counts, x='marca', y='unidades', color='marca')
+            fig.update_layout(showlegend=False)
             st.plotly_chart(fig)
 
     def show_bar_chart_preco_ano(self):
-        """Exibe um gráfico de barras com preço médio por ano."""
-        st.subheader("Gráfico de Barras: Preço Médio por Ano")
+        st.subheader("Gráfico de Barras: Preço por Ano")
         if self.df is not None:
             avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
             avg_price_per_year['preco_formatado'] = avg_price_per_year['preco'].apply(format_brl)
-
-            fig = px.bar(avg_price_per_year, x='ano', y='preco', 
-                         title='Preço Médio dos Veículos por Ano', 
-                         text='preco_formatado', 
-                         color_continuous_scale='Viridis')
-            fig.update_layout(yaxis_title='Preço Médio (R$)', xaxis_title='Ano', showlegend=False)
+            fig = px.bar(avg_price_per_year, x='ano', y='preco', text='preco_formatado')
+            fig.update_traces(textposition='outside')
             st.plotly_chart(fig)
 
     def show_scatter_plot(self):
-        """Exibe um gráfico de dispersão interativo de preço por quilometragem."""
-        st.subheader("Gráfico de Dispersão: Preço x Quilometragem")
+        st.subheader("Gráfico de Dispersão")
         if self.df is not None:
-            fig = px.scatter(self.df, x='preco', y='quilometragem', 
-                             color='marca', 
-                             hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
-                             title='Preço x Quilometragem', 
-                             color_discrete_map=self.brand_colors)
-            fig.update_layout(yaxis_title='Quilometragem (Km)', showlegend=False)
-            st.plotly_chart(fig)
-
-    def show_pie_chart(self):
-        """Exibe um gráfico de pizza com a distribuição de combustíveis."""
-        st.subheader("Distribuição de Combustível")
-        if self.df is not None:
-            fuel_counts = self.df['combustivel'].value_counts().reset_index()
-            fuel_counts.columns = ['combustivel', 'quantidade']
-
-            fig = px.pie(fuel_counts, values='quantidade', names='combustivel', 
-                         title='Distribuição de Combustível')
-            fig.update_traces(textinfo='percent+label')
+            fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca')
+            fig.update_layout(yaxis_title="Quilometragem (Km)", showlegend=False)
             st.plotly_chart(fig)
 
     def run_app(self):
-        """Executa a aplicação Streamlit."""
-        st.title("Análise Interativa de Veículos")
+        st.title("Análise de Veículos")
         self.load_data()
         self.filter_top_10_brands()
-        
-        # Exibir gráficos
         self.show_boxplot_by_quilometragem()
         self.show_histogram_by_brand()
         self.show_bar_chart_preco_ano()
         self.show_scatter_plot()
-        self.show_pie_chart()
 
 # Caminho do arquivo CSV
-data_path = 'Datas/1_Cars_dataset_processado.csv'
+data_path = "Datas/1_Cars_dataset_processado.csv"
 
-# Inicializa o aplicativo
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
