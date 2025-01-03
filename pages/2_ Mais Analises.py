@@ -117,19 +117,14 @@ class CarAnalysisApp:
         self.load_data()
 
         # Mostrar filtro de anos
-        ano_min, ano_max = self.add_year_filter()
+        self.add_year_filter()
 
-        # Adicionando botão de "Atualizar Gráficos"
-        if st.sidebar.button('Atualizar Gráficos'):
-            # Somente atualizar gráficos quando o botão for pressionado
-            if ano_min and ano_max:
-                self.show_price_distribution_by_brand()
-                self.show_price_trends_over_years()
-                self.show_price_by_fuel_type()
-                self.show_price_by_transmission_type()
-                self.show_price_by_fuel_and_brand()
-            else:
-                st.sidebar.warning("Selecione um intervalo de anos para atualizar os gráficos.")
+        # Atualiza todos os gráficos assim que o filtro de anos for ajustado
+        self.show_price_distribution_by_brand()
+        self.show_price_trends_over_years()
+        self.show_price_by_fuel_type()
+        self.show_price_by_transmission_type()
+        self.show_price_by_fuel_and_brand()
 
 # Caminho do arquivo CSV
 data_path = "Datas/1_Cars_dataset_processado.csv"
