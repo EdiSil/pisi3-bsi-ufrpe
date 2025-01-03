@@ -50,7 +50,7 @@ class CarEDAApp:
 
 if __name__ == '__main__':
     st.title('Análise Exploratória de Dados de Carros')
-    file_path = '/mnt/data/1_Cars_dataset_processedo.csv'
+    file_path = 'Datas/1_Cars_processado.csv'
     df = pd.read_csv(file_path)
     app = CarEDAApp(df)  # Inicializa o aplicativo
     st.write('Aplicativo de análise de dados iniciado.')
