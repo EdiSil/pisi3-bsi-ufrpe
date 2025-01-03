@@ -36,87 +36,96 @@ class CarAnalysisApp:
     def show_boxplot_by_quilometragem(self):
         """Exibe um boxplot das marcas por quilometragem."""
         st.subheader("Boxplot: Quilometragem por Marca")
-        quilometragem_ticks = [100000, 200000, 300000, 400000, 500000]
-        quilometragem_ticks_labels = ['100 Km', '200 Km', '300 Km', '400 Km', '500 Km']
-
-        fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
-                     color='marca', color_discrete_map=self.brand_colors, hover_data={'marca': True, 'quilometragem': True})
-
-        fig.update_layout(
-            showlegend=False,  # Remove a legenda
-            yaxis_title="Quilometragem",
-            yaxis=dict(
-                tickvals=quilometragem_ticks,
-                ticktext=quilometragem_ticks_labels
+        if self.df is not None:
+            quilometragem_ticks = [100000, 200000, 300000, 400000, 500000]
+            quilometragem_ticks_labels = ['100 Km', '200 Km', '300 Km', '400 Km', '500 Km']
+            fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem',
+                         color='marca', color_discrete_map=self.brand_colors,
+                         hover_data={'marca': True, 'quilometragem': True})
+            fig.update_layout(
+                yaxis_title="Quilometragem",
+                yaxis=dict(
+                    tickvals=quilometragem_ticks,
+                    ticktext=quilometragem_ticks_labels
+                ),
+                showlegend=False  # Remove a legenda
             )
-        )
-        st.plotly_chart(fig)
+            st.plotly_chart(fig)
 
     def show_histogram_by_brand(self):
         """Exibe um histograma da quantidade de veículos por marca."""
         st.subheader("Histograma: Quantidade de Veículos por Marca")
-        vehicle_counts = self.df['marca'].value_counts().reset_index()
-        vehicle_counts.columns = ['marca', 'unidades']
+        if self.df is not None:
+            vehicle_counts = self.df['marca'].value_counts().reset_index()
+            vehicle_counts.columns = ['marca', 'unidades']
 
-        fig = px.bar(vehicle_counts, x='marca', y='unidades', title='Histograma da Quantidade de Veículos por Marca', 
-                     color='marca', color_discrete_map=self.brand_colors, text='unidades')
+            fig = px.bar(vehicle_counts, x='marca', y='unidades', title='Histograma da Quantidade de Veículos por Marca',
+                         color='marca', color_discrete_map=self.brand_colors,
+                         text='unidades')
 
-        fig.update_traces(hovertemplate='Marca: %{x}<br>Unidades: %{y}')
-        fig.update_layout(showlegend=False, yaxis_title="Unidades")  # Remove a legenda
-        st.plotly_chart(fig)
+            fig.update_traces(hovertemplate='Marca: %{x}<br>Unidades: %{y}')
+            fig.update_layout(yaxis_title="Unidades", showlegend=False)  # Remove a legenda
+            st.plotly_chart(fig)
 
     def show_bar_chart_preco_ano(self):
-        """Exibe um gráfico de barras relacionando preço acumulado por ano."""
-        st.subheader("Gráfico de Barras: Relação entre Preços Acumulados por Ano")
-        avg_price_per_year = self.df.groupby('ano')['preco'].sum().reset_index()
-        avg_price_per_year['preco_formatado'] = avg_price_per_year['preco'].apply(format_brl)
-
-        fig = px.bar(avg_price_per_year, x='ano', y='preco', title='Relação entre Preços Acumulados por Ano', 
-                     color='ano', text='preco_formatado', color_continuous_scale='Viridis')
-
-        fig.update_layout(
-            yaxis_title="Preço Acumulado (R$)",
-            xaxis_title="Ano",
-            hovermode="x unified"
-        )
-        st.plotly_chart(fig)
+        """Exibe um gráfico de barras relacionando preço e ano."""
+        st.subheader("Gráfico de Barras: Preços Acumulados por Ano")
+        if self.df is not None:
+            avg_price_per_year = self.df.groupby('ano')['preco'].sum().reset_index()
+            avg_price_per_year['preco_formatado'] = avg_price_per_year['preco'].apply(format_brl)
+            fig = px.bar(avg_price_per_year, x='ano', y='preco', title='Relação entre Preços Acumulados por Ano',
+                         color='ano', text='preco_formatado',
+                         color_continuous_scale='Viridis')
+            fig.update_layout(
+                yaxis_title="Preço Acumulado (R$)",
+                xaxis_title="Ano",
+                hovermode="x unified",
+                yaxis=dict(tickvals=list(range(2000, 2024)))  # Define a escala de anos
+            )
+            st.plotly_chart(fig)
 
     def show_scatter_plot(self):
         """Exibe um gráfico de dispersão interativo."""
         st.subheader("Gráfico de Dispersão Interativo")
-        fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
-                         hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
-                         title='Gráfico de Dispersão: Preço x Quilometragem', 
-                         color_discrete_map=self.brand_colors)
+        if self.df is not None:
+            fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca',
+                             hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
+                             title='Gráfico de Dispersão: Preço x Quilometragem',
+                             color_discrete_map=self.brand_colors)
+            fig.update_layout(
+                yaxis_title="Quilometragem (Km)",
+                showlegend=False  # Remove a legenda
+            )
+            st.plotly_chart(fig)
 
-        fig.update_layout(
-            showlegend=False,  # Remove a legenda
-            yaxis_title="Quilometragem (Km)"
-        )
-        st.plotly_chart(fig)
+    def show_interactive_panel(self):
+        """Exibe um painel interativo detalhado."""
+        st.sidebar.title("Painel Interativo")
+        selected_brand = st.sidebar.selectbox("Selecione uma Marca:", options=self.df['marca'].unique())
+        filtered_data = self.df[self.df['marca'] == selected_brand]
+        st.write(f"### Dados Filtrados para a Marca: {selected_brand}")
+        st.dataframe(filtered_data)
+        avg_price = filtered_data['preco'].mean()
+        st.metric("Preço Médio da Marca (R$)", format_brl(avg_price))
+        total_vehicles = filtered_data.shape[0]
+        st.metric("Total de Veículos", total_vehicles)
 
     def run_app(self):
-        """Executa o painel interativo para seleção de gráficos."""
-        st.title("Análise de Dados de Veículos")
+        """Executa todos os métodos da aplicação."""
+        st.title("Primeiras Análises")
         self.load_data()
         self.filter_top_10_brands()
 
-        st.sidebar.title("Painel Interativo")
-        options = {
-            "Boxplot: Quilometragem por Marca": self.show_boxplot_by_quilometragem,
-            "Histograma: Quantidade de Veículos por Marca": self.show_histogram_by_brand,
-            "Gráfico de Barras: Preços Acumulados por Ano": self.show_bar_chart_preco_ano,
-            "Gráfico de Dispersão: Preço x Quilometragem": self.show_scatter_plot
-        }
-
-        selected_option = st.sidebar.radio("Selecione um gráfico para exibir:", list(options.keys()))
-        if selected_option:
-            options[selected_option]()
+        # Exibindo gráficos
+        self.show_boxplot_by_quilometragem()
+        self.show_histogram_by_brand()
+        self.show_bar_chart_preco_ano()
+        self.show_scatter_plot()
+        self.show_interactive_panel()
 
 # Caminho do arquivo CSV
 data_path = "Datas/1_Cars_dataset_processado.csv"
-
-# Inicializa o aplicativo
+@@ -138,4 +120,3 @@
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
