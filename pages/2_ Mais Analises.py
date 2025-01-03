@@ -100,19 +100,19 @@ class CarAnalysisApp:
             st.plotly_chart(fig)
 
     def show_price_by_category(self):
-    """Preços médios por categorias adicionais."""
-    if self.df is not None:
-        if 'categoria' in self.df.columns:
-            avg_price_by_category = self.df.groupby('categoria')['preco'].mean().reset_index()
-            fig = px.bar(
-                avg_price_by_category, x='categoria', y='preco', 
-                color='categoria',
-                title='Preços Médios por Categoria',
-                labels={'categoria': 'Categoria', 'preco': 'Preço Médio (R$)'}
-            )
-            st.plotly_chart(fig)
-        else:
-            st.warning("A coluna 'categoria' não está presente no conjunto de dados.")
+        """Preços médios por categorias adicionais."""
+        if self.df is not None:
+            if 'categoria' in self.df.columns:
+                avg_price_by_category = self.df.groupby('categoria')['preco'].mean().reset_index()
+                fig = px.bar(
+                    avg_price_by_category, x='categoria', y='preco', 
+                    color='categoria',
+                    title='Preços Médios por Categoria',
+                    labels={'categoria': 'Categoria', 'preco': 'Preço Médio (R$)'}
+                )
+                st.plotly_chart(fig)
+            else:
+                st.warning("A coluna 'categoria' não está presente no conjunto de dados.")
 
     def run_app(self):
         """Executa todos os métodos da aplicação."""
@@ -134,4 +134,3 @@ data_path = "Datas/1_Cars_dataset_processado.csv"
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
-
