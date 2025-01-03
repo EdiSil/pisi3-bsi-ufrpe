@@ -7,46 +7,37 @@ import pandas as pd
 class CarEDAApp:
     def __init__(self, data):
         self.df = data
-        self.create_sidebar()
         self.create_main_panel()
-
-    def create_sidebar(self):
-        st.sidebar.header('Configurações do Gráfico')
-        self.plot_type = st.sidebar.selectbox(
-            'Escolha o tipo de gráfico:',
-            ['Histograma', 'Boxplot', 'Scatterplot', 'Countplot']
-        )
-        self.column = st.sidebar.selectbox('Escolha a coluna para análise:', self.df.columns)
 
     def create_main_panel(self):
         st.title('Análise Exploratória de Dados de Carros')
         self.generate_all_plots()
 
     def generate_all_plots(self):
-        st.subheader('Distribuição das Variáveis')
-        plt.figure(figsize=(10, 6))
-        for column in self.df.columns:
-            if pd.api.types.is_numeric_dtype(self.df[column]):
-                plt.figure(figsize=(10, 6))
-                sns.histplot(self.df[column], kde=True)
-                plt.title(f'Histograma de {column}')
-                st.pyplot(plt)
-
-        st.subheader('Boxplots das Variáveis Numéricas')
-        for column in self.df.columns:
-            if pd.api.types.is_numeric_dtype(self.df[column]):
-                plt.figure(figsize=(10, 6))
-                sns.boxplot(x=self.df[column])
-                plt.title(f'Boxplot de {column}')
-                st.pyplot(plt)
+        # Histogramas
+        st.subheader('Distribuição das Variáveis Numéricas (Histogramas)')
+        for column in self.df.select_dtypes(include=['float64', 'int64']).columns:
+            plt.figure(figsize=(10, 6))
+            sns.histplot(self.df[column], kde=True)
+            plt.title(f'Histograma de {column}')
+            st.pyplot(plt)
         
-        st.subheader('Distribuição de Categorias')
-        for column in self.df.columns:
-            if pd.api.types.is_categorical_dtype(self.df[column]) or self.df[column].dtype == 'object':
-                plt.figure(figsize=(10, 6))
-                sns.countplot(x=self.df[column])
-                plt.title(f'Countplot de {column}')
-                st.pyplot(plt)
+        # Boxplots
+        st.subheader('Boxplots das Variáveis Numéricas')
+        for column in self.df.select_dtypes(include=['float64', 'int64']).columns:
+            plt.figure(figsize=(10, 6))
+            sns.boxplot(x=self.df[column])
+            plt.title(f'Boxplot de {column}')
+            st.pyplot(plt)
+        
+        # Countplots
+        st.subheader('Distribuição de Categorias (Countplots)')
+        for column in self.df.select_dtypes(include=['object', 'category']).columns:
+            plt.figure(figsize=(10, 6))
+            sns.countplot(x=self.df[column])
+            plt.title(f'Countplot de {column}')
+            plt.xticks(rotation=45)
+            st.pyplot(plt)
 
 if __name__ == '__main__':
     st.title('Upload de Dataset de Carros')
