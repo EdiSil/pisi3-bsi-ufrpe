@@ -100,7 +100,7 @@ class CarAnalysisCharts:
             self.plot_price_by_transmission_type()
 
 # Caminho para o arquivo CSV
-data_path = '/mnt/data/1_Cars_dataset_processado.csv'
+data_path = 'Datas/1_Cars_dataset_processado.csv'
 
 # Executa a aplicação
 if __name__ == '__main__':
