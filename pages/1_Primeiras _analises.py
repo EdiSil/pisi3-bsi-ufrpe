@@ -78,7 +78,7 @@ class CarAnalysisApp:
         self.show_scatter_plot()
 
 # Caminho do arquivo CSV
-data_path = "/mnt/data/1_Cars_dataset_processado.csv"
+data_path = "Datas/1_Cars_dataset_processado.csv"
 
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
