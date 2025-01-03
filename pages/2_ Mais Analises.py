@@ -1,126 +1,108 @@
 import pandas as pd
-import plotly.figure_factory as ff
-import plotly.express as px
 import streamlit as st
-import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+# Função para formatar valores como moeda brasileira
+def format_brl(value):
+    return f"R${value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+# Função para converter valores de string para float
+def convert_to_float(value):
+    return float(value.replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Classe para Análise de Carros
-class CarAnalysis:
-    def __init__(self, data_url, exchange_rate):
-        """
-        Inicializa a classe com o URL dos dados CSV e a taxa de câmbio.
-        """
-        self.data_url = data_url
-        self.exchange_rate = exchange_rate
-        self.df = pd.read_csv(data_url)
-        self.df = self.clean_data()
+class CarAnalysisApp:
+    def __init__(self, data_path):
+        self.data_path = data_path
+@@ -39,18 +31,21 @@
+        """Exibe um boxplot das marcas por quilometragem."""
+        st.subheader("Boxplot: Quilometragem por Marca")
+        if self.df is not None:
+            quilometragem_ticks = [100000, 200000, 300000, 400000, 500000]
+            quilometragem_ticks_labels = ['100 Km', '200 Km', '300 Km', '400 Km', '500 Km']
 
-    def clean_data(self):
-        """
-        Realiza a limpeza dos dados: remove valores nulos, converte colunas numéricas
-        e aplica conversão de moeda no preço.
-        """
-        relevant_columns = ['marca', 'modelo', 'ano', 'quilometragem', 'preco', 'combustivel', 'tipo']
-        self.df = self.df[relevant_columns]
+            fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
+                         color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)},
+                         hover_data={'marca': True, 'quilometragem': True})
 
-        # Converte para numérico e trata erros com 'coerce' (transforma erros em NaN)
-        self.df['ano'] = pd.to_numeric(self.df['ano'], errors='coerce')
-        self.df['quilometragem'] = pd.to_numeric(self.df['quilometragem'], errors='coerce')
-        self.df['preco'] = pd.to_numeric(self.df['preco'], errors='coerce')
+            fig.update_layout(
+                yaxis_title="Quilometragem",
+                yaxis=dict(
+                    tickvals=quilometragem_ticks,
+                    ticktext=quilometragem_ticks_labels
+                )
+            )
+            st.plotly_chart(fig)
+@@ -61,14 +56,19 @@
+        """Exibe um histograma da quantidade de veículos por marca."""
+        st.subheader("Histograma: Quantidade de Veículos por Marca")
+        if self.df is not None:
+            vehicle_counts = self.df['marca'].value_counts().reset_index()
+            vehicle_counts.columns = ['marca', 'unidades']
 
-        # Remove as linhas com valores nulos nas colunas numéricas
-        self.df = self.df.dropna(subset=['ano', 'quilometragem', 'preco'])
+            fig = px.bar(vehicle_counts, x='marca', y='unidades', title='Histograma da Quantidade de Veículos por Marca', 
+                         color='marca', color_discrete_map={brand: color for brand, color in zip(vehicle_counts['marca'], self.brand_colors)},
+                         text='unidades')
 
-        # Converte preço de Rúpia Paquistanesa para Real Brasileiro
-        self.df['preco'] = self.df['preco'] * self.exchange_rate
+            fig.update_traces(hovertemplate='Marca: %{x}<br>Unidades: %{y}')
+            fig.update_layout(yaxis_title="Unidades")
 
-        return self.df
+            st.plotly_chart(fig)
+@@ -79,65 +79,40 @@
+        """Exibe um gráfico de barras relacionando preço e ano."""
+        st.subheader("Gráfico de Barras: Preço por Ano")
+        if self.df is not None:
+            # Agrupar os dados por ano e calcular a média do preço
+            avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
+            # Formatando os valores de preço no formato de moeda brasileira
+            avg_price_per_year['preco'] = avg_price_per_year['preco'].apply(lambda x: format_brl(x))
+            # Exibindo o gráfico de barras
+            fig = px.bar(avg_price_per_year, x='ano', y='preco', title='Relação entre Preço e Ano', 
+                         color='ano', text='preco',
+                         color_continuous_scale='Viridis')
+            # Atualizando o título do eixo Y e as informações no hover
+            fig.update_layout(
+                yaxis_title="Preço Médio (R$)",
+                xaxis_title="Ano",
+                hovermode="x unified"  # Agrupar os dados do hover por ano
+            )
+            # Adicionando as informações de preço no topo das barras
+            fig.update_traces(texttemplate='%{text}', textposition='outside', insidetextanchor='start')
+            # Adicionando uma linha de tendência para mostrar a evolução do preço
+            fig.add_trace(
+                go.Scatter(x=avg_price_per_year['ano'], y=avg_price_per_year['preco'].apply(convert_to_float), 
+                           mode='lines+markers', name='Tendência', line=dict(color='red'))
+            )
+            st.plotly_chart(fig)
+        else:
+            st.warning("Dados não disponíveis para exibição.")
 
-    def format_currency(self, value):
-        """
-        Formata um valor no formato monetário brasileiro (R$) sem depender da localidade do sistema.
-        """
-        return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    def show_scatter_plot(self):
+        """Exibe um gráfico de dispersão interativo."""
+        st.subheader("Gráfico de Dispersão Interativo")
+        if self.df is not None:
+            fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
+                             hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
+                             title='Gráfico de Dispersão: Preço x Quilometragem', 
+                             color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
+            st.plotly_chart(fig)
+        else:
+            st.warning("Dados não disponíveis para exibição.")
 
-    def plot_correlation_matrix(self):
-        """
-        Plota a matriz de correlação entre as colunas numéricas: 'ano', 'quilometragem', e 'preco'.
-        """
-        corr_columns = ['ano', 'quilometragem', 'preco']
-        correlation_matrix = self.df[corr_columns].corr()
+    def run_app(self):
+        """Executa todos os métodos da aplicação."""
+        st.title("Primeiras Análises")
+        self.load_data()
+        self.filter_top_10_brands()
 
-        # Criar o heatmap interativo
-        fig = ff.create_annotated_heatmap(
-            z=np.round(correlation_matrix.values, 2),  # Duas casas decimais no eixo Z
-            x=corr_columns,
-            y=corr_columns,
-            colorscale='RdBu',
-            showscale=True
-        )
+        # Exibindo gráficos
+        self.show_boxplot_by_quilometragem()
+        self.show_histogram_by_brand()
+        self.show_bar_chart_preco_ano()
+        self.show_scatter_plot()
 
-        # Atualizar as propriedades do gráfico
-        fig.update_traces(colorscale='RdBu', zmin=-1.0, zmax=1.0)
+# Caminho do arquivo CSV
+data_path = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
 
-        fig.update_layout(
-            title="Matriz de Correlação",
-            xaxis_title="Variáveis",
-            yaxis_title="Variáveis",
-            template="plotly_white"
-        )
-
-        # Exibindo o gráfico no Streamlit
-        st.plotly_chart(fig)
-
-        # Explicação sobre a correlação
-        st.markdown("""
-        **Explicando:**
-        
-        1° **Correlação entre "ano" e "preço":** 0.68 (Correlação positiva forte). Essa correlação sugere que veículos mais recentes (ano mais alto) tendem a ter um preço maior. O coeficiente de 0.68 indica uma relação linear positiva considerável. Isso é esperado, pois veículos novos geralmente têm maior valor de mercado em comparação aos veículos antigos.
-
-        2° **Correlação entre "quilometragem" e "preço":** -0.19 (Correlação negativa fraca). A correlação entre a quilometragem e o preço é negativa e fraca. Isso significa que, embora haja uma tendência de que veículos com mais quilometragem tenham um preço menor, essa relação não é forte. Em outras palavras, a quilometragem impacta o preço, mas há outros fatores mais relevantes influenciando essa variável.
-
-        3° **Correlação entre "ano" e "quilometragem":** -0.38 (Correlação negativa moderada). Essa correlação mostra que veículos mais novos tendem a ter menos quilometragem. O valor de -0.38 indica uma relação linear negativa moderada. Isso pode ser explicado pelo fato de veículos mais antigos, naturalmente, acumularem maior quilometragem com o tempo, enquanto veículos recentes ainda não tiveram tempo para percorrer grandes distâncias.
-
-        **Conclusão:** 
-        
-        Veículos mais novos tendem a ter preços mais altos e menor quilometragem. A quilometragem tem uma relação negativa fraca com o preço, sugerindo que outros fatores, como o estado de conservação, ano e modelo, podem ter mais impacto no preço do que apenas a quilometragem.
-        """)
-
-    def plot_interactive_scatter(self):
-        """
-        Exibe um gráfico de dispersão interativo entre 'ano' e 'preco' categorizado por 'marca'.
-        """
-        # Adicionar coluna de preço formatado para exibir no hover
-        self.df['preco_formatado'] = self.df['preco'].apply(self.format_currency)
-
-        fig = px.scatter(
-            self.df, x='ano', y='preco', color='marca',
-            hover_data={'modelo': True, 'combustivel': True, 'tipo': True, 'preco_formatado': True},
-            title="Preço x Ano por Marca",
-        )
-        st.plotly_chart(fig)
-
-# Função principal para rodar a aplicação Streamlit
-def run_app():
-    # URL do arquivo CSV no GitHub
-    DATA_URL = "https://github.com/EdiSil/pisi3-bsi-ufrpe/raw/main/data/OLX_cars_dataset002.csv"
-
-    # Taxa de câmbio de Rúpia Paquistanesa (PKR) para Real Brasileiro (BRL)
-    EXCHANGE_RATE = 0.027  # Exemplo: 1 PKR = 0.027 BRL
-
-    # Criação do objeto de análise de carros
-    car_analysis = CarAnalysis(DATA_URL, EXCHANGE_RATE)
-
-    # Exibição do título da aplicação
-    st.title("Análise de Correlação e Preços de Carros")
-
-    # Plotar a matriz de correlação
-    st.header("Matriz de Correlação")
-    car_analysis.plot_correlation_matrix()
-
-    # Plotar o gráfico de dispersão interativo
-    st.header("Gráfico Interativo: Preço x Ano por Marca")
-    car_analysis.plot_interactive_scatter()
-
+# Inicializa o aplicativo
 if __name__ == "__main__":
-    run_app()
+    app = CarAnalysisApp(data_path)
+    app.run_app()
