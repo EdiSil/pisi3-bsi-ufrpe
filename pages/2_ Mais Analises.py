@@ -100,7 +100,7 @@ class CarAnalysisApp:
         self.show_scatter_plot()
 
 # Caminho do arquivo CSV
-data_path = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/OLX_cars_dataset002.csv"
+data_path = "Datas/1_Cars_dataset_processado.csv"
 
 # Inicializa o aplicativo
 if __name__ == "__main__":
