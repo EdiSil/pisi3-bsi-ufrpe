@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Load data
-file_path = '/mnt/data/1_Cars_dataset_processado.csv'
+file_path = 'Datas/1_Cars_dataset_processado.csv'
 cars_data = pd.read_csv(file_path)
 
 # Set up Streamlit dashboard
