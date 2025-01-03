@@ -33,17 +33,6 @@ class CarAnalysisApp:
             )
             self.df = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max)]
 
-    def show_price_vs_mileage_scatter(self):
-        """Gráfico de dispersão entre preço e quilometragem."""
-        if self.df is not None:
-            fig = px.scatter(
-                self.df, x='quilometragem', y='preco', 
-                color='marca', hover_data=['ano', 'modelo', 'combustivel'],
-                title='Dispersão: Preço vs Quilometragem',
-                labels={'quilometragem': 'Quilometragem (km)', 'preco': 'Preço (R$)'}
-            )
-            st.plotly_chart(fig)
-
     def show_price_distribution_by_brand(self):
         """Distribuição de preços por marca."""
         if self.df is not None:
@@ -95,7 +84,6 @@ class CarAnalysisApp:
         st.title("Análise Exploratória de Carros Usados")
         self.load_data()
         self.add_year_filter()
-        self.show_price_vs_mileage_scatter()
         self.show_price_distribution_by_brand()
         self.show_price_trends_over_years()
         self.show_price_by_fuel_type()
