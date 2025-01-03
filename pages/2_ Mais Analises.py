@@ -29,7 +29,7 @@ class CarAnalysisApp:
     def filter_top_10_brands(self):
         """Filtra as 10 marcas com mais veículos."""
         if self.df is not None:
-            top_brands = self.df['marca'].value_counts().head(10).index
+            top_brands = self.df['marca'].value_counts().head(11).index
             self.df = self.df[self.df['marca'].isin(top_brands)]
             self.brand_colors = {brand: px.colors.qualitative.Plotly[i] for i, brand in enumerate(top_brands)}
 
@@ -92,7 +92,7 @@ class CarAnalysisApp:
 
     def show_scatter_plot(self):
         """Exibe um gráfico de dispersão interativo."""
-        st.subheader("Gráfico de Dispersão Interativo")
+        st.subheader("Gráfico de Dispersão")
         if self.df is not None:
             fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
