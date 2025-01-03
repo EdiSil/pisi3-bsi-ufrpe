@@ -47,6 +47,8 @@ class CarAnalysisApp:
                 title='Distribuição de Preços por Marca (Dispersão)',
                 labels={'marca': 'Marca', 'preco': 'Preço (R$)'}
             )
+            # Removendo a legenda "Marca" do lado direito do gráfico
+            fig.update_layout(showlegend=False)
             st.plotly_chart(fig)
 
     def show_price_trends_over_years(self):
