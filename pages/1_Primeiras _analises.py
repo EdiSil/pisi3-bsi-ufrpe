@@ -1,7 +1,11 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-import locale
+
+# Função para formatar valores em reais
+def format_currency(value):
+    """Formata valores como moeda em R$ com separação de milhares e duas casas decimais."""
+    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 # Classe principal da aplicação
 class CarAnalysisApp:
@@ -12,9 +16,6 @@ class CarAnalysisApp:
         self.selected_years = None
         self.selected_fuel = None
         self.exchange_rate = exchange_rate  # Taxa de câmbio do dólar para real
-
-        # Configurando o locale para o Brasil
-        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
     def load_data(self):
         """Carrega os dados a partir do caminho especificado."""
@@ -30,7 +31,7 @@ class CarAnalysisApp:
         if 'preco' in self.df.columns:
             self.df['preco'] = self.df['preco'] * self.exchange_rate
             # Formatar os valores de 'preco' para 2 casas decimais e aplicar a formatação monetária
-            self.df['preco'] = self.df['preco'].apply(lambda x: locale.currency(x, grouping=True))
+            self.df['preco'] = self.df['preco'].apply(format_currency)
         else:
             st.warning("Coluna 'preco' não encontrada!")
 
@@ -113,7 +114,6 @@ class CarAnalysisApp:
             # Atualizando o eixo Y para formatar como "R$"
             fig.update_layout(
                 yaxis_title="Preço (R$)", 
-                yaxis_tickprefix="R$ ",
                 showlegend=False
             )
 
@@ -148,7 +148,6 @@ class CarAnalysisApp:
             # Atualizando o gráfico para exibir preço em R$
             fig.update_layout(
                 xaxis_title="Preço (R$)",
-                xaxis_tickprefix="R$ ",
                 showlegend=False  # Removendo a legenda
             )
 
