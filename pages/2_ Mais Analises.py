@@ -39,15 +39,14 @@ class CarAnalysisApp:
         return None, None
 
     def show_price_distribution_by_brand(self):
-        """Distribuição de preços por marca com gráfico de caixa (box plot)."""
+        """Distribuição de preços por marca com gráfico de dispersão."""
         if self.df_filtered is not None:
-            fig = px.box(
+            fig = px.scatter(
                 self.df_filtered, x='marca', y='preco', 
                 color='marca',
-                title='Distribuição de Preços por Marca',
+                title='Distribuição de Preços por Marca (Dispersão)',
                 labels={'marca': 'Marca', 'preco': 'Preço (R$)'}
             )
-            fig.update_layout(showlegend=False)  # Retirando a legenda
             st.plotly_chart(fig)
 
     def show_price_trends_over_years(self):
@@ -101,6 +100,8 @@ class CarAnalysisApp:
                 labels={'combustivel': 'Tipo de Combustível', 'preco': 'Preço Médio (R$)'},
                 barmode='stack'  # Empilhando as barras
             )
+            # Retirando a legenda 'Marca' do lado direito
+            fig.update_layout(showlegend=False)
             st.plotly_chart(fig)
 
     def run_app(self):
