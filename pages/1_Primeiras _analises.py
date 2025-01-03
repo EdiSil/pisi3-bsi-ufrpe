@@ -46,7 +46,7 @@ class CarEDAApp:
         st.pyplot(plt)
 
 if __name__ == '__main__':
-    file_path = '/mnt/data/1_Cars_dataset_processedo.csv'
+    file_path = 'Datas/1_Cars_processado.csv'
     df = pd.read_csv(file_path)
     app = CarEDAApp(df)  # Inicializa o aplicativo
     st.write('Aplicativo de análise de dados iniciado.')
