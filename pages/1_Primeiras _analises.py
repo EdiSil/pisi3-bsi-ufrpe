@@ -20,33 +20,39 @@ class CarEDAApp:
 
     def create_main_panel(self):
         st.title('Análise Exploratória de Dados de Carros')
-        self.display_data()
-        self.generate_plot()
+        self.generate_all_plots()
 
-    def display_data(self):
-        st.subheader('Visualização Inicial dos Dados')
-        st.write(self.df.head())
-        st.write(self.df.describe())
-
-    def generate_plot(self):
-        st.subheader('Gráfico Gerado')
+    def generate_all_plots(self):
+        st.subheader('Distribuição das Variáveis')
         plt.figure(figsize=(10, 6))
+        for column in self.df.columns:
+            if pd.api.types.is_numeric_dtype(self.df[column]):
+                plt.figure(figsize=(10, 6))
+                sns.histplot(self.df[column], kde=True)
+                plt.title(f'Histograma de {column}')
+                st.pyplot(plt)
+
+        st.subheader('Boxplots das Variáveis Numéricas')
+        for column in self.df.columns:
+            if pd.api.types.is_numeric_dtype(self.df[column]):
+                plt.figure(figsize=(10, 6))
+                sns.boxplot(x=self.df[column])
+                plt.title(f'Boxplot de {column}')
+                st.pyplot(plt)
         
-        if self.plot_type == 'Histograma':
-            sns.histplot(self.df[self.column], kde=True)
-        elif self.plot_type == 'Boxplot':
-            sns.boxplot(x=self.df[self.column])
-        elif self.plot_type == 'Scatterplot':
-            x_col = st.sidebar.selectbox('Escolha a coluna X:', self.df.columns)
-            y_col = st.sidebar.selectbox('Escolha a coluna Y:', self.df.columns)
-            sns.scatterplot(x=self.df[x_col], y=self.df[y_col])
-        elif self.plot_type == 'Countplot':
-            sns.countplot(x=self.df[self.column])
-        
-        st.pyplot(plt)
+        st.subheader('Distribuição de Categorias')
+        for column in self.df.columns:
+            if pd.api.types.is_categorical_dtype(self.df[column]) or self.df[column].dtype == 'object':
+                plt.figure(figsize=(10, 6))
+                sns.countplot(x=self.df[column])
+                plt.title(f'Countplot de {column}')
+                st.pyplot(plt)
 
 if __name__ == '__main__':
-    file_path = 'Datas/1_Cars_processado.csv'
-    df = pd.read_csv(file_path)
-    app = CarEDAApp(df)  # Inicializa o aplicativo
-    st.write('Aplicativo de análise de dados iniciado.')
+    st.title('Upload de Dataset de Carros')
+    uploaded_file = st.file_uploader('Carregue o arquivo CSV com os dados dos carros', type='csv')
+
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        app = CarEDAApp(df)  # Inicializa o aplicativo
+        st.write('Aplicativo de análise de dados iniciado.')
