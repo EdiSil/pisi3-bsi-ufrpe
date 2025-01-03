@@ -3,103 +3,103 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Load data
+# Carregar dados
 file_path = 'Datas/1_Cars_dataset_processado.csv'
 cars_data = pd.read_csv(file_path)
 
-# Set up Streamlit dashboard
-st.set_page_config(page_title="Car Dataset Analysis", layout="wide")
-st.title("Car Dataset Interactive Dashboard")
+# Configurar o dashboard do Streamlit
+st.set_page_config(page_title="Análise de Dados de Carros", layout="wide")
+st.title("Dashboard Interativo de Dados de Carros")
 
-# Sidebar for filters
-st.sidebar.header("Filters")
-selected_brands = st.sidebar.multiselect(
-    "Select Brands:", options=cars_data["marca"].unique(), default=cars_data["marca"].unique()
+# Barra lateral para filtros
+st.sidebar.header("Filtros")
+marcas_selecionadas = st.sidebar.multiselect(
+    "Selecione as Marcas:", options=cars_data["marca"].unique(), default=cars_data["marca"].unique()
 )
-selected_fuel = st.sidebar.multiselect(
-    "Select Fuel Types:", options=cars_data["combustivel"].unique(), default=cars_data["combustivel"].unique()
+combustiveis_selecionados = st.sidebar.multiselect(
+    "Selecione os Tipos de Combustível:", options=cars_data["combustivel"].unique(), default=cars_data["combustivel"].unique()
 )
 
-# Filter data based on selection
-filtered_data = cars_data[
-    (cars_data["marca"].isin(selected_brands)) &
-    (cars_data["combustivel"].isin(selected_fuel))
+# Filtrar dados com base na seleção
+dados_filtrados = cars_data[
+    (cars_data["marca"].isin(marcas_selecionadas)) &
+    (cars_data["combustivel"].isin(combustiveis_selecionados))
 ]
 
-# Set consistent color palette
-palette = sns.color_palette("tab10", n_colors=filtered_data["marca"].nunique())
+# Definir paleta de cores consistente
+palette = sns.color_palette("tab10", n_colors=dados_filtrados["marca"].nunique())
 
-# Create plots
-# 1. Count plot of car brands
-st.subheader("Number of Cars by Brand")
+# Criar gráficos
+# 1. Gráfico de contagem das marcas de carros
+st.subheader("Número de Carros por Marca")
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.countplot(data=filtered_data, x="marca", palette=palette, ax=ax)
-ax.set_title("Number of Cars by Brand")
-ax.set_xlabel("Brand")
-ax.set_ylabel("Count")
+sns.countplot(data=dados_filtrados, x="marca", palette=palette, ax=ax)
+ax.set_title("Número de Carros por Marca")
+ax.set_xlabel("Marca")
+ax.set_ylabel("Contagem")
 ax.tick_params(axis='x', rotation=45)
 st.pyplot(fig)
 
-# 2. Box plot of price by car brand
-st.subheader("Price Distribution by Brand")
+# 2. Gráfico de boxplot do preço por marca
+st.subheader("Distribuição de Preços por Marca")
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.boxplot(data=filtered_data, x="marca", y="preco", palette=palette, ax=ax)
-ax.set_title("Price Distribution by Brand")
-ax.set_xlabel("Brand")
-ax.set_ylabel("Price")
+sns.boxplot(data=dados_filtrados, x="marca", y="preco", palette=palette, ax=ax)
+ax.set_title("Distribuição de Preços por Marca")
+ax.set_xlabel("Marca")
+ax.set_ylabel("Preço")
 ax.tick_params(axis='x', rotation=45)
 st.pyplot(fig)
 
-# 3. Scatter plot of price vs. mileage
-st.subheader("Price vs. Mileage by Brand")
+# 3. Gráfico de dispersão de preço vs. quilometragem
+st.subheader("Preço vs. Quilometragem por Marca")
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.scatterplot(data=filtered_data, x="quilometragem", y="preco", hue="marca", palette=palette, ax=ax)
-ax.set_title("Price vs. Mileage by Brand")
-ax.set_xlabel("Mileage (km)")
-ax.set_ylabel("Price")
+sns.scatterplot(data=dados_filtrados, x="quilometragem", y="preco", hue="marca", palette=palette, ax=ax)
+ax.set_title("Preço vs. Quilometragem por Marca")
+ax.set_xlabel("Quilometragem (km)")
+ax.set_ylabel("Preço")
 st.pyplot(fig)
 
-# 4. Distribution plot of car prices
-st.subheader("Distribution of Car Prices")
+# 4. Gráfico de distribuição dos preços dos carros
+st.subheader("Distribuição dos Preços dos Carros")
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.histplot(data=filtered_data, x="preco", hue="marca", palette=palette, kde=True, ax=ax)
-ax.set_title("Distribution of Car Prices")
-ax.set_xlabel("Price")
-ax.set_ylabel("Frequency")
+sns.histplot(data=dados_filtrados, x="preco", hue="marca", palette=palette, kde=True, ax=ax)
+ax.set_title("Distribuição dos Preços dos Carros")
+ax.set_xlabel("Preço")
+ax.set_ylabel("Frequência")
 st.pyplot(fig)
 
-# 5. Heatmap of correlation between numerical features
-st.subheader("Correlation Heatmap")
-corr = filtered_data.select_dtypes(include=["float64", "int64"]).corr()
+# 5. Heatmap de correlação entre variáveis numéricas
+st.subheader("Mapa de Calor de Correlação")
+corr = dados_filtrados.select_dtypes(include=["float64", "int64"]).corr()
 fig, ax = plt.subplots(figsize=(10, 5))
 sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
-ax.set_title("Correlation Heatmap")
+ax.set_title("Mapa de Calor de Correlação")
 st.pyplot(fig)
 
-# 6. Count plot of cars by fuel type and transmission
-st.subheader("Fuel Type by Transmission")
+# 6. Gráfico de contagem por tipo de combustível e transmissão
+st.subheader("Tipo de Combustível por Transmissão")
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.countplot(data=filtered_data, x="combustivel", hue="transmissão", ax=ax)
-ax.set_title("Fuel Type by Transmission")
-ax.set_xlabel("Fuel Type")
-ax.set_ylabel("Count")
+sns.countplot(data=dados_filtrados, x="combustivel", hue="transmissão", ax=ax)
+ax.set_title("Tipo de Combustível por Transmissão")
+ax.set_xlabel("Tipo de Combustível")
+ax.set_ylabel("Contagem")
 st.pyplot(fig)
 
-# 7. Violin plot of mileage by car type
-st.subheader("Mileage Distribution by Car Type")
+# 7. Gráfico de violino da quilometragem por tipo de carro
+st.subheader("Distribuição de Quilometragem por Tipo de Carro")
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.violinplot(data=filtered_data, x="tipo", y="quilometragem", palette="muted", ax=ax)
-ax.set_title("Mileage Distribution by Car Type")
-ax.set_xlabel("Car Type")
-ax.set_ylabel("Mileage (km)")
+sns.violinplot(data=dados_filtrados, x="tipo", y="quilometragem", palette="muted", ax=ax)
+ax.set_title("Distribuição de Quilometragem por Tipo de Carro")
+ax.set_xlabel("Tipo de Carro")
+ax.set_ylabel("Quilometragem (km)")
 st.pyplot(fig)
 
-# 8. Line plot of average price over year range
-st.subheader("Average Price by Year Range")
-avg_price_year = filtered_data.groupby("year_range")["preco"].mean().reset_index()
+# 8. Gráfico de linha do preço médio por faixa de ano
+st.subheader("Preço Médio por Faixa de Ano")
+preco_medio_ano = dados_filtrados.groupby("year_range")["preco"].mean().reset_index()
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.lineplot(data=avg_price_year, x="year_range", y="preco", marker="o", ax=ax)
-ax.set_title("Average Price by Year Range")
-ax.set_xlabel("Year Range")
-ax.set_ylabel("Average Price")
+sns.lineplot(data=preco_medio_ano, x="year_range", y="preco", marker="o", ax=ax)
+ax.set_title("Preço Médio por Faixa de Ano")
+ax.set_xlabel("Faixa de Ano")
+ax.set_ylabel("Preço Médio")
 st.pyplot(fig)
