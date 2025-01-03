@@ -110,10 +110,6 @@ class CarAnalysisApp:
         """Executa todos os métodos da aplicação."""
         st.title("Análise Exploratória de Carros Usados")
         
-        # Título adicional na sidebar
-        st.sidebar.title("Opções de Análise")
-        st.sidebar.subheader("Fatores que Influenciam no Preço")
-
         self.load_data()
 
         # Mostrar filtro de anos
