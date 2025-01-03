@@ -1,105 +1,104 @@
-import streamlit as st
-import seaborn as sns
-import matplotlib.pyplot as plt
 import pandas as pd
-
-# Carregar dados
-file_path = 'Datas/1_Cars_dataset_processado.csv'
-cars_data = pd.read_csv(file_path)
-
-# Configurar o dashboard do Streamlit
-st.set_page_config(page_title="Análise de Dados de Carros", layout="wide")
-st.title("Dashboard Interativo de Dados de Carros")
-
-# Barra lateral para filtros
-st.sidebar.header("Filtros")
-marcas_selecionadas = st.sidebar.multiselect(
-    "Selecione as Marcas:", options=cars_data["marca"].unique(), default=cars_data["marca"].unique()
-)
-combustiveis_selecionados = st.sidebar.multiselect(
-    "Selecione os Tipos de Combustível:", options=cars_data["combustivel"].unique(), default=cars_data["combustivel"].unique()
-)
-
-# Filtrar dados com base na seleção
-dados_filtrados = cars_data[
-    (cars_data["marca"].isin(marcas_selecionadas)) &
-    (cars_data["combustivel"].isin(combustiveis_selecionados))
-]
-
-# Definir paleta de cores consistente
-palette = sns.color_palette("tab10", n_colors=dados_filtrados["marca"].nunique())
-
-# Criar gráficos
-# 1. Gráfico de contagem das marcas de carros
-st.subheader("Número de Carros por Marca")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.countplot(data=dados_filtrados, x="marca", palette=palette, ax=ax)
-ax.set_title("Número de Carros por Marca")
-ax.set_xlabel("Marca")
-ax.set_ylabel("Contagem")
-ax.tick_params(axis='x', rotation=45)
-st.pyplot(fig)
-
-# 2. Gráfico de boxplot do preço por marca
-st.subheader("Distribuição de Preços por Marca")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.boxplot(data=dados_filtrados, x="marca", y="preco", palette=palette, ax=ax)
-ax.set_title("Distribuição de Preços por Marca")
-ax.set_xlabel("Marca")
-ax.set_ylabel("Preço")
-ax.tick_params(axis='x', rotation=45)
-st.pyplot(fig)
-
-# 3. Gráfico de dispersão de preço vs. quilometragem
-st.subheader("Preço vs. Quilometragem por Marca")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.scatterplot(data=dados_filtrados, x="quilometragem", y="preco", hue="marca", palette=palette, ax=ax)
-ax.set_title("Preço vs. Quilometragem por Marca")
-ax.set_xlabel("Quilometragem (km)")
-ax.set_ylabel("Preço")
-st.pyplot(fig)
-
-# 4. Gráfico de distribuição dos preços dos carros
-st.subheader("Distribuição dos Preços dos Carros")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.histplot(data=dados_filtrados, x="preco", hue="marca", palette=palette, kde=True, ax=ax)
-ax.set_title("Distribuição dos Preços dos Carros")
-ax.set_xlabel("Preço")
-ax.set_ylabel("Frequência")
-st.pyplot(fig)
-
-# 5. Heatmap de correlação entre variáveis numéricas
-st.subheader("Mapa de Calor de Correlação")
-corr = dados_filtrados.select_dtypes(include=["float64", "int64"]).corr()
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
-ax.set_title("Mapa de Calor de Correlação")
-st.pyplot(fig)
-
-# 6. Gráfico de contagem por tipo de combustível e transmissão
-st.subheader("Tipo de Combustível por Transmissão")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.countplot(data=dados_filtrados, x="combustivel", hue="transmissão", ax=ax)
-ax.set_title("Tipo de Combustível por Transmissão")
-ax.set_xlabel("Tipo de Combustível")
-ax.set_ylabel("Contagem")
-st.pyplot(fig)
-
-# 7. Gráfico de violino da quilometragem por tipo de carro
-st.subheader("Distribuição de Quilometragem por Tipo de Carro")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.violinplot(data=dados_filtrados, x="tipo", y="quilometragem", palette="muted", ax=ax)
-ax.set_title("Distribuição de Quilometragem por Tipo de Carro")
-ax.set_xlabel("Tipo de Carro")
-ax.set_ylabel("Quilometragem (km)")
-st.pyplot(fig)
-
-# 8. Gráfico de linha do preço médio por faixa de ano
-st.subheader("Preço Médio por Faixa de Ano")
-preco_medio_ano = dados_filtrados.groupby("year_range")["preco"].mean().reset_index()
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.lineplot(data=preco_medio_ano, x="year_range", y="preco", marker="o", ax=ax)
-ax.set_title("Preço Médio por Faixa de Ano")
-ax.set_xlabel("Faixa de Ano")
-ax.set_ylabel("Preço Médio")
-st.pyplot(fig)
+import streamlit as st
+import plotly.express as px
+import plotly.graph_objects as go
+# Função para formatar valores como moeda brasileira
+def format_brl(value):
+    return f"R${value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+# Função para converter valores de string para float
+def convert_to_float(value):
+    return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
+class CarAnalysisApp:
+    def __init__(self, data_path):
+        self.data_path = data_path
+        self.df = None
+        self.brand_colors = {}
+    def load_data(self):
+        """Carrega os dados do arquivo CSV e realiza o pré-processamento."""
+        try:
+            self.df = pd.read_csv(self.data_path)
+            self.df['preco'] = self.df['preco'].apply(convert_to_float)
+            st.success("Dados carregados com sucesso!")
+        except Exception as e:
+            st.error(f"Erro ao carregar os dados: {e}")
+    def filter_top_10_brands(self):
+        """Filtra as 10 marcas com mais veículos."""
+        if self.df is not None:
+            top_brands = self.df['marca'].value_counts().head(10).index
+            self.df = self.df[self.df['marca'].isin(top_brands)]
+            self.brand_colors = {brand: px.colors.qualitative.Plotly[i] for i, brand in enumerate(top_brands)}
+    def show_boxplot_by_quilometragem(self):
+        """Exibe um boxplot das marcas por quilometragem."""
+        st.subheader("Boxplot: Quilometragem por Marca")
+        if self.df is not None:
+            fig = px.box(self.df, x='marca', y='quilometragem', 
+                         color='marca', 
+                         color_discrete_map=self.brand_colors,
+                         title='Distribuição da Quilometragem por Marca')
+            fig.update_layout(yaxis_title='Quilometragem (Km)', showlegend=False)
+            st.plotly_chart(fig)
+    def show_histogram_by_brand(self):
+        """Exibe um histograma da quantidade de veículos por marca."""
+        st.subheader("Histograma: Quantidade de Veículos por Marca")
+        if self.df is not None:
+            vehicle_counts = self.df['marca'].value_counts().reset_index()
+            vehicle_counts.columns = ['marca', 'unidades']
+            fig = px.bar(vehicle_counts, x='marca', y='unidades', 
+                         color='marca', 
+                         color_discrete_map=self.brand_colors,
+                         title='Quantidade de Veículos por Marca',
+                         text='unidades')
+            fig.update_traces(textposition='outside')
+            fig.update_layout(yaxis_title='Unidades', showlegend=False)
+            st.plotly_chart(fig)
+    def show_bar_chart_preco_ano(self):
+        """Exibe um gráfico de barras com preço médio por ano."""
+        st.subheader("Gráfico de Barras: Preço Médio por Ano")
+        if self.df is not None:
+            avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
+            avg_price_per_year['preco_formatado'] = avg_price_per_year['preco'].apply(format_brl)
+            fig = px.bar(avg_price_per_year, x='ano', y='preco', 
+                         title='Preço Médio dos Veículos por Ano', 
+                         text='preco_formatado', 
+                         color_continuous_scale='Viridis')
+            fig.update_layout(yaxis_title='Preço Médio (R$)', xaxis_title='Ano', showlegend=False)
+            st.plotly_chart(fig)
+    def show_scatter_plot(self):
+        """Exibe um gráfico de dispersão interativo de preço por quilometragem."""
+        st.subheader("Gráfico de Dispersão: Preço x Quilometragem")
+        if self.df is not None:
+            fig = px.scatter(self.df, x='preco', y='quilometragem', 
+                             color='marca', 
+                             hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
+                             title='Preço x Quilometragem', 
+                             color_discrete_map=self.brand_colors)
+            fig.update_layout(yaxis_title='Quilometragem (Km)', showlegend=False)
+            st.plotly_chart(fig)
+    def show_pie_chart(self):
+        """Exibe um gráfico de pizza com a distribuição de combustíveis."""
+        st.subheader("Distribuição de Combustível")
+        if self.df is not None:
+            fuel_counts = self.df['combustivel'].value_counts().reset_index()
+            fuel_counts.columns = ['combustivel', 'quantidade']
+            fig = px.pie(fuel_counts, values='quantidade', names='combustivel', 
+                         title='Distribuição de Combustível')
+            fig.update_traces(textinfo='percent+label')
+            st.plotly_chart(fig)
+    def run_app(self):
+        """Executa a aplicação Streamlit."""
+        st.title("Análise Interativa de Veículos")
+        self.load_data()
+        self.filter_top_10_brands()
+        
+        # Exibir gráficos
+        self.show_boxplot_by_quilometragem()
+        self.show_histogram_by_brand()
+        self.show_bar_chart_preco_ano()
+        self.show_scatter_plot()
+        self.show_pie_chart()
+# Caminho do arquivo CSV
+data_path = '/mnt/data/1_Cars_dataset_processado.csv'
+# Inicializa o aplicativo
+if __name__ == "__main__":
+    app = CarAnalysisApp(data_path)
+    app.run_app()
