@@ -92,7 +92,7 @@ class CarAnalysisApp:
             st.plotly_chart(fig)
 
     def show_scatter_plot(self):
-        """Exibe um gráfico de dispersão interativo."""
+        """Exibe um gráfico de dispersão."""
         st.subheader("Gráfico de Dispersão")
         if self.df is not None:
             fig = px.scatter(self.df, x='preco', y='quilometragem', color='marca', 
@@ -104,7 +104,7 @@ class CarAnalysisApp:
 
     def run_app(self):
         """Executa todos os métodos da aplicação."""
-        st.title("Primeiras Análises")
+        st.title("Mais Analises")
         self.load_data()
         self.filter_top_10_brands()
 
