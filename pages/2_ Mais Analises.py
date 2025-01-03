@@ -100,8 +100,9 @@ class CarAnalysisApp:
             st.plotly_chart(fig)
 
     def show_price_by_category(self):
-        """Preços médios por categorias adicionais."""
-        if self.df is not None:
+    """Preços médios por categorias adicionais."""
+    if self.df is not None:
+        if 'categoria' in self.df.columns:
             avg_price_by_category = self.df.groupby('categoria')['preco'].mean().reset_index()
             fig = px.bar(
                 avg_price_by_category, x='categoria', y='preco', 
@@ -110,6 +111,8 @@ class CarAnalysisApp:
                 labels={'categoria': 'Categoria', 'preco': 'Preço Médio (R$)'}
             )
             st.plotly_chart(fig)
+        else:
+            st.warning("A coluna 'categoria' não está presente no conjunto de dados.")
 
     def run_app(self):
         """Executa todos os métodos da aplicação."""
