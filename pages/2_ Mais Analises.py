@@ -29,7 +29,7 @@ class CarAnalysisApp:
     def filter_top_10_brands(self):
         """Filtra as 10 marcas com mais veículos."""
         if self.df is not None:
-            top_brands = self.df['marca'].value_counts().head(11).index
+            top_brands = self.df['marca'].value_counts().head(10).index
             self.df = self.df[self.df['marca'].isin(top_brands)]
             self.brand_colors = {brand: px.colors.qualitative.Plotly[i] for i, brand in enumerate(top_brands)}
 
