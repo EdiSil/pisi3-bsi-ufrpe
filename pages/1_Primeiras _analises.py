@@ -7,6 +7,11 @@ import pandas as pd
 file_path = 'Datas/1_Cars_dataset_processado.csv'
 cars_data = pd.read_csv(file_path)
 
+# Adicionar faixa de preços
+bins = [0, 30, 50, 100, 200, 300, 400, 500, 1000, 2000, 3000, cars_data['preco'].max()]
+labels = ['0-30', '30-50', '50-100', '100-200', '200-300', '300-400', '400-500', '500-1000', '1000-2000', '2000-3000', '3000+']
+cars_data['faixa_preco'] = pd.cut(cars_data['preco'], bins=bins, labels=labels, right=False)
+
 # Configurar o dashboard do Streamlit
 st.set_page_config(page_title="Análise de Dados de Carros", layout="wide")
 st.title("Dashboard Interativo de Dados de Carros")
@@ -94,12 +99,12 @@ ax.set_xlabel("Tipo de Carro")
 ax.set_ylabel("Quilometragem (km)")
 st.pyplot(fig)
 
-# 8. Gráfico de linha do preço médio por faixa de ano
-st.subheader("Preço Médio por Faixa de Ano")
-preco_medio_ano = dados_filtrados.groupby("year_range")["preco"].mean().reset_index()
+# 8. Gráfico de linha do preço médio por faixa de preço
+st.subheader("Preço Médio por Faixa de Preço")
+preco_medio_faixa = dados_filtrados.groupby("faixa_preco")["preco"].mean().reset_index()
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.lineplot(data=preco_medio_ano, x="year_range", y="preco", marker="o", ax=ax)
-ax.set_title("Preço Médio por Faixa de Ano")
-ax.set_xlabel("Faixa de Ano")
+sns.lineplot(data=preco_medio_faixa, x="faixa_preco", y="preco", marker="o", ax=ax)
+ax.set_title("Preço Médio por Faixa de Preço")
+ax.set_xlabel("Faixa de Preço")
 ax.set_ylabel("Preço Médio")
 st.pyplot(fig)
