@@ -48,6 +48,7 @@ ax.set_title("Distribuição de Preços por Marca")
 ax.set_xlabel("Marca")
 ax.set_ylabel("Preço")
 ax.tick_params(axis='x', rotation=45)
+ax.set_yticks([50000, 100000, 200000, 300000, 400000])
 st.pyplot(fig)
 
 # 3. Gráfico de dispersão de preço vs. quilometragem
@@ -57,6 +58,8 @@ sns.scatterplot(data=dados_filtrados, x="quilometragem", y="preco", hue="marca",
 ax.set_title("Preço vs. Quilometragem por Marca")
 ax.set_xlabel("Quilometragem (km)")
 ax.set_ylabel("Preço")
+ax.set_yticks([50000, 100000, 200000, 300000, 400000])
+ax.legend(title="Marca", loc="upper left", bbox_to_anchor=(1, 1))
 st.pyplot(fig)
 
 # 4. Gráfico de distribuição dos preços dos carros
@@ -66,13 +69,14 @@ sns.histplot(data=dados_filtrados, x="preco", hue="marca", palette=palette, kde=
 ax.set_title("Distribuição dos Preços dos Carros")
 ax.set_xlabel("Preço")
 ax.set_ylabel("Frequência")
+ax.set_yticks([50000, 100000, 200000, 300000, 400000, 500000])
 st.pyplot(fig)
 
 # 5. Heatmap de correlação entre variáveis numéricas
 st.subheader("Mapa de Calor de Correlação")
 corr = dados_filtrados.select_dtypes(include=["float64", "int64"]).corr()
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
+sns.heatmap(corr, annot=True, fmt=".2f", cmap="coolwarm", ax=ax, vmin=-1.0, vmax=1.0)
 ax.set_title("Mapa de Calor de Correlação")
 st.pyplot(fig)
 
