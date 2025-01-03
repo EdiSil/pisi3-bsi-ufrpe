@@ -49,7 +49,8 @@ class CarAnalysisApp:
                 yaxis=dict(
                     tickvals=quilometragem_ticks,
                     ticktext=quilometragem_ticks_labels
-                )
+                ),
+                showlegend=False  # Remove a legenda
             )
             st.plotly_chart(fig)
 
@@ -65,23 +66,24 @@ class CarAnalysisApp:
                          text='unidades')
 
             fig.update_traces(hovertemplate='Marca: %{x}<br>Unidades: %{y}')
-            fig.update_layout(yaxis_title="Unidades")
+            fig.update_layout(yaxis_title="Unidades", showlegend=False)  # Remove a legenda
             st.plotly_chart(fig)
 
     def show_bar_chart_preco_ano(self):
         """Exibe um gráfico de barras relacionando preço e ano."""
         st.subheader("Gráfico de Barras: Preço por Ano")
         if self.df is not None:
-            avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
+            avg_price_per_year = self.df.groupby('ano')['preco'].sum().reset_index()  # Soma os preços por ano
             avg_price_per_year['preco_formatado'] = avg_price_per_year['preco'].apply(format_brl)
 
-            fig = px.bar(avg_price_per_year, x='ano', y='preco', title='Relação entre Preço e Ano', 
+            fig = px.bar(avg_price_per_year, x='ano', y='preco', title='Preços Acumulados por Ano', 
                          color='ano', text='preco_formatado',
                          color_continuous_scale='Viridis')
 
             fig.update_layout(
-                yaxis_title="Preço Médio (R$)",
+                yaxis_title="Preço Acumulado (R$)",
                 xaxis_title="Ano",
+                xaxis=dict(range=[2000, 2023]),  # Define a escala de anos
                 hovermode="x unified"
             )
             fig.add_trace(
@@ -98,6 +100,11 @@ class CarAnalysisApp:
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
                              title='Gráfico de Dispersão: Preço x Quilometragem', 
                              color_discrete_map=self.brand_colors)
+
+            fig.update_layout(
+                yaxis_title="Quilometragem (Km)",
+                showlegend=False  # Remove a legenda
+            )
             st.plotly_chart(fig)
 
     def run_app(self):
@@ -118,3 +125,4 @@ data_path = "Datas/1_Cars_dataset_processado.csv"
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
+
