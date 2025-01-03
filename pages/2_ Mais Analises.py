@@ -49,7 +49,8 @@ class CarAnalysisApp:
                 yaxis=dict(
                     tickvals=quilometragem_ticks,
                     ticktext=quilometragem_ticks_labels
-                )
+                ),
+                showlegend=False
             )
             st.plotly_chart(fig)
 
@@ -65,7 +66,7 @@ class CarAnalysisApp:
                          text='unidades')
 
             fig.update_traces(hovertemplate='Marca: %{x}<br>Unidades: %{y}')
-            fig.update_layout(yaxis_title="Unidades")
+            fig.update_layout(yaxis_title="Unidades", showlegend=False)
             st.plotly_chart(fig)
 
     def show_bar_chart_preco_ano(self):
@@ -98,6 +99,7 @@ class CarAnalysisApp:
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
                              title='Gráfico de Dispersão: Preço x Quilometragem', 
                              color_discrete_map=self.brand_colors)
+            fig.update_layout(yaxis_title="Quilometragem (Km)", showlegend=False)
             st.plotly_chart(fig)
 
     def run_app(self):
