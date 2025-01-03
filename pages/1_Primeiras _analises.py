@@ -4,20 +4,29 @@ import plotly.express as px
 
 # Classe principal da aplicação
 class CarAnalysisApp:
-    def __init__(self, data_path):
+    def __init__(self, data_path, exchange_rate=6.1651):
         self.data_path = data_path
         self.df = None
         self.brand_colors = None
         self.selected_years = None
         self.selected_fuel = None
+        self.exchange_rate = exchange_rate  # Taxa de câmbio do dólar para real
 
     def load_data(self):
         """Carrega os dados a partir do caminho especificado."""
         try:
             self.df = pd.read_csv(self.data_path)
             st.success("Dados carregados com sucesso!")
+            self.convert_price_to_real()  # Converte o preço assim que os dados são carregados
         except Exception as e:
             st.error(f"Erro ao carregar os dados: {e}")
+
+    def convert_price_to_real(self):
+        """Converte os preços de dólares para reais, multiplicando pela taxa de câmbio."""
+        if 'preco' in self.df.columns:
+            self.df['preco'] = self.df['preco'] * self.exchange_rate
+        else:
+            st.warning("Coluna 'preco' não encontrada!")
 
     def filter_top_10_brands(self):
         """Filtra as 10 marcas com mais ocorrências no dataset."""
@@ -93,6 +102,14 @@ class CarAnalysisApp:
 
             fig = px.bar(filtered_df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
                          color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
+
+            # Atualizando o eixo Y para formatar como "R$"
+            fig.update_layout(
+                yaxis_title="Preço (R$)", 
+                yaxis_tickprefix="R$ ",
+                showlegend=False
+            )
+
             st.plotly_chart(fig)
         else:
             st.warning("Dados não disponíveis para exibição.")
@@ -120,8 +137,12 @@ class CarAnalysisApp:
                              title='Gráfico de Dispersão: Preço x Quilometragem', 
                              color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
 
-            # Remover a legenda do gráfico de dispersão
-            fig.update_layout(showlegend=False)  # Removendo a legenda
+            # Atualizando o gráfico para exibir preço em R$
+            fig.update_layout(
+                xaxis_title="Preço (R$)",
+                xaxis_tickprefix="R$ ",
+                showlegend=False  # Removendo a legenda
+            )
 
             st.plotly_chart(fig)
         else:
@@ -144,5 +165,5 @@ data_path = "https://raw.githubusercontent.com/EdiSil/pisi3-bsi-ufrpe/main/data/
 
 # Inicializa o aplicativo
 if __name__ == "__main__":
-    app = CarAnalysisApp(data_path)
+    app = CarAnalysisApp(data_path, exchange_rate=6.1651)  # Taxa de câmbio de 6,1651 reais por 1 dólar
     app.run_app()
