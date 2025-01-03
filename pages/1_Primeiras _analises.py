@@ -36,7 +36,7 @@ class CarAnalysisApp:
         """Exibe um boxplot das marcas por quilometragem."""
         st.subheader("Boxplot: Quilometragem por Marca")
         if self.df is not None:
-            fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
+            fig = px.box(self.df, x='marca', y='Quilometragem', title='Boxplot das Marcas por Quilometragem', 
                          color='marca', color_discrete_map=self.brand_colors)
             fig.update_layout(showlegend=False)
             st.plotly_chart(fig)
