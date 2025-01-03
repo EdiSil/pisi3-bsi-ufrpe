@@ -21,7 +21,7 @@ class CarAnalysisApp:
                 "Make": "marca",
                 "Model": "modelo",
                 "KM's driven": "quilometragem (Km)",
-                "Prince": "preco",
+                "Price": "preco",
                 "Fuel_Diesel": "conbustivel_Diesel",
                 "Fuel_Hybrid": "conbustivel_Hybrido",
                 "Fuel_Petrol": "combustivel_Gasolina",
