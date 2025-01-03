@@ -44,6 +44,7 @@ class CarAnalysisApp:
                 title='Distribuição de Preços por Marca (Gráfico de Violino)',
                 labels={'marca': 'Marca', 'preco': 'Preço (R$)'}
             )
+            fig.update_layout(showlegend=False)  # Remove a legenda do gráfico
             st.plotly_chart(fig)
 
     def show_price_trends_over_years(self):
@@ -98,4 +99,3 @@ data_path = "Datas/1_Cars_dataset_processado.csv"
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
-
