@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Função para converter valores de string para float
 def convert_to_float(value):
@@ -89,28 +90,6 @@ class CarAnalysisApp:
             )
             st.plotly_chart(fig)
 
-    def show_correlation_matrix(self):
-        """Exibe uma matriz de correlação interativa."""
-        if self.df is not None:
-            correlation = self.df[['preco', 'quilometragem', 'ano']].corr()
-            fig = px.imshow(
-                correlation, text_auto=True, title="Matriz de Correlação",
-                labels={'color': 'Correlação'}
-            )
-            st.plotly_chart(fig)
-
-    def show_price_by_category(self):
-        """Preços médios por categorias adicionais."""
-        if self.df is not None:
-            avg_price_by_category = self.df.groupby('categoria')['preco'].mean().reset_index()
-            fig = px.bar(
-                avg_price_by_category, x='categoria', y='preco', 
-                color='categoria',
-                title='Preços Médios por Categoria',
-                labels={'categoria': 'Categoria', 'preco': 'Preço Médio (R$)'}
-            )
-            st.plotly_chart(fig)
-
     def run_app(self):
         """Executa todos os métodos da aplicação."""
         st.title("Análise Exploratória de Carros Usados")
@@ -121,8 +100,6 @@ class CarAnalysisApp:
         self.show_price_trends_over_years()
         self.show_price_by_fuel_type()
         self.show_price_by_transmission_type()
-        self.show_correlation_matrix()
-        self.show_price_by_category()
 
 # Caminho do arquivo CSV
 data_path = "Datas/1_Cars_dataset_processado.csv"
