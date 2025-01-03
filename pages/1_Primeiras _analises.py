@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import locale
 
 # Classe principal da aplicação
 class CarAnalysisApp:
@@ -11,6 +12,9 @@ class CarAnalysisApp:
         self.selected_years = None
         self.selected_fuel = None
         self.exchange_rate = exchange_rate  # Taxa de câmbio do dólar para real
+
+        # Configurando o locale para o Brasil
+        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
     def load_data(self):
         """Carrega os dados a partir do caminho especificado."""
@@ -25,6 +29,8 @@ class CarAnalysisApp:
         """Converte os preços de dólares para reais, multiplicando pela taxa de câmbio."""
         if 'preco' in self.df.columns:
             self.df['preco'] = self.df['preco'] * self.exchange_rate
+            # Formatar os valores de 'preco' para 2 casas decimais e aplicar a formatação monetária
+            self.df['preco'] = self.df['preco'].apply(lambda x: locale.currency(x, grouping=True))
         else:
             st.warning("Coluna 'preco' não encontrada!")
 
@@ -100,6 +106,7 @@ class CarAnalysisApp:
             )
             filtered_df = self.df[(self.df['ano'] >= self.selected_years[0]) & (self.df['ano'] <= self.selected_years[1])]
 
+            # Exibindo o gráfico de barras com o preço formatado em R$
             fig = px.bar(filtered_df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
                          color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
 
@@ -128,10 +135,11 @@ class CarAnalysisApp:
             # Filtrando o DataFrame com base nas interações (ano e combustível)
             filtered_df = self.df[
                 (self.df['combustivel'] == self.selected_fuel) & 
-                (self.df['ano'] >= self.selected_years[0]) &
+                (self.df['ano'] >= self.selected_years[0]) & 
                 (self.df['ano'] <= self.selected_years[1])
             ]
 
+            # Exibindo o gráfico de dispersão com o preço formatado em R$
             fig = px.scatter(filtered_df, x='preco', y='quilometragem', color='marca', 
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
                              title='Gráfico de Dispersão: Preço x Quilometragem', 
