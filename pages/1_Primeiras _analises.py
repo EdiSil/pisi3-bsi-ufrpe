@@ -7,15 +7,6 @@ import pandas as pd
 file_path = 'Datas/1_Cars_dataset_processado.csv'
 cars_data = pd.read_csv(file_path)
 
-# Converter preço de dólar para real
-cotacao_dolar = 5.0  # Atualizar com a cotação atual se necessário
-cars_data['preco'] = cars_data['preco'] * cotacao_dolar
-
-# Adicionar faixa de preços
-bins = [0, 50000, 100000, 200000, 500000, 1000000, cars_data['preco'].max()]
-labels = ['0-50k', '50k-100k', '100k-200k', '200k-500k', '500k-1M', '1M+']
-cars_data['faixa_preco'] = pd.cut(cars_data['preco'], bins=bins, labels=labels, right=False)
-
 # Configurar o dashboard do Streamlit
 st.set_page_config(page_title="Análise de Dados de Carros", layout="wide")
 st.title("Dashboard Interativo de Dados de Carros")
@@ -55,7 +46,7 @@ fig, ax = plt.subplots(figsize=(10, 5))
 sns.boxplot(data=dados_filtrados, x="marca", y="preco", palette=palette, ax=ax)
 ax.set_title("Distribuição de Preços por Marca")
 ax.set_xlabel("Marca")
-ax.set_ylabel("Preço (R$)")
+ax.set_ylabel("Preço")
 ax.tick_params(axis='x', rotation=45)
 st.pyplot(fig)
 
@@ -65,7 +56,7 @@ fig, ax = plt.subplots(figsize=(10, 5))
 sns.scatterplot(data=dados_filtrados, x="quilometragem", y="preco", hue="marca", palette=palette, ax=ax)
 ax.set_title("Preço vs. Quilometragem por Marca")
 ax.set_xlabel("Quilometragem (km)")
-ax.set_ylabel("Preço (R$)")
+ax.set_ylabel("Preço")
 st.pyplot(fig)
 
 # 4. Gráfico de distribuição dos preços dos carros
@@ -73,7 +64,7 @@ st.subheader("Distribuição dos Preços dos Carros")
 fig, ax = plt.subplots(figsize=(10, 5))
 sns.histplot(data=dados_filtrados, x="preco", hue="marca", palette=palette, kde=True, ax=ax)
 ax.set_title("Distribuição dos Preços dos Carros")
-ax.set_xlabel("Preço (R$)")
+ax.set_xlabel("Preço")
 ax.set_ylabel("Frequência")
 st.pyplot(fig)
 
@@ -103,12 +94,12 @@ ax.set_xlabel("Tipo de Carro")
 ax.set_ylabel("Quilometragem (km)")
 st.pyplot(fig)
 
-# 8. Gráfico de linha do preço médio por faixa de preço
-st.subheader("Preço Médio por Faixa de Preço")
-preco_medio_faixa = dados_filtrados.groupby("faixa_preco")["preco"].mean().reset_index()
+# 8. Gráfico de linha do preço médio por faixa de ano
+st.subheader("Preço Médio por Faixa de Ano")
+preco_medio_ano = dados_filtrados.groupby("year_range")["preco"].mean().reset_index()
 fig, ax = plt.subplots(figsize=(10, 5))
-sns.lineplot(data=preco_medio_faixa, x="faixa_preco", y="preco", marker="o", ax=ax)
-ax.set_title("Preço Médio por Faixa de Preço")
-ax.set_xlabel("Faixa de Preço (R$)")
-ax.set_ylabel("Preço Médio (R$)")
+sns.lineplot(data=preco_medio_ano, x="year_range", y="preco", marker="o", ax=ax)
+ax.set_title("Preço Médio por Faixa de Ano")
+ax.set_xlabel("Faixa de Ano")
+ax.set_ylabel("Preço Médio")
 st.pyplot(fig)
