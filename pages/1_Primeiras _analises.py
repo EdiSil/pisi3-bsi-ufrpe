@@ -95,7 +95,7 @@ class CarAnalysisApp:
 
     def run_app(self):
         """Executa todos os métodos da aplicação."""
-        st.title("Análise Exploratoria de Veículos")
+        st.title("Primeiras Análises")
         self.load_data()
         self.filter_top_10_brands()
         self.dashboard_controls()
