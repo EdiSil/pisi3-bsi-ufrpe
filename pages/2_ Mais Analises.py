@@ -98,7 +98,7 @@ class CarAnalysisApp:
                 x='combustivel', 
                 y='preco', 
                 color='marca', 
-                title='Preços por Tipo de Combustível e Marca (Barras Empilhadas)', 
+                title='Preços por Tipo de Combustível e Marca', 
                 labels={'combustivel': 'Tipo de Combustível', 'preco': 'Preço Médio (R$)'},
                 barmode='stack'  # Empilhando as barras
             )
@@ -108,7 +108,7 @@ class CarAnalysisApp:
 
     def run_app(self):
         """Executa todos os métodos da aplicação."""
-        st.title("Análise Exploratória de Carros Usados")
+        st.title("Análise Exploratória")
         
         self.load_data()
 
