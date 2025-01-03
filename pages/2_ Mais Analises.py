@@ -34,12 +34,14 @@ class CarAnalysisApp:
             self.df = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max)]
 
     def show_price_distribution_by_brand(self):
-        """Distribuição de preços por marca."""
+        """Distribuição de preços por marca usando gráfico de violino."""
         if self.df is not None:
-            fig = px.box(
+            fig = px.violin(
                 self.df, x='marca', y='preco', 
+                box=True,  # Inclui o box plot dentro do gráfico de violino
+                points="all",  # Mostra todos os pontos de dados
                 color='marca',
-                title='Distribuição de Preços por Marca',
+                title='Distribuição de Preços por Marca (Gráfico de Violino)',
                 labels={'marca': 'Marca', 'preco': 'Preço (R$)'}
             )
             st.plotly_chart(fig)
@@ -96,3 +98,4 @@ data_path = "Datas/1_Cars_dataset_processado.csv"
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
+
