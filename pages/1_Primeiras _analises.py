@@ -25,8 +25,6 @@ class CarAnalysisApp:
         """Converte os preços de dólares para reais, multiplicando pela taxa de câmbio."""
         if 'preco' in self.df.columns:
             self.df['preco'] = self.df['preco'] * self.exchange_rate
-            # Formatar os valores de 'preco' para 2 casas decimais
-            self.df['preco'] = self.df['preco'].round(2)
         else:
             st.warning("Coluna 'preco' não encontrada!")
 
@@ -105,14 +103,10 @@ class CarAnalysisApp:
             fig = px.bar(filtered_df, x='ano', y='preco', color='marca', title='Relação entre Preço e Ano', 
                          color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
 
-            # Atualizando o eixo Y para exibir valores formatados e ajustar a escala
+            # Atualizando o eixo Y para formatar como "R$"
             fig.update_layout(
                 yaxis_title="Preço (R$)", 
                 yaxis_tickprefix="R$ ",
-                yaxis=dict(
-                    tickvals=[30000000, 50000000, 100000000, 200000000, 400000000, 500000000, 800000000, 1000000000, 2000000000],
-                    ticktext=['30M', '50M', '100M', '200M', '400M', '500M', '800M', '1000K', '2000K']
-                ),
                 showlegend=False
             )
 
