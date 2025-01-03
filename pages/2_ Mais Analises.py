@@ -47,6 +47,7 @@ class CarAnalysisApp:
                 title='Distribuição de Preços por Marca',
                 labels={'marca': 'Marca', 'preco': 'Preço (R$)'}
             )
+            fig.update_layout(showlegend=False)  # Retirando a legenda
             st.plotly_chart(fig)
 
     def show_price_trends_over_years(self):
@@ -75,6 +76,9 @@ class CarAnalysisApp:
     def show_price_by_transmission_type(self):
         """Preços médios por tipo de transmissão com gráfico de barras."""
         if self.df_filtered is not None:
+            # Substituindo 'Importado' e 'Nacional' por 'Manual' e 'Automático'
+            self.df_filtered['tipo'] = self.df_filtered['tipo'].replace({'Importado': 'Manual', 'Nacional': 'Automático'})
+            
             avg_price_by_transmission = self.df_filtered.groupby('tipo')['preco'].mean().reset_index()
             fig = px.bar(
                 avg_price_by_transmission, x='tipo', y='preco', 
@@ -131,4 +135,3 @@ data_path = "Datas/1_Cars_dataset_processado.csv"
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
-
