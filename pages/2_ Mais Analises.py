@@ -102,7 +102,7 @@ class CarAnalysisApp:
         self.show_price_by_transmission_type()
 
 # Caminho do arquivo CSV
-data_path = "/mnt/data/1_Cars_dataset_processado.csv"
+data_path = "Datas/1_Cars_dataset_processado.csv"
 
 # Inicializa o aplicativo
 if __name__ == "__main__":
