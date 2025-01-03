@@ -1,0 +1,21 @@
+Modelo,Métrica,Classe 1,Classe 2,Classe 3,Média,Média Ponderada
+SVM,Precisão,0.531,0.472,0.609,0.601,0.556
+SVM,Recall,0.705,0.444,0.498,0.598,0.559
+SVM,F1-Score,0.606,0.458,0.548,0.594,0.552
+SVM,Suporte,651.000,837.000,297.000,-,-
+SVM,Acurácia,-,-,-,0.559,-
+SVM + SMOTE,Precisão,0.490,0.463,0.456,0.525,0.495
+SVM + SMOTE,Recall,0.826,0.219,0.609,0.586,0.510
+SVM + SMOTE,F1-Score,0.615,0.297,0.522,0.533,0.474
+SVM + SMOTE,Suporte,651.000,837.000,297.000,-,-
+SVM + SMOTE,Acurácia,-,-,-,0.510,-
+Random Forest,Precisão,1.000,1.000,0.997,0.999,1.000
+Random Forest,Recall,1.000,0.999,1.000,1.000,1.000
+Random Forest,F1-Score,1.000,0.999,0.998,1.000,1.000
+Random Forest,Suporte,651.000,837.000,297.000,-,-
+Random Forest,Acurácia,-,-,-,1.000,-
+KNN,Precisão,0.904,0.816,0.899,0.865,0.851
+KNN,Recall,0.892,0.802,0.747,0.850,0.848
+KNN,F1-Score,0.898,0.809,0.816,0.856,0.848
+KNN,Suporte,651.000,837.000,297.000,-,-
+KNN,Acurácia,-,-,-,0.848,-
