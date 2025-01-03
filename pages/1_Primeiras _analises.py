@@ -16,27 +16,22 @@ class CarAnalysisApp:
         """Carrega os dados a partir do caminho especificado."""
         try:
             self.df = pd.read_csv(self.data_path)
-            self.rename_columns()
+            self.df.rename(columns={
+                "Car Name": "nome",
+                "Make": "marca",
+                "Model": "modelo",
+                "KM's driven": "quilometragem (Km)",
+                "Prince": "preco",
+                "Fuel_Diesel": "conbustivel_Diesel",
+                "Fuel_Hybrid": "conbustivel_Hybrido",
+                "Fuel_Petrol": "combustivel_Gasolina",
+                "Transmission_Manual": "Transmission_Manual",
+                "Car Age": "Ano"
+            }, inplace=True)
             st.success("Dados carregados com sucesso!")
             self.convert_price_to_real()  # Converte o preço assim que os dados são carregados
         except Exception as e:
             st.error(f"Erro ao carregar os dados: {e}")
-
-    def rename_columns(self):
-        """Renomeia as colunas para os nomes padronizados."""
-        column_mapping = {
-            'Car Name': 'nome',
-            'Make': 'marca',
-            'Model': 'modelo',
-            "KM's driven": 'quilometragem',
-            'Prince': 'preco',
-            'Fuel_Diesel': 'combustivel_Diesel',
-            'Fuel_Hybrid': 'combustivel_Hybrido',
-            'Fuel_Petrol': 'combustivel_Gasolina',
-            'Transmission_Manual': 'Transmission_Manual',
-            'Car Age': 'Ano'
-        }
-        self.df.rename(columns=column_mapping, inplace=True)
 
     def convert_price_to_real(self):
         """Converte os preços de dólares para reais, multiplicando pela taxa de câmbio."""
@@ -64,7 +59,7 @@ class CarAnalysisApp:
             quilometragem_ticks_labels = ['100 Km', '200 Km', '300 Km', '400 Km', '500 Km']
 
             # Exibindo o Boxplot com detalhes de marca e quilometragem
-            fig = px.box(self.df, x='marca', y='quilometragem', title='Boxplot das Marcas por Quilometragem', 
+            fig = px.box(self.df, x='marca', y='quilometragem (Km)', title='Boxplot das Marcas por Quilometragem', 
                          color='marca', color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
 
             # Atualizando o título do eixo Y
@@ -138,19 +133,19 @@ class CarAnalysisApp:
             # Adicionando interatividade para selecionar o tipo de combustível
             self.selected_fuel = st.selectbox(
                 "Selecione o tipo de combustível:",
-                options=self.df['combustivel_Diesel'].unique(),
+                options=self.df['combustivel_Gasolina'].unique(),
                 index=0
             )
 
             # Filtrando o DataFrame com base nas interações (ano e combustível)
             filtered_df = self.df[
-                (self.df['combustivel_Diesel'] == self.selected_fuel) & 
+                (self.df['combustivel_Gasolina'] == self.selected_fuel) & 
                 (self.df['Ano'] >= self.selected_years[0]) &
                 (self.df['Ano'] <= self.selected_years[1])
             ]
 
-            fig = px.scatter(filtered_df, x='preco', y='quilometragem', color='marca', 
-                             hover_data=['Ano', 'modelo', 'combustivel_Diesel', 'Transmission_Manual'],
+            fig = px.scatter(filtered_df, x='preco', y='quilometragem (Km)', color='marca', 
+                             hover_data=['Ano', 'modelo', 'combustivel_Gasolina', 'Transmission_Manual'],
                              title='Gráfico de Dispersão: Preço x Quilometragem', 
                              color_discrete_map={brand: color for brand, color in zip(self.df['marca'].unique(), self.brand_colors)})
 
