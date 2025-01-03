@@ -16,22 +16,35 @@ class CarAnalysisApp:
         """Carrega os dados a partir do caminho especificado."""
         try:
             self.df = pd.read_csv(self.data_path)
-            self.df.rename(columns={
-                "Car Name": "nome",
-                "Make": "marca",
-                "Model": "modelo",
-                "KM's driven": "quilometragem (Km)",
-                "Price": "preco",
-                "Fuel_Diesel": "conbustivel_Diesel",
-                "Fuel_Hybrid": "conbustivel_Hybrido",
-                "Fuel_Petrol": "combustivel_Gasolina",
-                "Transmission_Manual": "Transmission_Manual",
-                "Car Age": "Ano"
-            }, inplace=True)
             st.success("Dados carregados com sucesso!")
-            self.convert_price_to_real()  # Converte o preço assim que os dados são carregados
+            self.rename_columns()
+            self.filter_years()  # Filtra os anos de 2000 a 2023
+            self.convert_price_to_real()
         except Exception as e:
             st.error(f"Erro ao carregar os dados: {e}")
+
+    def rename_columns(self):
+        """Renomeia as colunas do DataFrame para os nomes especificados."""
+        column_mapping = {
+            'Car Name': 'nome',
+            'Make': 'marca',
+            'Model': 'modelo',
+            "KM's driven": 'quilometragem (Km)',
+            'Prince': 'preco',
+            'Fuel_Diesel': 'conbustivel_Diesel',
+            'Fuel_Hybrid': 'conbustivel_Hybrido',
+            'Fuel_Petrol': 'combustivel_Gasolina',
+            'Transmission_Manual': 'Transmission_Manual',
+            'Car Age': 'Ano'
+        }
+        self.df.rename(columns=column_mapping, inplace=True)
+
+    def filter_years(self):
+        """Filtra os dados para incluir apenas os anos de 2000 a 2023."""
+        if 'Ano' in self.df.columns:
+            self.df = self.df[(self.df['Ano'] >= 2000) & (self.df['Ano'] <= 2023)]
+        else:
+            st.warning("Coluna 'Ano' não encontrada!")
 
     def convert_price_to_real(self):
         """Converte os preços de dólares para reais, multiplicando pela taxa de câmbio."""
@@ -105,9 +118,9 @@ class CarAnalysisApp:
             # Adicionando interatividade para seleção de uma faixa de anos
             self.selected_years = st.slider(
                 "Selecione o intervalo de anos:",
-                min_value=int(self.df['Ano'].min()),
-                max_value=int(self.df['Ano'].max()),
-                value=(int(self.df['Ano'].min()), int(self.df['Ano'].max())),
+                min_value=2000,
+                max_value=2023,
+                value=(2000, 2023),
                 step=1
             )
             filtered_df = self.df[(self.df['Ano'] >= self.selected_years[0]) & (self.df['Ano'] <= self.selected_years[1])]
@@ -179,3 +192,4 @@ data_path = "Datas/1_Cars_processado.csv"
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path, exchange_rate=6.1651)  # Taxa de câmbio de 6,1651 reais por 1 dólar
     app.run_app()
+
