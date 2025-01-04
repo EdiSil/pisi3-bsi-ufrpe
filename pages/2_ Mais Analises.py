@@ -8,8 +8,6 @@ def convert_to_float(value):
 
 # Função para formatar os valores em Real Brasileiro (R$) com até 6 dígitos antes da vírgula
 def format_to_brl(value):
-    # Arredondar para o milhar mais próximo
-    value = round(value / 1000) * 1000
     # Formatar com até 6 dígitos antes da vírgula e exibir em formato brasileiro
     return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
@@ -93,7 +91,7 @@ class CarAnalysisApp:
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
-        # Formatar o preço médio por modelo
+        # Formatar o preço médio por modelo sem arredondamento
         avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(lambda x: format_to_brl(x))  # Formatar preço
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
@@ -101,7 +99,8 @@ class CarAnalysisApp:
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
         fig.update_layout(
-            xaxis_tickangle=-45  # Inclina os rótulos do eixo X para a esquerda
+            xaxis_tickangle=-45,  # Inclina os rótulos do eixo X para a esquerda
+            yaxis_tickformat=",.0f",  # Formatação do eixo Y para valores em Real
         )
         st.plotly_chart(fig)
 
