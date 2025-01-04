@@ -91,17 +91,19 @@ class CarAnalysisApp:
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
-        # Formatar o preço médio por modelo sem arredondamento
-        avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(lambda x: format_to_brl(x))  # Formatar preço
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
+        
+        # Formatar os preços no eixo Y e ajustá-los para a escala
         fig.update_layout(
             xaxis_tickangle=-45,  # Inclina os rótulos do eixo X para a esquerda
-            yaxis_tickformat=",.0f",  # Formatação do eixo Y para valores em Real
+            yaxis_tickformat=",.0f",  # Formatação do eixo Y para valores monetários
+            yaxis=dict(tickprefix="R$ ", tickmode='linear')  # Configuração para os valores do eixo Y em R$
         )
+        
         st.plotly_chart(fig)
 
     def show_density_price(self):
