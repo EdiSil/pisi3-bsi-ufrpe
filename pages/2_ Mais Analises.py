@@ -47,8 +47,22 @@ class CarAnalysisApp:
             self.df_filtered, x='ano', color='marca',
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
             labels={'ano': 'ANO'},
+            hover_data={'marca': True, 'ano': True, 'count': True}  # Inclui a contagem no hover
         )
-        fig.update_layout(showlegend=False)  # Remove a legenda
+        
+        # Atualiza o título do eixo Y
+        fig.update_layout(
+            yaxis_title="UNIDADES",  # Altera o título do eixo Y para "UNIDADES"
+            hovermode="x unified",  # Exibe todas as informações em uma única linha
+        )
+        
+        # Customiza o hover para mostrar no formato desejado
+        fig.for_each_trace(lambda t: t.update(
+            hovertemplate='<b>MARCA:</b> ' + t.name + '<br>' + 
+                          '<b>ANO:</b> %{x}<br>' +
+                          '<b>UNID:</b> %{y}<extra></extra>'
+        ))
+
         st.plotly_chart(fig)
 
     def show_boxplot_price_brand(self):
