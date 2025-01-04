@@ -38,7 +38,7 @@ class CarAnalysisApp:
                 max_value=int(self.df['preco'].max()), 
                 value=(int(self.df['preco'].min()), int(self.df['preco'].max()))
             )
-            self.df_filtered = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max) &
+            self.df_filtered = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max) & 
                                        (self.df['preco'] >= preco_min) & (self.df['preco'] <= preco_max)]
 
     def show_histogram_year(self):
@@ -48,7 +48,10 @@ class CarAnalysisApp:
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
             labels={'ano': 'ANO'},
         )
-        fig.update_layout(showlegend=False)  # Remove a legenda
+        fig.update_layout(
+            yaxis_title="UNIDADES",  # Alterando título do eixo Y para "UNIDADES"
+            showlegend=False  # Remove a legenda
+        )
         st.plotly_chart(fig)
 
     def show_boxplot_price_brand(self):
@@ -100,6 +103,14 @@ class CarAnalysisApp:
             title='DENSIDADE DO PREÇO POR ANO',
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
+        
+        # Customiza as informações do hover
+        fig.for_each_trace(lambda t: t.update(
+            hovertemplate='<b>ANO:</b> %{x|,.0f}' +  # Remove o decimal de "ANO"
+                          '<br><b>PREÇO (R$):</b> %{y|,.2f}M' +  # Exibe o preço no formato correto
+                          '<br><b>QUANT:</b> %{z}<extra></extra>'  # Altera "count" para "QUANT"
+        ))
+
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
