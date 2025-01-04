@@ -6,8 +6,10 @@ import plotly.express as px
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Função para formatar os valores em Real Brasileiro (R$) com até 6 algarismos
+# Função para formatar os valores em Real Brasileiro (R$) com arredondamento para o milhar
 def format_to_brl(value):
+    # Arredondar para o milhar mais próximo
+    value = round(value / 1000) * 1000
     return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
