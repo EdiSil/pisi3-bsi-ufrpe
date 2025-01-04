@@ -46,9 +46,12 @@ class CarAnalysisApp:
         fig = px.histogram(
             self.df_filtered, x='ano', color='marca',
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
-            labels={'ano': 'ANO', 'UNIDADES': 'UNIDADES'},  # Modificado: definindo o título para o eixo y
+            labels={'ano': 'ANO'},
         )
-        fig.update_layout(showlegend=False)  # Remove a legenda
+        fig.update_layout(
+            yaxis_title='UNIDADES',  # Atualizando o título do eixo y para "UNIDADES"
+            showlegend=False  # Remove a legenda
+        )
         st.plotly_chart(fig)
 
     def show_boxplot_price_brand(self):
@@ -126,3 +129,4 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"  # Atualize o caminho para o seu arquivo CSV
     app = CarAnalysisApp(data_path)
     app.run_app()
+
