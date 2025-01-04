@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
 
 # Função para converter valores de string para float
 def convert_to_float(value):
@@ -42,41 +41,21 @@ class CarAnalysisApp:
             self.df_filtered = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max) &
                                        (self.df['preco'] >= preco_min) & (self.df['preco'] <= preco_max)]
 
-    def show_scatter_price_km(self):
-        """Gráfico de dispersão: Preço vs Quilometragem."""
-        fig = px.scatter(
-            self.df_filtered, x='quilometragem', y='preco', 
-            color='marca',
-            title='PREÇO VS QUILOMETRAGEM',
-            labels={'quilometragem': 'QUILOMETRAGEM (KM)', 'preco': 'PREÇO (R$)'}
-        )
-        st.plotly_chart(fig)
-
     def show_histogram_year(self):
         """Histograma de distribuição de veículos por ano."""
         fig = px.histogram(
-            self.df_filtered, x='ano', 
+            self.df_filtered, x='ano', color='marca',
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
-            labels={'ano': 'ANO'}
+            labels={'ano': 'ANO'},
         )
         st.plotly_chart(fig)
 
     def show_boxplot_price_brand(self):
         """Boxplot de preços por marca."""
         fig = px.box(
-            self.df_filtered, x='marca', y='preco',
+            self.df_filtered, x='marca', y='preco', color='marca',
             title='BOXPLOT DE PREÇOS POR MARCA',
             labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
-        )
-        st.plotly_chart(fig)
-
-    def show_pie_chart_fuel(self):
-        """Gráfico de pizza de veículos por tipo de combustível."""
-        fuel_counts = self.df_filtered['combustivel'].value_counts().reset_index()
-        fuel_counts.columns = ['combustivel', 'unidades']
-        fig = px.pie(
-            fuel_counts, values='unidades', names='combustivel', 
-            title='DISTRIBUIÇÃO DE VEÍCULOS POR COMBUSTÍVEL'
         )
         st.plotly_chart(fig)
 
@@ -130,10 +109,8 @@ class CarAnalysisApp:
         st.title("Análise Exploratória de Veículos Usados")
         self.load_data()
         self.add_filters()
-        self.show_scatter_price_km()
         self.show_histogram_year()
         self.show_boxplot_price_brand()
-        self.show_pie_chart_fuel()
         self.show_line_price_trend()
         self.show_violin_price_transmission()
         self.show_bar_model_price()
