@@ -6,10 +6,11 @@ import plotly.express as px
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Função para formatar os valores em Real Brasileiro (R$) com arredondamento para o milhar
+# Função para formatar os valores em Real Brasileiro (R$) com até 6 dígitos antes da vírgula
 def format_to_brl(value):
     # Arredondar para o milhar mais próximo
     value = round(value / 1000) * 1000
+    # Formatar com até 6 dígitos antes da vírgula e exibir em formato brasileiro
     return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
@@ -92,6 +93,7 @@ class CarAnalysisApp:
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
+        # Formatar o preço médio por modelo
         avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(lambda x: format_to_brl(x))  # Formatar preço
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
