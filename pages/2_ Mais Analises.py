@@ -106,11 +106,22 @@ class CarAnalysisApp:
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
-        """Mapa de árvore de distribuição de marcas e modelos."""
+        """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
+        # Criar coluna personalizada para o hover
+        self.df_filtered['hover_info'] = (
+            'MODELO=' + self.df_filtered['modelo'] + '<br>' +
+            'PREÇO(R$)=' + self.df_filtered['preco'].apply(lambda x: f'{x:,.0f}'.replace(',', '.')) + '<br>' +
+            'MARCA=' + self.df_filtered['marca']
+        )
+        
         fig = px.treemap(
             self.df_filtered, path=['marca', 'modelo'], values='preco',
             title='DISTRIBUIÇÃO DE MARCAS E MODELOS PELO PREÇO'
         )
+        
+        # Customizar o hover
+        fig.update_traces(hovertemplate='%{customdata}<extra></extra>', customdata=self.df_filtered['hover_info'])
+        
         st.plotly_chart(fig)
 
     def run_app(self):
