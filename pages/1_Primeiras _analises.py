@@ -99,7 +99,7 @@ class CarAnalysisApp:
             st.plotly_chart(fig)
 
     def show_stacked_bar_chart(self):
-        st.subheader("GRÁFICO DE BARRAS EMPILHADAS: TIPO DE VEÍCULO POR ANO")
+        st.subheader("GRÁFICO BARRAS EMPILHADAS: TIPO DE VEÍCULO POR ANO")
         if self.df is not None:
             stacked_data = self.df.groupby(['ano', 'tipo']).size().reset_index(name='contagem')
             fig = px.bar(stacked_data, x='ano', y='contagem', color='tipo', title='DISTRIBUIÇÃO DE VEÍCULOS POR TIPO E ANO')
@@ -126,7 +126,7 @@ class CarAnalysisApp:
                           (self.df['quilometragem'] <= quilometragem_max)]
 
     def run_app(self):
-        st.title("ANÁLISE EXPLORATÓRIA DE VEÍCULOS")
+        st.title("ANÁLISE EXPLORATÓRIA")
         self.load_data()
         self.filter_top_10_brands()
         self.dashboard_controls()
