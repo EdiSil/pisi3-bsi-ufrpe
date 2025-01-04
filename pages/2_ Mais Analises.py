@@ -88,6 +88,9 @@ class CarAnalysisApp:
             title='PREÇO MÉDIO POR MODELO',
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
+        fig.update_layout(
+            xaxis_tickangle=-45  # Inclina os rótulos do eixo X para a esquerda
+        )
         st.plotly_chart(fig)
 
     def show_density_price(self):
