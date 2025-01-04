@@ -78,7 +78,7 @@ class CarAnalysisApp:
         """Gráfico de violino de preços por tipo de transmissão."""
         fig = px.violin(
             self.df_filtered, y='preco', x='tipo',
-            title='PREÇOS POR TIPO',
+            title='PREÇOS POR TIPO DE VEÍCULO',
             labels={'tipo': 'TIPO', 'preco': 'PREÇO (R$)'}
         )
         st.plotly_chart(fig)
