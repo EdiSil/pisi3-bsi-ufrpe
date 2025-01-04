@@ -28,104 +28,101 @@ class CarAnalysisApp:
         if self.df is not None:
             anos = sorted(self.df['ano'].unique())
             ano_min, ano_max = st.sidebar.slider(
-                "Selecione o intervalo de anos:", 
+                "SELECIONE O INTERVALO DE ANOS:", 
                 min_value=int(min(anos)), 
                 max_value=int(max(anos)), 
                 value=(int(min(anos)), int(max(anos)))
             )
-            # Filtra o DataFrame com base nos anos selecionados
             self.df_filtered = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max)]
             return ano_min, ano_max
         return None, None
 
     def show_price_distribution_by_brand(self):
-        """Distribuição de preços por marca com gráfico de dispersão."""
         if self.df_filtered is not None:
             fig = px.scatter(
                 self.df_filtered, x='marca', y='preco', 
                 color='marca',
-                title='Distribuição de Preços por Marca (Dispersão)',
-                labels={'marca': 'Marca', 'preco': 'Preço (R$)'}
+                title='DISTRIBUIÇÃO DE PREÇOS POR MARCA',
+                labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
             )
-            # Removendo a legenda "Marca" do lado direito do gráfico
             fig.update_layout(showlegend=False)
             st.plotly_chart(fig)
 
     def show_price_trends_over_years(self):
-        """Tendências de preços médios ao longo dos anos."""
         if self.df_filtered is not None:
             avg_price_by_year = self.df_filtered.groupby('ano')['preco'].mean().reset_index()
             fig = px.line(
                 avg_price_by_year, x='ano', y='preco', 
-                title='Tendência de Preços Médios ao Longo dos Anos',
-                labels={'ano': 'Ano', 'preco': 'Preço Médio (R$)'}
+                title='TENDÊNCIA DE PREÇOS AO LONGO DOS ANOS',
+                labels={'ano': 'ANO', 'preco': 'PREÇO MÉDIO (R$)'}
             )
             st.plotly_chart(fig)
 
     def show_price_by_fuel_type(self):
-        """Preços médios por tipo de combustível com gráfico de barras."""
         if self.df_filtered is not None:
             avg_price_by_fuel = self.df_filtered.groupby('combustivel')['preco'].mean().reset_index()
             fig = px.bar(
                 avg_price_by_fuel, x='combustivel', y='preco', 
                 color='combustivel',
-                title='Preços Médios por Tipo de Combustível',
-                labels={'combustivel': 'Combustível', 'preco': 'Preço Médio (R$)'}
+                title='PREÇOS MÉDIOS POR COMBUSTÍVEL',
+                labels={'combustivel': 'COMBUSTÍVEL', 'preco': 'PREÇO MÉDIO (R$)'}
             )
             st.plotly_chart(fig)
 
-    def show_price_by_transmission_type(self):
-        """Preços médios por tipo de transmissão com gráfico de barras."""
+    def show_scatter_price_vs_km(self):
         if self.df_filtered is not None:
-            # Substituindo 'Importado' e 'Nacional' por 'Manual' e 'Automático'
-            self.df_filtered['tipo'] = self.df_filtered['tipo'].replace({'Importado': 'Manual', 'Nacional': 'Automático'})
-            
-            avg_price_by_transmission = self.df_filtered.groupby('tipo')['preco'].mean().reset_index()
-            fig = px.bar(
-                avg_price_by_transmission, x='tipo', y='preco', 
-                color='tipo',
-                title='Preços Médios por Tipo de Transmissão',
-                labels={'tipo': 'Tipo de Transmissão', 'preco': 'Preço Médio (R$)'}
+            fig = px.scatter(
+                self.df_filtered, x='quilometragem', y='preco', 
+                color='marca',
+                title='DISPERSÃO: PREÇO X QUILOMETRAGEM',
+                labels={'quilometragem': 'QUILOMETRAGEM (KM)', 'preco': 'PREÇO (R$)'}
             )
             st.plotly_chart(fig)
 
-    def show_price_by_fuel_and_brand(self):
-        """Gráfico de barras empilhadas para preços por tipo de combustível e marca."""
+    def show_histogram_by_year(self):
         if self.df_filtered is not None:
-            avg_price_by_fuel_brand = self.df_filtered.groupby(['combustivel', 'marca'])['preco'].mean().reset_index()
-            fig = px.bar(
-                avg_price_by_fuel_brand, 
-                x='combustivel', 
-                y='preco', 
-                color='marca', 
-                title='Preços por Tipo de Combustível e Marca', 
-                labels={'combustivel': 'Tipo de Combustível', 'preco': 'Preço Médio (R$)'},
-                barmode='stack'  # Empilhando as barras
+            fig = px.histogram(
+                self.df_filtered, x='ano', 
+                title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
+                labels={'ano': 'ANO'}
             )
-            # Retirando a legenda 'Marca' do lado direito
-            fig.update_layout(showlegend=False)
+            st.plotly_chart(fig)
+
+    def show_pie_chart_by_brand(self):
+        if self.df_filtered is not None:
+            brand_counts = self.df_filtered['marca'].value_counts().reset_index()
+            brand_counts.columns = ['marca', 'unidades']
+            fig = px.pie(
+                brand_counts, values='unidades', names='marca',
+                title='DISTRIBUIÇÃO DE VEÍCULOS POR MARCA'
+            )
+            st.plotly_chart(fig)
+
+    def show_violin_plot(self):
+        if self.df_filtered is not None:
+            fig = px.violin(
+                self.df_filtered, y='preco', x='marca',
+                box=True, points='all',
+                title='DISTRIBUIÇÃO DE PREÇOS POR MARCA (VIOLINO)',
+                labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
+            )
             st.plotly_chart(fig)
 
     def run_app(self):
-        """Executa todos os métodos da aplicação."""
-        st.title("Análise Exploratória")
-        
+        st.title("Análise Exploratória de Veículos")
         self.load_data()
-
-        # Mostrar filtro de anos
         self.add_year_filter()
-
-        # Atualiza todos os gráficos assim que o filtro de anos for ajustado
         self.show_price_distribution_by_brand()
         self.show_price_trends_over_years()
         self.show_price_by_fuel_type()
-        self.show_price_by_transmission_type()
-        self.show_price_by_fuel_and_brand()
+        self.show_scatter_price_vs_km()
+        self.show_histogram_by_year()
+        self.show_pie_chart_by_brand()
+        self.show_violin_plot()
 
 # Caminho do arquivo CSV
 data_path = "Datas/1_Cars_dataset_processado.csv"
 
-# Inicializa o aplicativo
 if __name__ == "__main__":
     app = CarAnalysisApp(data_path)
     app.run_app()
