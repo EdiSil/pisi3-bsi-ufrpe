@@ -112,8 +112,8 @@ class CarAnalysisApp:
         
         # Customiza as informações do hover
         fig.for_each_trace(lambda t: t.update(
-            hovertemplate='<b>ANO:</b> %{x|,.0f}' +  # Remove o decimal de "ANO" e mostra o ano inteiro
-                          '<br><b>PREÇO (R$):</b> %{y:,.0f}' +  # Exibe o preço com vírgula, no formato brasileiro
+            hovertemplate='<b>ANO:</b> %{x}' +  # Exibe o ano sem decimal, como "2014"
+                          '<br><b>PREÇO (R$):</b> %{y:,.2f}' +  # Exibe o preço com 2 casas decimais
                           '<br><b>QUANT:</b> %{z}<extra></extra>'  # Altera "count" para "QUANT"
         ))
 
@@ -143,4 +143,3 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
-
