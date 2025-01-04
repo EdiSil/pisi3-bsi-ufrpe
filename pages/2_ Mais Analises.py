@@ -43,15 +43,25 @@ class CarAnalysisApp:
 
     def show_histogram_year(self):
         """Histograma de distribuição de veículos por ano."""
+        # Criar a contagem de veículos por ano e marca
+        count_by_year_brand = self.df_filtered.groupby(['ano', 'marca']).size().reset_index(name='quant')
+        
         fig = px.histogram(
-            self.df_filtered, x='ano', color='marca',
+            count_by_year_brand, x='ano', color='marca',
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
             labels={'ano': 'ANO'},
+            hover_data={'marca': True, 'ano': True, 'quant': True}  # Ajuste no hover_data
         )
         fig.update_layout(
             yaxis_title='UNIDADES',  # Atualizando o título do eixo y para "UNIDADES"
             showlegend=False  # Remove a legenda
         )
+        
+        # Personaliza o texto no hover para mostrar 'MARCA', 'ANO', e 'QUANT'
+        fig.update_traces(
+            hovertemplate="<b>MARCA:</b> %{customdata[0]}<br><b>ANO:</b> %{customdata[1]}<br><b>QUANT:</b> %{customdata[2]}"
+        )
+
         st.plotly_chart(fig)
 
     def show_boxplot_price_brand(self):
