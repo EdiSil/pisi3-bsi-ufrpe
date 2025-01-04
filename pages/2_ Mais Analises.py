@@ -1,10 +1,14 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import locale
 
 # Função para converter valores de string para float
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
+
+# Definir o local para formatação brasileira
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -106,8 +110,8 @@ class CarAnalysisApp:
         
         # Customiza as informações do hover
         fig.for_each_trace(lambda t: t.update(
-            hovertemplate='<b>ANO:</b> %{x|,.0f}' +  # Remove o decimal de "ANO"
-                          '<br><b>PREÇO (R$):</b> %{y|,.2f}M' +  # Exibe o preço no formato correto
+            hovertemplate='<b>ANO:</b> %{x|,.0f}' +  # Remove o decimal de "ANO" e mostra o ano inteiro
+                          '<br><b>PREÇO (R$):</b> %{y:,.2f}' +  # Exibe o preço com vírgula, no formato brasileiro
                           '<br><b>QUANT:</b> %{z}<extra></extra>'  # Altera "count" para "QUANT"
         ))
 
