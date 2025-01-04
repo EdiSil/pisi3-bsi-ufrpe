@@ -47,6 +47,7 @@ class CarAnalysisApp:
             self.df_filtered, x='ano', 
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
             labels={'ano': 'ANO', 'count': 'UNIDADES'},
+            color_discrete_sequence=['#636EFA']
         )
         fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
@@ -56,7 +57,8 @@ class CarAnalysisApp:
         fig = px.box(
             self.df_filtered, x='marca', y='preco',
             title='BOXPLOT DE PREÇOS POR MARCA',
-            labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
+            labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'},
+            color_discrete_sequence=['#EF553B']
         )
         fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
@@ -70,7 +72,8 @@ class CarAnalysisApp:
         fig = px.line(
             avg_price_by_year, x='ano', y='preco',
             title='TENDÊNCIA DE PREÇOS MÉDIOS AO LONGO DOS ANOS',
-            labels={'ano': 'ANO', 'preco': 'PREÇO MÉDIO (R$)'}
+            labels={'ano': 'ANO', 'preco': 'PREÇO MÉDIO (R$)'},
+            color_discrete_sequence=['#00CC96']
         )
         fig.update_xaxes(tickformat='%Y-%m')
         st.plotly_chart(fig)
@@ -80,7 +83,8 @@ class CarAnalysisApp:
         fig = px.violin(
             self.df_filtered, y='preco', x='tipo',
             title='PREÇOS POR TIPO DE TRANSMISSÃO',
-            labels={'tipo': 'TIPO DE TRANSMISSÃO', 'preco': 'PREÇO (R$)'}
+            labels={'tipo': 'TIPO DE TRANSMISSÃO', 'preco': 'PREÇO (R$)'},
+            color_discrete_sequence=['#AB63FA']
         )
         st.plotly_chart(fig)
 
@@ -90,7 +94,8 @@ class CarAnalysisApp:
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
-            labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
+            labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'},
+            color_discrete_sequence=['#FFA15A']
         )
         fig.update_xaxes(tickangle=-45)
         st.plotly_chart(fig)
@@ -100,7 +105,8 @@ class CarAnalysisApp:
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO',
-            labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
+            labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'},
+            color_continuous_scale='Viridis'
         )
         fig.update_traces(hovertemplate='ANO: %{x}<br>QUANT: %{y}')
         st.plotly_chart(fig)
@@ -110,6 +116,7 @@ class CarAnalysisApp:
         fig = px.treemap(
             self.df_filtered, path=['marca', 'modelo'], values='preco',
             title='DISTRIBUIÇÃO DE MARCAS E MODELOS PELO PREÇO',
+            color_discrete_sequence=['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A']
         )
         fig.update_traces(hovertemplate='MARCA: %{label}<br>MODELO: %{parent}<br>PREÇO: %{value}')
         st.plotly_chart(fig)
