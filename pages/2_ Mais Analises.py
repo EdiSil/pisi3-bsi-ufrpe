@@ -6,11 +6,11 @@ import plotly.express as px
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Função para formatar valores de preço no estilo brasileiro (com vírgula e "M" para milhões)
+# Função para formatar valores de preço com até 5 algarismos
 def format_preco(preco):
-    if preco >= 1_000_000:
-        return f"{preco / 1_000_000:.1f}M"  # Formata para milhões (ex: "17.5M")
-    return f"{preco:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+    if preco >= 1000:
+        return f"{preco:,.2f}"  # Formato com separação de milhar e 2 casas decimais
+    return f"{preco:,.2f}"  # Caso contrário, com 2 casas decimais
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -112,7 +112,7 @@ class CarAnalysisApp:
         
         # Customiza as informações do hover
         fig.for_each_trace(lambda t: t.update(
-            hovertemplate='<b>ANO:</b> %{x}' +  # Exibe o ano sem decimal, como "2014"
+            hovertemplate='<b>ANO:</b> %{x|,.0f}' +  # Exibe o ano como "2015" sem decimais
                           '<br><b>PREÇO (R$):</b> %{y:,.2f}' +  # Exibe o preço com 2 casas decimais
                           '<br><b>QUANT:</b> %{z}<extra></extra>'  # Altera "count" para "QUANT"
         ))
