@@ -44,10 +44,11 @@ class CarAnalysisApp:
     def show_histogram_year(self):
         """Histograma de distribuição de veículos por ano."""
         fig = px.histogram(
-            self.df_filtered, x='ano', color='marca',
+            self.df_filtered, x='ano',
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
             labels={'ano': 'ANO'},
         )
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_boxplot_price_brand(self):
@@ -57,6 +58,7 @@ class CarAnalysisApp:
             title='BOXPLOT DE PREÇOS POR MARCA',
             labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
         )
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_line_price_trend(self):
