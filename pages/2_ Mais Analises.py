@@ -38,7 +38,7 @@ class CarAnalysisApp:
                 max_value=int(self.df['preco'].max()), 
                 value=(int(self.df['preco'].min()), int(self.df['preco'].max()))
             )
-            self.df_filtered = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max) &
+            self.df_filtered = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max) & 
                                        (self.df['preco'] >= preco_min) & (self.df['preco'] <= preco_max)]
 
     def show_histogram_year(self):
@@ -46,7 +46,7 @@ class CarAnalysisApp:
         fig = px.histogram(
             self.df_filtered, x='ano', color='marca',
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
-            labels={'ano': 'ANO'},
+            labels={'ano': 'ANO', 'count': 'UNIDADES'},  # Modificado: definindo o título para o eixo y
         )
         fig.update_layout(showlegend=False)  # Remove a legenda
         st.plotly_chart(fig)
@@ -123,6 +123,7 @@ class CarAnalysisApp:
         self.show_treemap_brand_model()
 
 if __name__ == "__main__":
-    data_path = "Datas/1_Cars_dataset_processado.csv"
+    data_path = "Datas/1_Cars_dataset_processado.csv"  # Atualize o caminho para o seu arquivo CSV
     app = CarAnalysisApp(data_path)
     app.run_app()
+
