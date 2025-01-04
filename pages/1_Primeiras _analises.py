@@ -39,7 +39,7 @@ class CarAnalysisApp:
         if self.df is not None:
             fig = px.box(self.df, x='marca', y='quilometragem', title='BOXPLOT DAS MARCAS POR QUILOMETRAGEM', 
                          color='marca', color_discrete_map=self.brand_colors)
-            fig.update_layout(showlegend=False, xaxis_title='MARCA', yaxis_title='QUILOMETRAGEM (KM)')
+            fig.update_layout(showlegend=False)
             st.plotly_chart(fig)
 
     def show_histogram_by_brand(self):
@@ -51,7 +51,7 @@ class CarAnalysisApp:
 
             fig = px.bar(vehicle_counts, x='marca', y='unidades', title='HISTOGRAMA DA QUANTIDADE DE VEÍCULOS POR MARCA', 
                          color='marca', color_discrete_map=self.brand_colors)
-            fig.update_layout(showlegend=False, xaxis_title='MARCA', yaxis_title='UNIDADES')
+            fig.update_layout(showlegend=False)
             st.plotly_chart(fig)
 
     def show_bar_chart_preco_ano(self):
@@ -79,54 +79,54 @@ class CarAnalysisApp:
                              hover_data=['ano', 'modelo', 'combustivel', 'tipo'],
                              title='GRÁFICO DE DISPERSÃO: PREÇO X QUILOMETRAGEM', 
                              color_discrete_map=self.brand_colors)
-            fig.update_layout(yaxis_title="QUILOMETRAGEM (KM)", xaxis_title="PREÇO (R$)", showlegend=False)
+            fig.update_layout(yaxis_title="QUILOMETRAGEM (KM)", showlegend=False)
             st.plotly_chart(fig)
 
-    def show_pie_chart_by_fuel(self):
-        """Exibe um gráfico de pizza por tipo de combustível."""
-        st.subheader("GRÁFICO DE PIZZA: DISTRIBUIÇÃO POR COMBUSTÍVEL")
+    def show_pie_chart_combustivel(self):
+        """Exibe um gráfico de pizza da distribuição de combustíveis."""
+        st.subheader("GRÁFICO DE PIZZA: DISTRIBUIÇÃO DE COMBUSTÍVEIS")
         if self.df is not None:
             fuel_counts = self.df['combustivel'].value_counts().reset_index()
             fuel_counts.columns = ['combustivel', 'unidades']
 
-            fig = px.pie(fuel_counts, values='unidades', names='combustivel', title='DISTRIBUIÇÃO DE VEÍCULOS POR COMBUSTÍVEL')
+            fig = px.pie(fuel_counts, values='unidades', names='combustivel', title='DISTRIBUIÇÃO DE COMBUSTÍVEIS')
             st.plotly_chart(fig)
 
-    def show_line_chart_price_over_time(self):
-        """Exibe um gráfico de linha de preços ao longo dos anos."""
-        st.subheader("GRÁFICO DE LINHA: PREÇO AO LONGO DOS ANOS")
+    def show_line_chart_quilometragem_ano(self):
+        """Exibe um gráfico de linha da quilometragem média por ano."""
+        st.subheader("GRÁFICO DE LINHA: QUILOMETRAGEM MÉDIA POR ANO")
         if self.df is not None:
-            avg_price_per_year = self.df.groupby('ano')['preco'].mean().reset_index()
+            avg_km_per_year = self.df.groupby('ano')['quilometragem'].mean().reset_index()
 
-            fig = px.line(avg_price_per_year, x='ano', y='preco', title='PREÇO MÉDIO AO LONGO DOS ANOS')
-            fig.update_layout(yaxis_title="PREÇO MÉDIO (R$)", xaxis_title="ANO")
+            fig = px.line(avg_km_per_year, x='ano', y='quilometragem', 
+                          title='EVOLUÇÃO DA QUILOMETRAGEM MÉDIA POR ANO')
+            fig.update_layout(
+                xaxis_title="ANO",
+                yaxis_title="QUILOMETRAGEM MÉDIA (KM)"
+            )
             st.plotly_chart(fig)
 
-    def dashboard_controls(self):
-        """Cria um painel lateral com controles para manipulação dos dados."""
-        st.sidebar.title("PAINEL DE CONTROLE")
-        marcas_selecionadas = st.sidebar.multiselect("SELECIONE AS MARCAS", self.df['marca'].unique(), default=self.df['marca'].unique())
-        ano_min, ano_max = st.sidebar.slider("ANO DE FABRICAÇÃO", int(self.df['ano'].min()), int(self.df['ano'].max()), (int(self.df['ano'].min()), int(self.df['ano'].max())))
-        quilometragem_max = st.sidebar.slider("QUILOMETRAGEM MÁXIMA", 0, int(self.df['quilometragem'].max()), int(self.df['quilometragem'].max()))
-
-        self.df = self.df[(self.df['marca'].isin(marcas_selecionadas)) & 
-                          (self.df['ano'] >= ano_min) & 
-                          (self.df['ano'] <= ano_max) & 
-                          (self.df['quilometragem'] <= quilometragem_max)]
+    def show_heatmap_correlacao(self):
+        """Exibe um heatmap de correlação entre variáveis."""
+        st.subheader("HEATMAP: CORRELAÇÃO ENTRE VARIÁVEIS")
+        if self.df is not None:
+            corr_matrix = self.df.corr()
+            fig = px.imshow(corr_matrix, text_auto=True, aspect='auto', title='CORRELAÇÃO ENTRE VARIÁVEIS')
+            st.plotly_chart(fig)
 
     def run_app(self):
         """Executa todos os métodos da aplicação."""
         st.title("ANÁLISE EXPLORATÓRIA DE VEÍCULOS")
         self.load_data()
         self.filter_top_10_brands()
-        self.dashboard_controls()
-
+        
         self.show_boxplot_by_quilometragem()
         self.show_histogram_by_brand()
         self.show_bar_chart_preco_ano()
         self.show_scatter_plot()
-        self.show_pie_chart_by_fuel()
-        self.show_line_chart_price_over_time()
+        self.show_pie_chart_combustivel()
+        self.show_line_chart_quilometragem_ano()
+        self.show_heatmap_correlacao()
 
 # Caminho do arquivo CSV
 data_path = "Datas/1_Cars_dataset_processado.csv"
