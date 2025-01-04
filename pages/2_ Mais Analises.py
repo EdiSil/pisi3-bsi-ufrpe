@@ -44,11 +44,10 @@ class CarAnalysisApp:
     def show_histogram_year(self):
         """Histograma de distribuição de veículos por ano."""
         fig = px.histogram(
-            self.df_filtered, x='ano',
+            self.df_filtered, x='ano', color='marca',
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
-            labels={'ano': 'ANO', 'y': 'UNIDADES'},
+            labels={'ano': 'ANO'},
         )
-        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_boxplot_price_brand(self):
@@ -58,15 +57,11 @@ class CarAnalysisApp:
             title='BOXPLOT DE PREÇOS POR MARCA',
             labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
         )
-        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_line_price_trend(self):
-        """Tendência de preços médios ao longo dos anos, atualizada a cada 6 meses."""
+        """Tendência de preços médios ao longo dos anos."""
         avg_price_by_year = self.df_filtered.groupby('ano')['preco'].mean().reset_index()
-        avg_price_by_year['ano'] = pd.to_datetime(avg_price_by_year['ano'], format='%Y')
-        avg_price_by_year = avg_price_by_year.set_index('ano').resample('6M').mean().reset_index()
-        avg_price_by_year['ano'] = avg_price_by_year['ano'].dt.year
         fig = px.line(
             avg_price_by_year, x='ano', y='preco',
             title='TENDÊNCIA DE PREÇOS MÉDIOS AO LONGO DOS ANOS',
@@ -91,7 +86,6 @@ class CarAnalysisApp:
             title='PREÇO MÉDIO POR MODELO',
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
-        fig.update_layout(xaxis_tickangle=-45)
         st.plotly_chart(fig)
 
     def show_density_price(self):
@@ -99,20 +93,16 @@ class CarAnalysisApp:
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO',
-            labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'},
-            hover_data={'ano': True, 'preco': False, 'count': True}
+            labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
-        fig.update_traces(hovertemplate='ANO: %{x}<br>QUANT: %{z}')
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
         """Mapa de árvore de distribuição de marcas e modelos."""
         fig = px.treemap(
             self.df_filtered, path=['marca', 'modelo'], values='preco',
-            title='DISTRIBUIÇÃO DE MARCAS E MODELOS PELO PREÇO',
-            hover_data={'marca': True, 'modelo': True, 'preco': True},
+            title='DISTRIBUIÇÃO DE MARCAS E MODELOS PELO PREÇO'
         )
-        fig.update_traces(hovertemplate='PREÇO: %{value}<br>MARCA: %{label}')
         st.plotly_chart(fig)
 
     def run_app(self):
