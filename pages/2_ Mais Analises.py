@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Função para converter valores de string para float
 def convert_to_float(value):
@@ -46,8 +47,9 @@ class CarAnalysisApp:
         fig = px.histogram(
             self.df_filtered, x='ano', color='marca',
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
-            labels={'ano': 'ANO'},
+            labels={'ano': 'ANO', 'y': 'UNIDADES'}
         )
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_boxplot_price_brand(self):
@@ -57,24 +59,18 @@ class CarAnalysisApp:
             title='BOXPLOT DE PREÇOS POR MARCA',
             labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
         )
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_line_price_trend(self):
-        """Tendência de preços médios ao longo dos anos."""
-        avg_price_by_year = self.df_filtered.groupby('ano')['preco'].mean().reset_index()
+        """Tendência de preços médios a cada 6 meses ao longo dos anos."""
+        self.df_filtered['periodo'] = pd.to_datetime(self.df_filtered['ano'], format='%Y')
+        self.df_filtered['periodo'] = self.df_filtered['periodo'].dt.to_period('6M')
+        avg_price_by_period = self.df_filtered.groupby('periodo')['preco'].mean().reset_index()
         fig = px.line(
-            avg_price_by_year, x='ano', y='preco',
-            title='TENDÊNCIA DE PREÇOS MÉDIOS AO LONGO DOS ANOS',
-            labels={'ano': 'ANO', 'preco': 'PREÇO MÉDIO (R$)'}
-        )
-        st.plotly_chart(fig)
-
-    def show_violin_price_transmission(self):
-        """Gráfico de violino de preços por tipo de transmissão."""
-        fig = px.violin(
-            self.df_filtered, y='preco', x='tipo',
-            title='PREÇOS POR TIPO DE TRANSMISSÃO',
-            labels={'tipo': 'TIPO DE TRANSMISSÃO', 'preco': 'PREÇO (R$)'}
+            avg_price_by_period, x='periodo', y='preco',
+            title='TENDÊNCIA DE PREÇOS MÉDIOS A CADA 6 MESES',
+            labels={'periodo': 'PERÍODO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
         st.plotly_chart(fig)
 
@@ -86,6 +82,9 @@ class CarAnalysisApp:
             title='PREÇO MÉDIO POR MODELO',
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
+        fig.update_layout(
+            xaxis_tickangle=-45
+        )
         st.plotly_chart(fig)
 
     def show_density_price(self):
@@ -95,6 +94,9 @@ class CarAnalysisApp:
             title='DENSIDADE DO PREÇO POR ANO',
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
+        fig.update_traces(
+            hovertemplate='ANO: %{x}<br>QUANT: %{y}'
+        )
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
@@ -102,6 +104,9 @@ class CarAnalysisApp:
         fig = px.treemap(
             self.df_filtered, path=['marca', 'modelo'], values='preco',
             title='DISTRIBUIÇÃO DE MARCAS E MODELOS PELO PREÇO'
+        )
+        fig.update_traces(
+            hovertemplate='<b>MARCA:</b> %{parent}<br><b>MODELO:</b> %{label}<br><b>PREÇO:</b> %{value}'
         )
         st.plotly_chart(fig)
 
@@ -112,7 +117,6 @@ class CarAnalysisApp:
         self.show_histogram_year()
         self.show_boxplot_price_brand()
         self.show_line_price_trend()
-        self.show_violin_price_transmission()
         self.show_bar_model_price()
         self.show_density_price()
         self.show_treemap_brand_model()
@@ -121,3 +125,4 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
+
