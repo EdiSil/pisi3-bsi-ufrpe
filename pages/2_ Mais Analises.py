@@ -6,6 +6,10 @@ import plotly.express as px
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
+# Função para formatar os valores em Real Brasileiro (R$)
+def format_to_brl(value):
+    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
 class CarAnalysisApp:
     def __init__(self, data_path):
         self.data_path = data_path
@@ -86,6 +90,7 @@ class CarAnalysisApp:
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
+        avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(format_to_brl)  # Formatar preço
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
@@ -110,7 +115,7 @@ class CarAnalysisApp:
         # Criar coluna personalizada para o hover
         self.df_filtered['hover_info'] = (
             'MODELO=' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO(R$)=' + self.df_filtered['preco'].apply(lambda x: f'{x:,.0f}'.replace(',', '.')) + '<br>' +
+            'PREÇO(R$)=' + self.df_filtered['preco'].apply(lambda x: format_to_brl(x)) + '<br>' +
             'MARCA=' + self.df_filtered['marca']
         )
         
