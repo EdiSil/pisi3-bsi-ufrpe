@@ -43,8 +43,12 @@ class CarAnalysisApp:
 
     def show_histogram_year(self):
         """Histograma de distribuição de veículos por ano."""
+        # Criar uma nova coluna 'count' com a contagem de veículos por ano e marca
+        count_data = self.df_filtered.groupby(['ano', 'marca']).size().reset_index(name='count')
+        
+        # Criar o gráfico de histograma
         fig = px.histogram(
-            self.df_filtered, x='ano', color='marca',
+            count_data, x='ano', color='marca', y='count', 
             title='DISTRIBUIÇÃO DE VEÍCULOS POR ANO',
             labels={'ano': 'ANO'},
             hover_data={'marca': True, 'ano': True, 'count': True}  # Inclui a contagem no hover
@@ -72,7 +76,8 @@ class CarAnalysisApp:
             title='BOXPLOT DE PREÇOS POR MARCA',
             labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
         )
-        fig.update_layout(showlegend=False)  # Remove a legenda
+        # Remove a legenda
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_line_price_trend(self):
@@ -102,6 +107,7 @@ class CarAnalysisApp:
             title='PREÇO MÉDIO POR MODELO',
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
+        # Inclina os rótulos do eixo X para a esquerda
         fig.update_layout(
             xaxis_tickangle=-45  # Inclina os rótulos do eixo X para a esquerda
         )
