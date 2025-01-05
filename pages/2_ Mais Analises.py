@@ -88,7 +88,7 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=( 
+            hovertemplate=(
                 "MODELO: %{x}<br>"
                 "PREÇO MÉDIO (R$): %{y:,.3f}<extra></extra>"
             )
@@ -105,7 +105,7 @@ class CarAnalysisApp:
         st.plotly_chart(fig)
 
     def show_density_price(self):
-        """Gráfico de densidade do preço com formatação para o valor financeiro brasileiro."""
+        """Gráfico de densidade do preço."""
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO',
@@ -120,15 +120,6 @@ class CarAnalysisApp:
             )
         )
         
-        # Atualizando a formatação do preço na forma correta, para valores maiores que 1.000.000
-        fig.update_traces(
-            hovertemplate=(
-                "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): " + self.df_filtered['preco'].apply(lambda x: format_to_brl(x)) + "<br>"
-                "QUANT: %{z}<extra></extra>"
-            )
-        )
-
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
