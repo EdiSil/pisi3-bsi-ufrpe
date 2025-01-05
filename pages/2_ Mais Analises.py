@@ -88,7 +88,7 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=(
+            hovertemplate=( 
                 "MODELO: %{x}<br>"
                 "PREÇO MÉDIO (R$): %{y:,.3f}<extra></extra>"
             )
@@ -112,22 +112,30 @@ class CarAnalysisApp:
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
         
-        # Atualizando o hover para exibir o preço corretamente formatado
         fig.update_traces(
             hovertemplate=(
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.0f}<br>"  # Aqui já aplicamos a formatação corretamente
+                "PREÇO (R$): %{y:,.0f}<br>"
                 "QUANT: %{z}<extra></extra>"
             )
         )
         
+        # Atualizando a formatação do preço na forma correta, para valores maiores que 1.000.000
+        fig.update_traces(
+            hovertemplate=(
+                "ANO: %{x:.0f}<br>"
+                "PREÇO (R$): " + self.df_filtered['preco'].apply(lambda x: format_to_brl(x)) + "<br>"
+                "QUANT: %{z}<extra></extra>"
+            )
+        )
+
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl(x)) + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}").replace(",", ".") + '<br>' +
             'MARCA: ' + self.df_filtered['marca']
         )
         
