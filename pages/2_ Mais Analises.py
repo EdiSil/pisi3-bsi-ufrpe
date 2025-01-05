@@ -52,7 +52,7 @@ class CarAnalysisApp:
             )
             preco_min, preco_max = st.sidebar.slider(
                 "Selecione o intervalo de preços:", 
-                min_value=0, 
+                min_value=10, 
                 max_value=1000000, 
                 value=(0, 1000000)
             )
