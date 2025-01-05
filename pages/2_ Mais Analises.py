@@ -8,7 +8,7 @@ def convert_to_float(value):
 
 # Função para formatar os valores em Real Brasileiro (R$)
 def format_to_brl(value):
-    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"{value:,.3f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -132,7 +132,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}".replace(",", ".")) + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.3f}".replace(",", ".")) + '<br>' +
             'MARCA: ' + self.df_filtered['marca']
         )
         
