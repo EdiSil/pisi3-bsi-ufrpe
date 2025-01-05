@@ -115,7 +115,7 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=(
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.1f}M<br>"
+                "PREÇO (R$): %{y:,.0f}<br>"
                 "QUANT: %{z}<extra></extra>"
             )
         )
