@@ -89,8 +89,15 @@ class CarAnalysisApp:
 
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
+        # Calcular o preço médio por modelo e arredondar para 2 casas decimais
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
+        
+        # Arredondar os preços para duas casas decimais
+        avg_price_by_model['preco'] = avg_price_by_model['preco'].round(2)
+        
+        # Formatar os preços para o formato brasileiro
         avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(format_to_brl)  # Formatar preço
+        
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
@@ -145,3 +152,4 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"  # Atualize o caminho para o seu arquivo CSV
     app = CarAnalysisApp(data_path)
     app.run_app()
+
