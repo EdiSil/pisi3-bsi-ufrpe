@@ -95,9 +95,10 @@ class CarAnalysisApp:
         # Arredondar os preços para duas casas decimais
         avg_price_by_model['preco'] = avg_price_by_model['preco'].round(2)
         
-        # Formatar os preços para o formato brasileiro
+        # Formatar os preços para o formato brasileiro (R$)
         avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(format_to_brl)  # Formatar preço
         
+        # Gráfico de barras
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
@@ -152,4 +153,3 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"  # Atualize o caminho para o seu arquivo CSV
     app = CarAnalysisApp(data_path)
     app.run_app()
-
