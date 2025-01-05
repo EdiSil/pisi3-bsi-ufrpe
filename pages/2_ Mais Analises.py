@@ -86,7 +86,7 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=(
                 "MARCA: %{x}<br>"
-                "PREÇO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais
+                "PREÇO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais, mas no formato BR
             )
         )
         
@@ -104,7 +104,7 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=(
                 "TIPO: %{x}<br>"
-                "PREÇO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais
+                "PREÇO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais, mas no formato BR
             )
         )
         
@@ -123,7 +123,7 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=( 
                 "MODELO: %{x}<br>"
-                "PREÇO MÉDIO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais
+                "PREÇO MÉDIO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais, mas no formato BR
             )
         )
         
@@ -148,7 +148,7 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=( 
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.2f}<br>"  # Exibindo com 2 casas decimais
+                "PREÇO (R$): %{y:,.2f}<br>"  # Exibindo com 2 casas decimais, mas no formato BR
                 "QUANT: %{z}<extra></extra>"
             )
         )
@@ -187,4 +187,3 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
-
