@@ -52,9 +52,9 @@ class CarAnalysisApp:
             )
             preco_min, preco_max = st.sidebar.slider(
                 "Selecione o intervalo de preços:", 
-                min_value=10, 
+                min_value=101, 
                 max_value=1000000, 
-                value=(0, 1000000)
+                value=(101, 1000000)
             )
             self.df_filtered = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max) & 
                                        (self.df['preco'] >= preco_min) & (self.df['preco'] <= preco_max)]
