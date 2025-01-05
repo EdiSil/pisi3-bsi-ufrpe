@@ -68,16 +68,6 @@ class CarAnalysisApp:
         fig.update_layout(showlegend=False)  # Remove a legenda
         st.plotly_chart(fig)
 
-    def show_line_price_trend(self):
-        """Tendência de preços médios ao longo dos anos."""
-        avg_price_by_year = self.df_filtered.groupby('ano')['preco'].mean().reset_index()
-        fig = px.line(
-            avg_price_by_year, x='ano', y='preco',
-            title='TENDÊNCIA DE PREÇOS MÉDIOS AO LONGO DOS ANOS',
-            labels={'ano': 'ANO', 'preco': 'PREÇO MÉDIO (R$)'}
-        )
-        st.plotly_chart(fig)
-
     def show_violin_price_transmission(self):
         """Gráfico de violino de preços por tipo de transmissão."""
         fig = px.violin(
@@ -89,7 +79,7 @@ class CarAnalysisApp:
 
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
-        # Calcular o preço médio por modelo e arredondar para 2 casas decimais
+        # Calcular o preço médio por modelo
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
         
         # Gráfico de barras
@@ -99,7 +89,7 @@ class CarAnalysisApp:
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
         
-        # Atualizando o hover para mostrar no formato desejado
+        # Atualizando o hover para o formato desejado
         fig.update_traces(
             hovertemplate="MODELO: %{x}<br>PREÇO MÉDIO (R$): %{y:,.0f}<extra></extra>"
         )
@@ -153,7 +143,6 @@ class CarAnalysisApp:
         self.add_filters()
         self.show_histogram_year()
         self.show_boxplot_price_brand()
-        self.show_line_price_trend()
         self.show_violin_price_transmission()
         self.show_bar_model_price()
         self.show_density_price()
