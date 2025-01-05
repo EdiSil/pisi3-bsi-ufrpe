@@ -91,7 +91,10 @@ class CarAnalysisApp:
         
         # Atualizando o hover para o formato desejado
         fig.update_traces(
-            hovertemplate="MODELO: %{x}<br>PREÇO MÉDIO (R$): %{y:,.0f}<extra></extra>"
+            hovertemplate=(
+                "MODELO: %{x}<br>"
+                "PREÇO MÉDIO (R$): %{y:,.3f}<extra></extra>"
+            )
         )
         
         # Atualizando o eixo Y para mostrar valores em 10M, 20M, etc.
@@ -152,4 +155,5 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"  # Atualize o caminho para o seu arquivo CSV
     app = CarAnalysisApp(data_path)
     app.run_app()
+
 
