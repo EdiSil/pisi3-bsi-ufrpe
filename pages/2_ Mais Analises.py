@@ -6,10 +6,21 @@ import plotly.express as px
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Função para formatar os valores (sem formatação monetária)
-def format_to_float(value):
-    """Retorna o valor numérico em formato simples, sem formatação monetária."""
-    return value
+# Função para formatar os valores no formato monetário brasileiro (R$) com até 7 dígitos
+def format_to_brl_limited(value):
+    """Formata o valor no padrão monetário brasileiro com ponto como separador de milhar e vírgula como separador decimal, limitado a 7 dígitos."""
+    value = round(value, 2)  # Limita a 2 casas decimais
+    if value > 9999999:  # Limita os valores a até 7 dígitos
+        value = 9999999
+    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+# Função para formatar os valores sem centavos no formato monetário brasileiro
+def format_to_brl_without_cents(value):
+    """Formata o valor no padrão monetário brasileiro (R$) sem centavos."""
+    value = round(value, 0)  # Arredonda para o valor inteiro
+    if value > 9999999:  # Limita os valores a até 7 dígitos
+        value = 9999999
+    return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -64,7 +75,7 @@ class CarAnalysisApp:
         fig = px.box(
             self.df_filtered, x='marca', y='preco', color='marca',
             title='BOXPLOT DE PREÇOS POR MARCA',
-            labels={'marca': 'MARCA', 'preco': 'PREÇO'}
+            labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
         )
         fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
@@ -74,7 +85,7 @@ class CarAnalysisApp:
         fig = px.violin(
             self.df_filtered, y='preco', x='tipo',
             title='PREÇOS POR TIPO DE VEÍCULO',
-            labels={'tipo': 'TIPO', 'preco': 'PREÇO'}
+            labels={'tipo': 'TIPO', 'preco': 'PREÇO (R$)'}
         )
         st.plotly_chart(fig)
 
@@ -85,13 +96,13 @@ class CarAnalysisApp:
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
-            labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO'}
+            labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
         
         fig.update_traces(
             hovertemplate=( 
                 "MODELO: %{x}<br>"
-                "PREÇO MÉDIO: %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais
+                "PREÇO MÉDIO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais
             )
         )
         
@@ -99,7 +110,7 @@ class CarAnalysisApp:
             yaxis_tickvals=[1e6, 2e6, 3e6, 4e6, 5e6],
             yaxis_ticktext=["1.000.000", "2.000.000", "3.000.000", "4.000.000", "5.000.000"],
             xaxis_tickangle=-45,
-            yaxis_title="PREÇO MÉDIO",
+            yaxis_title="PREÇO MÉDIO (R$)",
             title="Preço Médio por Modelo"
         )
         
@@ -110,13 +121,13 @@ class CarAnalysisApp:
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO',
-            labels={'ano': 'ANO', 'preco': 'PREÇO'}
+            labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
         
         fig.update_traces(
             hovertemplate=( 
                 "ANO: %{x:.0f}<br>"
-                "PREÇO: %{y:,.2f}<br>"  # Exibindo com 2 casas decimais
+                "PREÇO (R$): %{y:,.2f}<br>"  # Exibindo com 2 casas decimais
                 "QUANT: %{z}<extra></extra>"
             )
         )
@@ -127,7 +138,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO: ' + self.df_filtered['preco'].apply(lambda x: format_to_float(x)) + '<br>' +  # Sem formatação monetária
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl_limited(x)) + '<br>' +  # Usando a formatação limitada
             'MARCA: ' + self.df_filtered['marca']
         )
         
