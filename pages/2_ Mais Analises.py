@@ -4,15 +4,15 @@ import plotly.express as px
 
 # Função para converter valores de string para float
 def convert_to_float(value):
-    return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
+    return float(str(value).replace('$', '').replace('.', '').replace(',', '.'))
 
-# Função para formatar os valores em Real Brasileiro (R$)
-def format_to_brl(value):
-    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+# Função para formatar os valores em Dólar Americano (USD)
+def format_to_usd(value):
+    return f"${value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 # Função para formatar o valor com separador de milhar como ponto e vírgula como separador decimal
-def format_to_brl_with_cents(value):
-    """Formata o valor de acordo com o padrão monetário brasileiro."""
+def format_to_usd_with_cents(value):
+    """Formata o valor de acordo com o padrão monetário americano (USD)."""
     return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")  # Ex: 17.500,00
 
 class CarAnalysisApp:
@@ -68,7 +68,7 @@ class CarAnalysisApp:
         fig = px.box(
             self.df_filtered, x='marca', y='preco', color='marca',
             title='BOXPLOT DE PREÇOS POR MARCA',
-            labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
+            labels={'marca': 'MARCA', 'preco': 'PREÇO (USD)'}
         )
         fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
@@ -78,7 +78,7 @@ class CarAnalysisApp:
         fig = px.violin(
             self.df_filtered, y='preco', x='tipo',
             title='PREÇOS POR TIPO DE VEÍCULO',
-            labels={'tipo': 'TIPO', 'preco': 'PREÇO (R$)'}
+            labels={'tipo': 'TIPO', 'preco': 'PREÇO (USD)'}
         )
         st.plotly_chart(fig)
 
@@ -89,13 +89,13 @@ class CarAnalysisApp:
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
-            labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
+            labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (USD)'}
         )
         
         fig.update_traces(
             hovertemplate=( 
                 "MODELO: %{x}<br>"
-                "PREÇO MÉDIO (R$): %{y:,.2f}<extra></extra>"  # Modificado aqui para a formatação com centavos
+                "PREÇO MÉDIO (USD): %{y:,.2f}<extra></extra>"  # Modificado aqui para a formatação com centavos
             )
         )
         
@@ -103,8 +103,8 @@ class CarAnalysisApp:
             yaxis_tickvals=[1e7, 2e7, 3e7, 4e7, 5e7],
             yaxis_ticktext=["10M", "20M", "30M", "40M", "50M"],
             xaxis_tickangle=-45,
-            yaxis_title="PREÇO MÉDIO (R$)",
-            title="Preço Médio por Modelo (Milhões de Reais)"
+            yaxis_title="PREÇO MÉDIO (USD)",
+            title="Preço Médio por Modelo (Milhões de Dólares)"
         )
         
         st.plotly_chart(fig)
@@ -114,13 +114,13 @@ class CarAnalysisApp:
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO',
-            labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
+            labels={'ano': 'ANO', 'preco': 'PREÇO (USD)'}
         )
         
         fig.update_traces(
             hovertemplate=( 
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.2f}<br>"  # Modificado aqui para a formatação com centavos
+                "PREÇO (USD): %{y:,.2f}<br>"  # Modificado aqui para a formatação com centavos
                 "QUANT: %{z}<extra></extra>"
             )
         )
@@ -131,7 +131,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl_with_cents(x)) + '<br>' +  # Usando a função para formatar com vírgula
+            'PREÇO (USD): ' + self.df_filtered['preco'].apply(lambda x: format_to_usd_with_cents(x)) + '<br>' +  # Usando a função para formatar com vírgula
             'MARCA: ' + self.df_filtered['marca']
         )
         
@@ -159,3 +159,4 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
+
