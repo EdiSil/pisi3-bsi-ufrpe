@@ -104,9 +104,19 @@ class CarAnalysisApp:
             title='PREÇO MÉDIO POR MODELO',
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
+        
+        # Atualizando o eixo Y para mostrar valores em milhões (M)
         fig.update_layout(
+            yaxis_tickformat=".2s",  # Formato em milhões (M)
             xaxis_tickangle=-45  # Inclina os rótulos do eixo X para a esquerda
         )
+        
+        # Personalizando o título para exibir como "Milhões de Reais"
+        fig.update_layout(
+            yaxis_title="PREÇO MÉDIO (R$)",
+            title="Preço Médio por Modelo (Milhões de Reais)"
+        )
+        
         st.plotly_chart(fig)
 
     def show_density_price(self):
