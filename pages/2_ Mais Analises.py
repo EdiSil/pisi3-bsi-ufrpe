@@ -6,9 +6,23 @@ import plotly.express as px
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Função para formatar os valores em Real Brasileiro (R$)
-def format_to_brl(value):
+# Função para limitar os valores de preço a 7 dígitos e formatar como Real Brasileiro
+def format_to_brl_limited(value):
+    """Formata o valor no padrão monetário brasileiro com ponto como separador de milhar e vírgula como separador decimal, limitado a 7 dígitos."""
+    # Limitar o valor para no máximo 9.999.999
+    if value > 9999999:
+        value = 9999999
+    # Formatar o valor para Real Brasileiro com ponto como separador de milhar e vírgula como separador decimal
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+# Função para formatar os valores sem centavos no formato monetário brasileiro
+def format_to_brl_without_cents(value):
+    """Formata o valor no padrão monetário brasileiro (R$) sem centavos."""
+    # Limitar o valor para no máximo 9.999.999
+    if value > 9999999:
+        value = 9999999
+    # Arredonda para o valor inteiro e formata
+    return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -88,18 +102,18 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=(
+            hovertemplate=( 
                 "MODELO: %{x}<br>"
-                "PREÇO MÉDIO (R$): %{y:,.3f}<extra></extra>"
+                "PREÇO MÉDIO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais
             )
         )
         
         fig.update_layout(
-            yaxis_tickvals=[1e7, 2e7, 3e7, 4e7, 5e7],
-            yaxis_ticktext=["10M", "20M", "30M", "40M", "50M"],
+            yaxis_tickvals=[1e6, 2e6, 3e6, 4e6, 5e6],
+            yaxis_ticktext=["1.000.000", "2.000.000", "3.000.000", "4.000.000", "5.000.000"],
             xaxis_tickangle=-45,
             yaxis_title="PREÇO MÉDIO (R$)",
-            title="Preço Médio por Modelo (Milhões de Reais)"
+            title="Preço Médio por Modelo"
         )
         
         st.plotly_chart(fig)
@@ -113,9 +127,9 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=(
+            hovertemplate=( 
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.0f}<br>"
+                "PREÇO (R$): %{y:,.2f}<br>"  # Exibindo com 2 casas decimais
                 "QUANT: %{z}<extra></extra>"
             )
         )
@@ -126,7 +140,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}").replace(",", ".") + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl_limited(x)) + '<br>' +  # Usando a formatação limitada
             'MARCA: ' + self.df_filtered['marca']
         )
         
@@ -151,7 +165,6 @@ class CarAnalysisApp:
         self.show_treemap_brand_model()
 
 if __name__ == "__main__":
-    data_path = "Datas/1_Cars_dataset_processado.csv"
+    data_path = "Datas/1_Cars_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
-
