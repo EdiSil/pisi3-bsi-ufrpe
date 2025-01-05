@@ -105,9 +105,9 @@ class CarAnalysisApp:
         st.plotly_chart(fig)
 
     def show_density_price(self):
-        """Gráfico de densidade do preço com ajuste para multiplicar o preço por 2000."""
-        # Multiplicando o preço por 2000
-        self.df_filtered['preco'] = self.df_filtered['preco'] * 2000
+        """Gráfico de densidade do preço com ajuste para dividir o preço por 2000."""
+        # Dividindo o preço por 2000
+        self.df_filtered['preco'] = self.df_filtered['preco'] / 2000
         
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
@@ -157,4 +157,3 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
-
