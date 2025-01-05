@@ -48,10 +48,10 @@ class CarAnalysisApp:
 
     def show_kilometer_distribution(self):
         """Distribuição de Quilometragem por Marca."""
-        self.df_filtered['quilometragem'] = self.df_filtered['quilometragem'].clip(upper=self.df_filtered['quilometragem'].quantile(0.95))
         fig = px.histogram(self.df_filtered, x='quilometragem', color='marca', nbins=50,
                            title='Distribuição de Quilometragem dos Veículos',
                            labels={'quilometragem': 'Quilometragem (km)', 'marca': 'Marca'})
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_avg_price_by_model(self):
@@ -82,4 +82,5 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
+
 
