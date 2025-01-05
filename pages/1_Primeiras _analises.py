@@ -126,7 +126,7 @@ class CarAnalysisApp:
                           (self.df['quilometragem'] <= quilometragem_max)]
 
     def run_app(self):
-        st.title("ANÁLISE EXPLORATÓRIA")
+        st.title("PRIMEIRAS ANÁLISES")
         self.load_data()
         self.filter_top_10_brands()
         self.dashboard_controls()
