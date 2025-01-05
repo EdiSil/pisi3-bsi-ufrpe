@@ -152,3 +152,4 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"  # Atualize o caminho para o seu arquivo CSV
     app = CarAnalysisApp(data_path)
     app.run_app()
+
