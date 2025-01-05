@@ -6,20 +6,22 @@ import plotly.express as px
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Função para formatar os valores no formato monetário brasileiro (R$) com até 7 dígitos
+# Função para limitar os valores de preço a 7 dígitos e formatar como Real Brasileiro
 def format_to_brl_limited(value):
     """Formata o valor no padrão monetário brasileiro com ponto como separador de milhar e vírgula como separador decimal, limitado a 7 dígitos."""
-    value = round(value, 2)  # Limita a 2 casas decimais
-    if value > 9999999:  # Limita os valores a até 7 dígitos
+    # Limitar o valor para no máximo 9.999.999
+    if value > 9999999:
         value = 9999999
+    # Formatar o valor para Real Brasileiro
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 # Função para formatar os valores sem centavos no formato monetário brasileiro
 def format_to_brl_without_cents(value):
     """Formata o valor no padrão monetário brasileiro (R$) sem centavos."""
-    value = round(value, 0)  # Arredonda para o valor inteiro
-    if value > 9999999:  # Limita os valores a até 7 dígitos
+    # Limitar o valor para no máximo 9.999.999
+    if value > 9999999:
         value = 9999999
+    # Arredonda para o valor inteiro e formata
     return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
