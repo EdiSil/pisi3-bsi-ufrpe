@@ -10,6 +10,10 @@ def convert_to_float(value):
 def format_to_brl(value):
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
+# Função para formatar o valor com separador de milhar como ponto e remove os centavos
+def format_to_brl_without_cents(value):
+    return f"{value:,.0f}".replace(",", ".")
+
 class CarAnalysisApp:
     def __init__(self, data_path):
         self.data_path = data_path
@@ -69,7 +73,7 @@ class CarAnalysisApp:
         st.plotly_chart(fig)
 
     def show_violin_price_transmission(self):
-        """Gráfico de violino de preços por tipo de transmissão."""
+        """Gráfico de violino de preços por tipo de transmissão.""" 
         fig = px.violin(
             self.df_filtered, y='preco', x='tipo',
             title='PREÇOS POR TIPO DE VEÍCULO',
@@ -88,8 +92,8 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=(
-                "MODELO: %{x}<br>"
+            hovertemplate=( 
+                "MODELO: %{x}<br>" 
                 "PREÇO MÉDIO (R$): %{y:,.3f}<extra></extra>"
             )
         )
@@ -119,6 +123,15 @@ class CarAnalysisApp:
                 "QUANT: %{z}<extra></extra>"
             )
         )
+
+        # Atualizando a exibição de preços no gráfico com a formatação desejada
+        fig.update_traces(
+            hovertemplate=(
+                "ANO: %{x:.0f}<br>"
+                "PREÇO (R$): %{y:.0f}<br>"
+                "QUANT: %{z}<extra></extra>"
+            )
+        )
         
         st.plotly_chart(fig)
 
@@ -126,7 +139,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}").replace(",", ".") + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl_without_cents(x)) + '<br>' +
             'MARCA: ' + self.df_filtered['marca']
         )
         
