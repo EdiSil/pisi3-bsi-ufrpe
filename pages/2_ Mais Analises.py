@@ -89,7 +89,7 @@ class CarAnalysisApp:
 
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
-        # Calcular o preço médio por modelo
+        # Calcular o preço médio por modelo e arredondar para 2 casas decimais
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
         
         # Gráfico de barras
@@ -99,7 +99,7 @@ class CarAnalysisApp:
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
         
-        # Atualizando o hover para o formato desejado
+        # Atualizando o hover para mostrar no formato desejado
         fig.update_traces(
             hovertemplate="MODELO: %{x}<br>PREÇO MÉDIO (R$): %{y:,.0f}<extra></extra>"
         )
@@ -114,7 +114,7 @@ class CarAnalysisApp:
         # Atualizando o título do eixo Y
         fig.update_layout(
             yaxis_title="PREÇO MÉDIO (R$)",
-            title="Preço Médio por Modelo"
+            title="Preço Médio por Modelo (Milhões de Reais)"
         )
         
         st.plotly_chart(fig)
