@@ -12,7 +12,7 @@ def format_to_brl(value):
 
 # Função para formatar o valor com separador de milhar como ponto e remove os centavos
 def format_to_brl_without_cents(value):
-    return f"R$ {value:,.0f}".replace(",", ".")  # Coloca ponto como separador de milhar
+    return f"{value:,.0f}".replace(",", ".")  # Coloca ponto como separador de milhar e remove centavos
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -92,7 +92,7 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=(
+            hovertemplate=( 
                 "MODELO: %{x}<br>"
                 "PREÇO MÉDIO (R$): %{y:,.0f}<extra></extra>"  # Modificado aqui para a formatação sem centavos
             )
@@ -117,9 +117,9 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=(
+            hovertemplate=( 
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): " + self.df_filtered['preco'].apply(format_to_brl_without_cents).iloc[0] + "<br>"  # Aplicado a função format_to_brl_without_cents aqui
+                "PREÇO (R$): %{y:,.0f}<br>"  # Modificado aqui para a formatação sem centavos
                 "QUANT: %{z}<extra></extra>"
             )
         )
