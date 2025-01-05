@@ -116,11 +116,11 @@ class CarAnalysisApp:
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
         
-        # Ajustando a formatação do preço
+        # Ajustando a formatação do preço para usar ponto como separador de milhar
         fig.update_traces(
-            hovertemplate=( 
+            hovertemplate=(
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.0f}<br>"
+                "PREÇO (R$): %{y:,.0f}".replace(",", ".") + "<br>"
                 "QUANT: %{z}<extra></extra>"
             )
         )
@@ -132,7 +132,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}").replace(",", ".") + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}".replace(",", ".")) + '<br>' +
             'MARCA: ' + self.df_filtered['marca']
         )
         
