@@ -105,15 +105,18 @@ class CarAnalysisApp:
         st.plotly_chart(fig)
 
     def show_density_price(self):
-        """Gráfico de densidade do preço."""
+        """Gráfico de densidade do preço com ajuste para multiplicar o preço por 2000."""
+        # Multiplicando o preço por 2000
+        self.df_filtered['preco'] = self.df_filtered['preco'] * 2000
+        
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
-            title='DENSIDADE DO PREÇO POR ANO',
+            title='DENSIDADE DO PREÇO POR ANO (ajustado)',
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
         
         fig.update_traces(
-            hovertemplate=(
+            hovertemplate=( 
                 "ANO: %{x:.0f}<br>"
                 "PREÇO (R$): %{y:,.0f}<br>"
                 "QUANT: %{z}<extra></extra>"
