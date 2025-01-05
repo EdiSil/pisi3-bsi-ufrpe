@@ -110,7 +110,7 @@ class CarAnalysisApp:
         if self.df is not None:
             corr = self.df[['preco', 'quilometragem', 'ano']].corr()
             plt.figure(figsize=(8, 6))
-            sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f')
+            sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', vmin=-1, vmax=1)
             st.pyplot(plt)
 
     def dashboard_controls(self):
@@ -144,3 +144,4 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
+
