@@ -53,8 +53,8 @@ class CarAnalysisApp:
             labels={'ano': 'ANO'},
         )
         fig.update_layout(
-            yaxis_title='UNIDADES',  # Atualizando o título do eixo y para "UNIDADES"
-            showlegend=False  # Remove a legenda
+            yaxis_title='UNIDADES',
+            showlegend=False
         )
         st.plotly_chart(fig)
 
@@ -65,7 +65,7 @@ class CarAnalysisApp:
             title='BOXPLOT DE PREÇOS POR MARCA',
             labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
         )
-        fig.update_layout(showlegend=False)  # Remove a legenda
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_violin_price_transmission(self):
@@ -79,17 +79,14 @@ class CarAnalysisApp:
 
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
-        # Calcular o preço médio por modelo
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
         
-        # Gráfico de barras
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
         
-        # Atualizando o hover para o formato desejado
         fig.update_traces(
             hovertemplate=(
                 "MODELO: %{x}<br>"
@@ -97,15 +94,10 @@ class CarAnalysisApp:
             )
         )
         
-        # Atualizando o eixo Y para mostrar valores em 10M, 20M, etc.
         fig.update_layout(
-            yaxis_tickvals=[1e7, 2e7, 3e7, 4e7, 5e7],  # Valores do eixo Y
-            yaxis_ticktext=["10M", "20M", "30M", "40M", "50M"],  # Texto dos valores
-            xaxis_tickangle=-45  # Inclina os rótulos do eixo X
-        )
-        
-        # Atualizando o título do eixo Y
-        fig.update_layout(
+            yaxis_tickvals=[1e7, 2e7, 3e7, 4e7, 5e7],
+            yaxis_ticktext=["10M", "20M", "30M", "40M", "50M"],
+            xaxis_tickangle=-45,
             yaxis_title="PREÇO MÉDIO (R$)",
             title="Preço Médio por Modelo (Milhões de Reais)"
         )
@@ -119,15 +111,23 @@ class CarAnalysisApp:
             title='DENSIDADE DO PREÇO POR ANO',
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
+        
+        fig.update_traces(
+            hovertemplate=(
+                "ANO: %{x:.0f}<br>"
+                "PREÇO (R$): %{y:,.1f}M<br>"
+                "QUANT: %{z}<extra></extra>"
+            )
+        )
+        
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
-        # Criar coluna personalizada para o hover
         self.df_filtered['hover_info'] = (
-            'MODELO=' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO(R$)=' + self.df_filtered['preco'].apply(lambda x: format_to_brl(x)) + '<br>' +
-            'MARCA=' + self.df_filtered['marca']
+            'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}").replace(",", ".") + '<br>' +
+            'MARCA: ' + self.df_filtered['marca']
         )
         
         fig = px.treemap(
@@ -135,7 +135,6 @@ class CarAnalysisApp:
             title='DISTRIBUIÇÃO DE MARCAS E MODELOS PELO PREÇO'
         )
         
-        # Customizar o hover
         fig.update_traces(hovertemplate='%{customdata}<extra></extra>', customdata=self.df_filtered['hover_info'])
         
         st.plotly_chart(fig)
@@ -152,8 +151,6 @@ class CarAnalysisApp:
         self.show_treemap_brand_model()
 
 if __name__ == "__main__":
-    data_path = "Datas/1_Cars_dataset_processado.csv"  # Atualize o caminho para o seu arquivo CSV
+    data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
-
-
