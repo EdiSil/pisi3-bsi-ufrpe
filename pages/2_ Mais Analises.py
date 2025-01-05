@@ -8,7 +8,7 @@ def convert_to_float(value):
 
 # Função para formatar os valores em Real Brasileiro (R$)
 def format_to_brl(value):
-    return f"{value:,.3f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -105,34 +105,28 @@ class CarAnalysisApp:
         st.plotly_chart(fig)
 
     def show_density_price(self):
-        """Gráfico de densidade do preço com ajuste para dividir o preço por 2000."""
-        # Dividindo o preço por 2000
-        self.df_filtered['preco'] = self.df_filtered['preco'] / 2000
-        
-        # Criando o gráfico de densidade com a formatação de preço correta
+        """Gráfico de densidade do preço."""
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
-            title='DENSIDADE DO PREÇO POR ANO (ajustado)',
+            title='DENSIDADE DO PREÇO POR ANO',
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
         
-        # Ajustando a formatação do preço para usar ponto como separador de milhar
         fig.update_traces(
             hovertemplate=(
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.0f}".replace(",", ".") + "<br>"
+                "PREÇO (R$): %{y:,.0f}<br>"
                 "QUANT: %{z}<extra></extra>"
             )
         )
         
-        # Exibindo o gráfico
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.3f}".replace(",", ".")) + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}").replace(",", ".") + '<br>' +
             'MARCA: ' + self.df_filtered['marca']
         )
         
@@ -160,4 +154,3 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
-
