@@ -44,20 +44,22 @@ class CarAnalysisApp:
         fig = px.box(self.df_filtered, x='marca', y='preco', color='marca',
                      title='Distribuição de Preços por Marca',
                      labels={'marca': 'Marca', 'preco': 'Preço (R$)'})
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_kilometer_distribution(self):
-        """Distribuição de Quilometragem."""
-        fig = px.histogram(self.df_filtered, x='quilometragem', nbins=50,
+        """Distribuição de Quilometragem por Marca."""
+        fig = px.histogram(self.df_filtered, x='quilometragem', color='marca', nbins=50,
                            title='Distribuição de Quilometragem dos Veículos',
-                           labels={'quilometragem': 'Quilometragem (km)'})
+                           labels={'quilometragem': 'Quilometragem (km)', 'marca': 'Marca'})
         st.plotly_chart(fig)
 
     def show_avg_price_by_model(self):
         """Preço Médio por Modelo."""
-        avg_price = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
-        fig = px.bar(avg_price, x='modelo', y='preco', title='Preço Médio por Modelo',
+        avg_price = self.df_filtered.groupby(['modelo', 'marca'])['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
+        fig = px.bar(avg_price, x='modelo', y='preco', color='marca', title='Preço Médio por Modelo',
                      labels={'modelo': 'Modelo', 'preco': 'Preço Médio (R$)'})
+        fig.update_layout(xaxis_tickangle=-45)
         st.plotly_chart(fig)
 
     def show_density_contour(self):
@@ -77,6 +79,7 @@ class CarAnalysisApp:
         self.show_density_contour()
 
 if __name__ == "__main__":
-    data_path = "Datas/1_Cars_processado.csv"
+    data_path = "/mnt/data/1_Cars_dataset_processado2.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
+
