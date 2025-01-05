@@ -114,7 +114,7 @@ class CarAnalysisApp:
         # Atualizando o título do eixo Y
         fig.update_layout(
             yaxis_title="PREÇO MÉDIO (R$)",
-            title="Preço Médio por Modelo (Milhões de Reais)"
+            title="Preço Médio por Modelo"
         )
         
         st.plotly_chart(fig)
