@@ -6,14 +6,15 @@ import plotly.express as px
 def convert_to_float(value):
     return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Função para formatar os valores em Real Brasileiro (R$) sem centavos
+# Função para formatar os valores em Real Brasileiro (R$) com separador de milhar ponto e vírgula como separador decimal
 def format_to_brl(value):
+    """Formata o valor no padrão monetário brasileiro com ponto como separador de milhar e vírgula como separador decimal"""
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-# Função para formatar o valor com separador de milhar como ponto e vírgula como separador decimal
+# Função para formatar valores no formato monetário do Brasil (sem centavos)
 def format_to_brl_without_cents(value):
-    """Formata o valor no padrão monetário brasileiro (R$) com ponto como separador de milhar e vírgula como separador decimal"""
-    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    """Formata o valor no padrão monetário brasileiro (R$) com ponto como separador de milhar e vírgula como separador decimal e sem centavos"""
+    return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
     def __init__(self, data_path):
