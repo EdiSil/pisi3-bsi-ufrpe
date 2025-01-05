@@ -12,6 +12,7 @@ def format_to_brl(value):
 
 # Função para formatar o valor com separador de milhar como ponto e vírgula como separador decimal
 def format_to_brl_with_cents(value):
+    """Formata o valor de acordo com o padrão monetário brasileiro."""
     return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")  # Ex: 17.500,00
 
 class CarAnalysisApp:
