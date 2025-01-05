@@ -12,7 +12,7 @@ def format_to_brl_limited(value):
     # Limitar o valor para no máximo 9.999.999
     if value > 9999999:
         value = 9999999
-    # Formatar o valor para Real Brasileiro
+    # Formatar o valor para Real Brasileiro com ponto como separador de milhar e vírgula como separador decimal
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 # Função para formatar os valores sem centavos no formato monetário brasileiro
