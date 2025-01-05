@@ -96,7 +96,7 @@ class CarAnalysisApp:
         avg_price_by_model['preco'] = avg_price_by_model['preco'].round(2)
         
         # Formatar os preços para o formato brasileiro (R$)
-        avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(format_to_brl)  # Formatar preço
+        avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(format_to_brl)
         
         # Gráfico de barras
         fig = px.bar(
@@ -105,13 +105,14 @@ class CarAnalysisApp:
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
         )
         
-        # Atualizando o eixo Y para mostrar valores em milhões (M)
+        # Atualizando o eixo Y para mostrar valores em 10M, 20M, etc.
         fig.update_layout(
-            yaxis_tickformat=".2s",  # Formato em milhões (M)
-            xaxis_tickangle=-45  # Inclina os rótulos do eixo X para a esquerda
+            yaxis_tickvals=[1e7, 2e7, 3e7, 4e7, 5e7],  # Valores do eixo Y
+            yaxis_ticktext=["10M", "20M", "30M", "40M", "50M"],  # Texto dos valores
+            xaxis_tickangle=-45  # Inclina os rótulos do eixo X
         )
         
-        # Personalizando o título para exibir como "Milhões de Reais"
+        # Atualizando o título do eixo Y
         fig.update_layout(
             yaxis_title="PREÇO MÉDIO (R$)",
             title="Preço Médio por Modelo (Milhões de Reais)"
