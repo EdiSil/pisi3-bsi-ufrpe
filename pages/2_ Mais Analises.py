@@ -52,9 +52,9 @@ class CarAnalysisApp:
             )
             preco_min, preco_max = st.sidebar.slider(
                 "Selecione o intervalo de preços:", 
-                min_value=int(self.df['preco'].min()), 
-                max_value=int(self.df['preco'].max()), 
-                value=(int(self.df['preco'].min()), int(self.df['preco'].max()))
+                min_value=0, 
+                max_value=1000000, 
+                value=(0, 1000000)
             )
             self.df_filtered = self.df[(self.df['ano'] >= ano_min) & (self.df['ano'] <= ano_max) & 
                                        (self.df['preco'] >= preco_min) & (self.df['preco'] <= preco_max)]
@@ -168,3 +168,4 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
+
