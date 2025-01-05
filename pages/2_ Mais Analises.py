@@ -86,7 +86,7 @@ class CarAnalysisApp:
         st.plotly_chart(fig)
 
     def run_app(self):
-        st.title("Análise Exploratória de Veículos")
+        st.title("Análise Exploratória")
         self.load_data()
         self.add_filters()
         self.show_price_distribution()
