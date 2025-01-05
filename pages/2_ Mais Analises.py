@@ -88,7 +88,7 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=(
+            hovertemplate=( 
                 "MODELO: %{x}<br>"
                 "PREÇO MÉDIO (R$): %{y:,.3f}<extra></extra>"
             )
@@ -115,9 +115,14 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=(
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.0f}<br>"
+                "PREÇO (R$): %{y:,.0f}<br>"  # Aqui estamos alterando o formato do preço
                 "QUANT: %{z}<extra></extra>"
             )
+        )
+        
+        # Alterar a maneira como o preço é exibido na densidade
+        fig.update_layout(
+            yaxis_tickformat=",.0f",  # Usar ponto como separador de milhar
         )
         
         st.plotly_chart(fig)
