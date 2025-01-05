@@ -115,6 +115,7 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=(
                 "ANO: %{x:.0f}<br>"
+                "PREÇO (R$): %{y:,.0f}<br>"
                 "QUANT: %{z}<extra></extra>"
             )
         )
@@ -153,3 +154,4 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
+
