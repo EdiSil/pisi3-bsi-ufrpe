@@ -99,7 +99,7 @@ class CarAnalysisApp:
             yaxis_ticktext=["10M", "20M", "30M", "40M", "50M"],
             xaxis_tickangle=-45,
             yaxis_title="PREÇO MÉDIO (R$)",
-            title="Preço Médio por Modelo"
+            title="Preço Médio por Modelo (Milhões de Reais)"
         )
         
         st.plotly_chart(fig)
@@ -126,8 +126,8 @@ class CarAnalysisApp:
         # Alterando o formato dos preços no eixo Y
         fig.update_layout(
             yaxis_tickformat=",.0f",  # Usando ponto como separador de milhar
-            yaxis_tickvals=[0, 10M, 20M, 30M, 40M],
-            yaxis_ticktext=["0", "10.000.000", "20.000.000", "30.000.000", "40.000.000"]
+            yaxis_tickvals=[0, 10000000, 20000000, 30000000, 40000000],  # Valores absolutos
+            yaxis_ticktext=["0", "10M", "20M", "30M", "40M"]  # Textos com "M" para milhões
         )
         
         st.plotly_chart(fig)
