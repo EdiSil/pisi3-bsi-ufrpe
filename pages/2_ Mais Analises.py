@@ -14,7 +14,7 @@ def format_to_brl(value):
 # Função para formatar valores no formato monetário do Brasil (sem centavos)
 def format_to_brl_without_cents(value):
     """Formata o valor no padrão monetário brasileiro (R$) com ponto como separador de milhar e vírgula como separador decimal e sem centavos"""
-    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -160,4 +160,3 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_dataset_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
-
