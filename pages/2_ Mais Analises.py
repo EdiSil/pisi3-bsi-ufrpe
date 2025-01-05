@@ -4,25 +4,12 @@ import plotly.express as px
 
 # Função para converter valores de string para float
 def convert_to_float(value):
-    return float(str(value).replace('R$', '').replace('.', '').replace('.', ','))
+    return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
 
-# Função para limitar os valores de preço a 7 dígitos e formatar como Real Brasileiro
+# Função para formatar os valores no padrão Real Brasileiro
 def format_to_brl_limited(value):
-    """Formata o valor no padrão monetário brasileiro com ponto como separador de milhar e vírgula como separador decimal, limitado a 7 dígitos."""
-    # Limitar o valor para no máximo 9.999.999
-    if value > 9999999:
-        value = 9999999
-    # Formatar o valor para Real Brasileiro com ponto como separador de milhar e vírgula como separador decimal
-    return f"R$ {value:,.2f}".replace(".", "X").replace(".", ",").replace("X", ",")
-
-# Função para formatar os valores sem centavos no formato monetário brasileiro
-def format_to_brl_without_cents(value):
-    """Formata o valor no padrão monetário brasileiro (R$) sem centavos."""
-    # Limitar o valor para no máximo 9.999.999
-    if value > 9999999:
-        value = 9999999
-    # Arredonda para o valor inteiro e formata
-    return f"R$ {value:,.0f}".replace(".", "X").replace(".", ",").replace("X", ",")
+    """Formata o valor no padrão monetário brasileiro com ponto como separador de milhar e vírgula como separador decimal."""
+    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -74,45 +61,34 @@ class CarAnalysisApp:
 
     def show_boxplot_price_brand(self):
         """Boxplot de preços por marca."""
-        # Atualizando os preços formatados
-        self.df_filtered['preco_formatted'] = self.df_filtered['preco'].apply(lambda x: format_to_brl_limited(x))
-        
+        self.df_filtered['preco_brl'] = self.df_filtered['preco'].apply(format_to_brl_limited)
         fig = px.box(
             self.df_filtered, x='marca', y='preco', color='marca',
             title='BOXPLOT DE PREÇOS POR MARCA',
             labels={'marca': 'MARCA', 'preco': 'PREÇO (R$)'}
         )
-        
         fig.update_traces(
-            hovertemplate=(
-                "MARCA: %{x}<br>"
-                "PREÇO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais, mas no formato BR
-            )
+            hovertemplate="MARCA: %{x}<br>PREÇO (R$): %{y:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
-        
-        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_violin_price_transmission(self):
         """Gráfico de violino de preços por tipo de transmissão."""
+        self.df_filtered['preco_brl'] = self.df_filtered['preco'].apply(format_to_brl_limited)
         fig = px.violin(
             self.df_filtered, y='preco', x='tipo',
             title='PREÇOS POR TIPO DE VEÍCULO',
             labels={'tipo': 'TIPO', 'preco': 'PREÇO (R$)'}
         )
-        
         fig.update_traces(
-            hovertemplate=(
-                "TIPO: %{x}<br>"
-                "PREÇO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais, mas no formato BR
-            )
+            hovertemplate="TIPO: %{x}<br>PREÇO (R$): %{y:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
-        
         st.plotly_chart(fig)
 
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
+        avg_price_by_model['preco_brl'] = avg_price_by_model['preco'].apply(format_to_brl_limited)
         
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
@@ -121,45 +97,28 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=( 
-                "MODELO: %{x}<br>"
-                "PREÇO MÉDIO (R$): %{y:,.2f}<extra></extra>"  # Exibindo com 2 casas decimais, mas no formato BR
-            )
+            hovertemplate="MODELO: %{x}<br>PREÇO MÉDIO (R$): %{y:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
-        
-        fig.update_layout(
-            yaxis_tickvals=[1e6, 2e6, 3e6, 4e6, 5e6],
-            yaxis_ticktext=["1.000.000", "2.000.000", "3.000.000", "4.000.000", "5.000.000"],
-            xaxis_tickangle=-45,
-            yaxis_title="PREÇO MÉDIO (R$)",
-            title="Preço Médio por Modelo"
-        )
-        
         st.plotly_chart(fig)
 
     def show_density_price(self):
         """Gráfico de densidade do preço."""
+        self.df_filtered['preco_brl'] = self.df_filtered['preco'].apply(format_to_brl_limited)
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO',
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
-        
         fig.update_traces(
-            hovertemplate=( 
-                "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.2f}<br>"  # Exibindo com 2 casas decimais, mas no formato BR
-                "QUANT: %{z}<extra></extra>"
-            )
+            hovertemplate="ANO: %{x}<br>PREÇO (R$): %{y:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         )
-        
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl_limited(x)) + '<br>' +  # Usando a formatação limitada
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(format_to_brl_limited) + '<br>' +
             'MARCA: ' + self.df_filtered['marca']
         )
         
@@ -169,7 +128,6 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(hovertemplate='%{customdata}<extra></extra>', customdata=self.df_filtered['hover_info'])
-        
         st.plotly_chart(fig)
 
     def run_app(self):
