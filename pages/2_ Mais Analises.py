@@ -10,6 +10,10 @@ def convert_to_float(value):
 def format_to_brl(value):
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
+# Função para formatar o valor com separador de milhar como ponto e remove os centavos
+def format_to_brl_without_cents(value):
+    return f"R$ {value:,.0f}".replace(",", ".")  # Coloca ponto como separador de milhar
+
 class CarAnalysisApp:
     def __init__(self, data_path):
         self.data_path = data_path
@@ -88,9 +92,9 @@ class CarAnalysisApp:
         )
         
         fig.update_traces(
-            hovertemplate=( 
+            hovertemplate=(
                 "MODELO: %{x}<br>"
-                "PREÇO MÉDIO (R$): %{y:,.3f}<extra></extra>"
+                "PREÇO MÉDIO (R$): %{y:,.0f}<extra></extra>"  # Modificado aqui para a formatação sem centavos
             )
         )
         
@@ -106,9 +110,6 @@ class CarAnalysisApp:
 
     def show_density_price(self):
         """Gráfico de densidade do preço."""
-        # Convertendo os valores de preço para formato desejado
-        self.df_filtered['preco_formatado'] = self.df_filtered['preco'].apply(lambda x: f"{x:,.0f}".replace(",", "."))
-
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO',
@@ -118,16 +119,9 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=(
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.0f}<br>"  # Usando ponto como separador de milhar
+                "PREÇO (R$): " + self.df_filtered['preco'].apply(format_to_brl_without_cents).iloc[0] + "<br>"  # Aplicado a função format_to_brl_without_cents aqui
                 "QUANT: %{z}<extra></extra>"
             )
-        )
-        
-        # Alterando o formato dos preços no eixo Y
-        fig.update_layout(
-            yaxis_tickformat=",.0f",  # Usando ponto como separador de milhar
-            yaxis_tickvals=[0, 10000000, 20000000, 30000000, 40000000],  # Valores absolutos
-            yaxis_ticktext=["0", "10M", "20M", "30M", "40M"]  # Textos com "M" para milhões
         )
         
         st.plotly_chart(fig)
@@ -136,7 +130,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}".replace(",", ".")) + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl_without_cents(x)) + '<br>' +  # Usando a função para formatar
             'MARCA: ' + self.df_filtered['marca']
         )
         
