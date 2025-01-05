@@ -112,10 +112,11 @@ class CarAnalysisApp:
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
         
+        # Atualizando o hover para exibir o preço corretamente formatado
         fig.update_traces(
             hovertemplate=(
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): " + format_to_brl("{:,.0f}".format(0)) + "<br>"  # Aplica a formatação do preço
+                "PREÇO (R$): %{y:,.0f}<br>"  # Aqui já aplicamos a formatação corretamente
                 "QUANT: %{z}<extra></extra>"
             )
         )
