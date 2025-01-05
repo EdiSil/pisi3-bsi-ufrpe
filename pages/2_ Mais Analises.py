@@ -3,7 +3,6 @@ import streamlit as st
 import plotly.express as px
 
 # Função para formatar valores para Real Brasileiro
-
 def format_to_brl(value):
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
@@ -52,6 +51,7 @@ class CarAnalysisApp:
         fig = px.histogram(self.df_filtered, x='quilometragem', color='marca', nbins=50,
                            title='Distribuição de Quilometragem dos Veículos',
                            labels={'quilometragem': 'Quilometragem (km)', 'marca': 'Marca'})
+        fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_avg_price_by_model(self):
@@ -59,7 +59,7 @@ class CarAnalysisApp:
         avg_price = self.df_filtered.groupby(['modelo', 'marca'])['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
         fig = px.bar(avg_price, x='modelo', y='preco', color='marca', title='Preço Médio por Modelo',
                      labels={'modelo': 'Modelo', 'preco': 'Preço Médio (R$)'})
-        fig.update_layout(xaxis_tickangle=-45)
+        fig.update_layout(xaxis_tickangle=-45, showlegend=False)
         st.plotly_chart(fig)
 
     def show_density_contour(self):
@@ -67,6 +67,22 @@ class CarAnalysisApp:
         fig = px.density_contour(self.df_filtered, x='ano', y='preco',
                                  title='Densidade de Preço por Ano',
                                  labels={'ano': 'Ano de Fabricação', 'preco': 'Preço (R$)'})
+        st.plotly_chart(fig)
+
+    def show_scatter_price_vs_km(self):
+        """Dispersão entre Preço e Quilometragem."""
+        fig = px.scatter(self.df_filtered, x='quilometragem', y='preco', color='marca',
+                         title='Dispersão entre Preço e Quilometragem',
+                         labels={'quilometragem': 'Quilometragem (km)', 'preco': 'Preço (R$)'})
+        fig.update_layout(showlegend=False)
+        st.plotly_chart(fig)
+
+    def show_price_trend_by_year(self):
+        """Tendência de Preço ao longo dos anos."""
+        avg_price_by_year = self.df_filtered.groupby('ano')['preco'].mean().reset_index()
+        fig = px.line(avg_price_by_year, x='ano', y='preco',
+                      title='Tendência de Preço ao Longo dos Anos',
+                      labels={'ano': 'Ano de Fabricação', 'preco': 'Preço Médio (R$)'})
         st.plotly_chart(fig)
 
     def run_app(self):
@@ -77,9 +93,12 @@ class CarAnalysisApp:
         self.show_kilometer_distribution()
         self.show_avg_price_by_model()
         self.show_density_contour()
+        self.show_scatter_price_vs_km()
+        self.show_price_trend_by_year()
 
 if __name__ == "__main__":
     data_path = "Datas/1_Cars_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
+
 
