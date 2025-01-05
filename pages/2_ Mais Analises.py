@@ -1,4 +1,4 @@
-import pandas as pd
+impimport pandas as pd
 import streamlit as st
 import plotly.express as px
 
@@ -10,9 +10,9 @@ def convert_to_float(value):
 def format_to_brl(value):
     return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-# Função para formatar o valor com separador de milhar como ponto e remove os centavos
-def format_to_brl_without_cents(value):
-    return f"{value:,.0f}".replace(",", ".")  # Coloca ponto como separador de milhar e remove centavos
+# Função para formatar o valor com separador de milhar como ponto e vírgula como separador decimal
+def format_to_brl_with_cents(value):
+    return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")  # Ex: 17.500,00
 
 class CarAnalysisApp:
     def __init__(self, data_path):
@@ -94,7 +94,7 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=( 
                 "MODELO: %{x}<br>"
-                "PREÇO MÉDIO (R$): %{y:,.0f}<extra></extra>"  # Modificado aqui para a formatação sem centavos
+                "PREÇO MÉDIO (R$): %{y:,.2f}<extra></extra>"  # Modificado aqui para a formatação com centavos
             )
         )
         
@@ -119,7 +119,7 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=( 
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.0f}<br>"  # Modificado aqui para a formatação sem centavos
+                "PREÇO (R$): %{y:,.2f}<br>"  # Modificado aqui para a formatação com centavos
                 "QUANT: %{z}<extra></extra>"
             )
         )
@@ -130,7 +130,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl_without_cents(x)) + '<br>' +  # Usando a função para formatar
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: format_to_brl_with_cents(x)) + '<br>' +  # Usando a função para formatar com vírgula
             'MARCA: ' + self.df_filtered['marca']
         )
         
