@@ -4,7 +4,7 @@ import plotly.express as px
 
 # Função para converter valores de string para float
 def convert_to_float(value):
-    return float(str(value).replace('R$', '').replace('.', '').replace(',', '.'))
+    return float(str(value).replace('R$', '').replace('.', '').replace('.', ','))
 
 # Função para limitar os valores de preço a 7 dígitos e formatar como Real Brasileiro
 def format_to_brl_limited(value):
@@ -13,7 +13,7 @@ def format_to_brl_limited(value):
     if value > 9999999:
         value = 9999999
     # Formatar o valor para Real Brasileiro com ponto como separador de milhar e vírgula como separador decimal
-    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"R$ {value:,.2f}".replace(".", "X").replace(".", ",").replace("X", ",")
 
 # Função para formatar os valores sem centavos no formato monetário brasileiro
 def format_to_brl_without_cents(value):
