@@ -109,12 +109,14 @@ class CarAnalysisApp:
         # Dividindo o preço por 2000
         self.df_filtered['preco'] = self.df_filtered['preco'] / 2000
         
+        # Criando o gráfico de densidade com a formatação de preço correta
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO (ajustado)',
             labels={'ano': 'ANO', 'preco': 'PREÇO (R$)'}
         )
         
+        # Ajustando a formatação do preço
         fig.update_traces(
             hovertemplate=( 
                 "ANO: %{x:.0f}<br>"
@@ -123,6 +125,7 @@ class CarAnalysisApp:
             )
         )
         
+        # Exibindo o gráfico
         st.plotly_chart(fig)
 
     def show_treemap_brand_model(self):
