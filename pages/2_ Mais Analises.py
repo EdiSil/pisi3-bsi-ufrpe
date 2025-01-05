@@ -89,20 +89,19 @@ class CarAnalysisApp:
 
     def show_bar_model_price(self):
         """Gráfico de barras de preço médio por modelo."""
-        # Calcular o preço médio por modelo e arredondar para 2 casas decimais
+        # Calcular o preço médio por modelo
         avg_price_by_model = self.df_filtered.groupby('modelo')['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
-        
-        # Arredondar os preços para duas casas decimais
-        avg_price_by_model['preco'] = avg_price_by_model['preco'].round(2)
-        
-        # Formatar os preços para o formato brasileiro (R$)
-        avg_price_by_model['preco'] = avg_price_by_model['preco'].apply(format_to_brl)
         
         # Gráfico de barras
         fig = px.bar(
             avg_price_by_model, x='modelo', y='preco',
             title='PREÇO MÉDIO POR MODELO',
             labels={'modelo': 'MODELO', 'preco': 'PREÇO MÉDIO (R$)'}
+        )
+        
+        # Atualizando o hover para o formato desejado
+        fig.update_traces(
+            hovertemplate="MODELO: %{x}<br>PREÇO MÉDIO (R$): %{y:,.0f}<extra></extra>"
         )
         
         # Atualizando o eixo Y para mostrar valores em 10M, 20M, etc.
