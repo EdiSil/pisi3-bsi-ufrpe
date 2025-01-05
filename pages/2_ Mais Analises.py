@@ -22,7 +22,7 @@ def format_to_brl_without_cents(value):
     if value > 9999999:
         value = 9999999
     # Arredonda para o valor inteiro e formata
-    return f"R$ {value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"R$ {value:,.0f}".replace(".", "X").replace(".", ",").replace("X", ",")
 
 class CarAnalysisApp:
     def __init__(self, data_path):
