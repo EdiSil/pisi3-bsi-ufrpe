@@ -106,6 +106,9 @@ class CarAnalysisApp:
 
     def show_density_price(self):
         """Gráfico de densidade do preço."""
+        # Convertendo os valores de preço para formato desejado
+        self.df_filtered['preco_formatado'] = self.df_filtered['preco'].apply(lambda x: f"{x:,.0f}".replace(",", "."))
+
         fig = px.density_contour(
             self.df_filtered, x='ano', y='preco',
             title='DENSIDADE DO PREÇO POR ANO',
@@ -115,14 +118,16 @@ class CarAnalysisApp:
         fig.update_traces(
             hovertemplate=(
                 "ANO: %{x:.0f}<br>"
-                "PREÇO (R$): %{y:,.0f}<br>"  # Aqui estamos alterando o formato do preço
+                "PREÇO (R$): %{y:,.0f}<br>"  # Usando ponto como separador de milhar
                 "QUANT: %{z}<extra></extra>"
             )
         )
         
-        # Alterar a maneira como o preço é exibido na densidade
+        # Alterando o formato dos preços no eixo Y
         fig.update_layout(
-            yaxis_tickformat=",.0f",  # Usar ponto como separador de milhar
+            yaxis_tickformat=",.0f",  # Usando ponto como separador de milhar
+            yaxis_tickvals=[0, 10000000, 20000000, 30000000, 40000000],
+            yaxis_ticktext=["0", "10.000.000", "20.000.000", "30.000.000", "40.000.000"]
         )
         
         st.plotly_chart(fig)
@@ -131,7 +136,7 @@ class CarAnalysisApp:
         """Mapa de árvore de distribuição de marcas e modelos pelo preço."""
         self.df_filtered['hover_info'] = (
             'MODELO: ' + self.df_filtered['modelo'] + '<br>' +
-            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}").replace(",", ".") + '<br>' +
+            'PREÇO (R$): ' + self.df_filtered['preco'].apply(lambda x: f"{x:,.2f}".replace(",", ".")) + '<br>' +
             'MARCA: ' + self.df_filtered['marca']
         )
         
