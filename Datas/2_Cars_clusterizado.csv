@@ -1,4 +1,4 @@
-marca,modelo,ano,quilometragem,preco,combustivel,car_documents,tipo,transmissão,year_range,km's driven_range,Car Age,Cluster
+marca,modelo,ano,quilometragem,preco,combustivel,car_documents,tipo,transmissão,full_range,type_range,Car Age,Cluster
 Toyota,Passo,2021,54000.0,4190000.0,Gasolina,Original,Importado,Automatic,6,2,4,2
 Suzuki,Ravi,2018,95000.0,1300000.0,Gasolina,Original,Nacional,Manual,5,4,7,1
 Suzuki,Bolan,2015,50000.0,800000.0,Gasolina,Original,Nacional,Manual,4,2,10,1
