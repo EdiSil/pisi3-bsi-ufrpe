@@ -74,7 +74,15 @@ class CarClusterAnalysis:
         vmax = np.max(cm_norm)
 
         fig, ax = plt.subplots(figsize=(10, 8))
-        sns.heatmap(cm_norm, annot=True, fmt='.2%', cmap='magma', cbar=True, linewidths=1, linecolor='black', vmin=vmin, vmax=vmax, ax=ax)
+        heatmap = sns.heatmap(cm_norm, annot=True, fmt='.2%', cmap='magma', cbar=True, linewidths=1, 
+                              linecolor='black', vmin=vmin, vmax=vmax, ax=ax)
+        
+        # Ajustando a legenda de cores
+        cbar = heatmap.collections[0].colorbar
+        cbar.set_label('Proporção', rotation=270, labelpad=20)
+        cbar.set_ticks([vmin, vmax])
+        cbar.ax.tick_params(labelsize=10)
+
         ax.set_title('MATRIZ DE CONFUSÃO NORMALIZADA - CLUSTERIZAÇÃO')
         ax.set_ylabel('CLUSTERS REAIS')
         ax.set_xlabel('CLUSTERS PREDITOS')
