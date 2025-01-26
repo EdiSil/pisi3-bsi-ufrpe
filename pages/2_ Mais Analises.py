@@ -42,7 +42,8 @@ class CarAnalysisApp:
         """Distribuição de Preços por Marca e Modelo."""
         fig = px.box(self.df_filtered, x='marca', y='preco', color='marca',
                      title='Distribuição de Preços por Marca',
-                     labels={'marca': 'Marca', 'preco': 'Preço (R$)'})
+                     labels={'marca': 'Marca', 'preco': 'Preço (R$)'}
+                     )
         fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
@@ -51,23 +52,39 @@ class CarAnalysisApp:
         fig = px.violin(self.df_filtered, y='quilometragem', x='marca', color='marca',
                         box=True, points='all',
                         title='Distribuição de Quilometragem dos Veículos',
-                        labels={'quilometragem': 'Quilometragem (km)', 'marca': 'Marca'})
+                        labels={'quilometragem': 'Quilometragem (km)', 'marca': 'Marca'}
+                        )
         fig.update_layout(showlegend=False)
         st.plotly_chart(fig)
 
     def show_avg_price_by_model(self):
         """Preço Médio por Modelo."""
-        avg_price = self.df_filtered.groupby(['modelo', 'marca'])['preco'].mean().reset_index().sort_values(by='preco', ascending=False)
-        fig = px.bar(avg_price, x='modelo', y='preco', color='marca', title='Preço Médio por Modelo',
-                     labels={'modelo': 'Modelo', 'preco': 'Preço Médio (R$)'})
-        fig.update_layout(xaxis_tickangle=-45)
+        avg_price = (
+            self.df_filtered.groupby(['modelo', 'marca'])['preco']
+            .mean()
+            .reset_index()
+            .sort_values(by='preco', ascending=False)
+        )
+        fig = px.bar(
+            avg_price,
+            x='modelo',
+            y='preco',
+            color='marca',
+            title='Preço Médio por Modelo',
+            labels={'modelo': 'Modelo', 'preco': 'Preço Médio (R$)'}
+        )
+        fig.update_layout(
+            xaxis_tickangle=-45,  # Inclinação dos rótulos do eixo X
+            showlegend=False      # Remove a legenda do gráfico
+        )
         st.plotly_chart(fig)
 
     def show_density_contour(self):
         """Mapa de Densidade entre Preço e Ano de Fabricação."""
         fig = px.density_contour(self.df_filtered, x='ano', y='preco',
                                  title='Densidade de Preço por Ano',
-                                 labels={'ano': 'Ano de Fabricação', 'preco': 'Preço (R$)'})
+                                 labels={'ano': 'Ano de Fabricação', 'preco': 'Preço (R$)'}
+                                 )
         st.plotly_chart(fig)
 
     def run_app(self):
@@ -83,5 +100,3 @@ if __name__ == "__main__":
     data_path = "Datas/1_Cars_processado.csv"
     app = CarAnalysisApp(data_path)
     app.run_app()
-
-
