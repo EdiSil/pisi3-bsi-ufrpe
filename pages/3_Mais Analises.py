@@ -5,6 +5,7 @@ from sklearn.cluster import KMeans
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 import numpy as np
+import os
 
 # Classe para Análise de Cluster de Carros
 class CarClusterAnalysis:
@@ -23,9 +24,9 @@ class CarClusterAnalysis:
 
         fig, ax = plt.subplots(figsize=(10, 6))
         sns.lineplot(x=range(1, max_clusters + 1), y=inertia, marker='o', ax=ax)
-        ax.set_title('Método do Cotovelo')
-        ax.set_xlabel('Número de Clusters')
-        ax.set_ylabel('Inércia')
+        ax.set_title('MÉTODO DO COTOVELO')
+        ax.set_xlabel('NÚMERO DE CLUSTERS')
+        ax.set_ylabel('INÉRCIA')
         ax.grid(True)
         st.pyplot(fig)
 
@@ -44,22 +45,22 @@ class CarClusterAnalysis:
                 x=cluster_data['quilometragem'],
                 y=cluster_data['preco'],
                 color=palette[cluster_num],
-                label=f'Cluster {cluster_num} - {len(cluster_data)} carros',
+                label=f'CLUSTER {cluster_num} - {len(cluster_data)} CARROS',
                 s=60,
                 ax=ax
             )
 
-        ax.set_title(f'Clusters de Carros - {n_clusters} Clusters')
-        ax.set_xlabel('Quilometragem')
-        ax.set_ylabel('Preço')
-        ax.legend(title='Clusters', bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False, fontsize=10)
+        ax.set_title(f'CLUSTERS DE CARROS - {n_clusters} CLUSTERS')
+        ax.set_xlabel('QUILOMETRAGEM')
+        ax.set_ylabel('PREÇO')
+        ax.legend(title='CLUSTERS', bbox_to_anchor=(1.05, 1), loc='upper left', frameon=False, fontsize=10)
         plt.tight_layout()
         ax.grid(True)
         st.pyplot(fig)
 
     def plot_confusion_matrix(self):
         if 'Cluster' not in self.data.columns:
-            st.warning("A coluna 'Cluster' com os clusters reais não está disponível no dataset.")
+            st.warning("A COLUNA 'CLUSTER' COM OS CLUSTERS REAIS NÃO ESTÁ DISPONÍVEL NO DATASET.")
             return
 
         y_true = self.data['Cluster']
@@ -74,47 +75,49 @@ class CarClusterAnalysis:
 
         fig, ax = plt.subplots(figsize=(10, 8))
         sns.heatmap(cm_norm, annot=True, fmt='.2%', cmap='magma', cbar=True, linewidths=1, linecolor='black', vmin=vmin, vmax=vmax, ax=ax)
-        ax.set_title('Matriz de Confusão Normalizada - Clusterização')
-        ax.set_ylabel('Clusters Reais')
-        ax.set_xlabel('Clusters Preditos')
+        ax.set_title('MATRIZ DE CONFUSÃO NORMALIZADA - CLUSTERIZAÇÃO')
+        ax.set_ylabel('CLUSTERS REAIS')
+        ax.set_xlabel('CLUSTERS PREDITOS')
         plt.ylim(0, cm.shape[0])
         st.pyplot(fig)
 
 # Interface no Streamlit
 def main():
-    st.title("Análise de Clusters de Carros")
-    st.markdown("Explore os clusters de carros de forma interativa.")
+    st.title("ANÁLISE DE CLUSTERS DE CARROS")
+    st.markdown("EXPLORE OS CLUSTERS DE CARROS DE FORMA INTERATIVA.")
 
-    # Upload do arquivo
-    file_path = st.file_uploader("Carregue o arquivo CSV:", type="csv")
+    # Caminho fixo para o arquivo
+    file_path = 'Datas/2_Cars_clusterizado.csv'
 
-    if file_path is not None:
+    if os.path.exists(file_path):
         # Carregando os dados
         df = pd.read_csv(file_path)
-        st.success("Dados carregados com sucesso!")
+        st.success("DADOS CARREGADOS COM SUCESSO!")
         
         # Exibindo um resumo dos dados
-        st.write("Visualizando as primeiras linhas do dataset:")
+        st.write("VISUALIZANDO AS PRIMEIRAS LINHAS DO DATASET:")
         st.dataframe(df.head())
 
         # Criando uma instância da classe
         analysis = CarClusterAnalysis(df)
 
         # Painel de controle para o usuário
-        st.sidebar.header("Configurações")
-        max_clusters = st.sidebar.slider("Número máximo de clusters (Elbow Method):", 2, 15, 10)
-        num_clusters = st.sidebar.slider("Número de clusters (Análise):", 2, 10, 5)
+        st.sidebar.header("CONFIGURAÇÕES")
+        max_clusters = st.sidebar.slider("NÚMERO MÁXIMO DE CLUSTERS (MÉTODO DO COTOVELO):", 2, 15, 10)
+        num_clusters = st.sidebar.slider("NÚMERO DE CLUSTERS (ANÁLISE):", 2, 10, 5)
 
         # Exibir os gráficos
-        st.subheader("Método do Cotovelo")
+        st.subheader("MÉTODO DO COTOVELO")
         analysis.elbow_method(max_clusters=max_clusters)
 
-        st.subheader(f"Clusters com {num_clusters} Grupos")
+        st.subheader(f"CLUSTERS COM {num_clusters} GRUPOS")
         analysis.perform_clustering(n_clusters=num_clusters)
 
-        st.subheader("Matriz de Confusão Normalizada")
+        st.subheader("MATRIZ DE CONFUSÃO NORMALIZADA")
         analysis.plot_confusion_matrix()
+
+    else:
+        st.error(f"ARQUIVO NÃO ENCONTRADO NO CAMINHO: {file_path}")
 
 if __name__ == "__main__":
     main()
-
