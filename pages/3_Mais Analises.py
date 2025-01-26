@@ -82,7 +82,8 @@ class CarClusterAnalysis:
         cbar.set_label('Proporção', rotation=270, labelpad=20)
         
         # Exibir todos os valores possíveis na escala de cores
-        cbar.set_ticks(np.linspace(vmin, vmax, num=5))  # Atualizar a escala de cores de acordo com os valores reais
+        ticks = np.linspace(vmin, vmax, num=5)  # Garantir que os ticks estejam corretamente espaçados
+        cbar.set_ticks(ticks)  # Atualizar a escala de cores de acordo com os valores reais
         cbar.ax.tick_params(labelsize=10)
 
         ax.set_title('MATRIZ DE CONFUSÃO NORMALIZADA - CLUSTERIZAÇÃO')
