@@ -115,7 +115,7 @@ def main():
         # Painel de controle para o usuário
         st.sidebar.header("CONFIGURAÇÕES")
         max_clusters = st.sidebar.slider("NÚMERO MÁXIMO DE CLUSTERS (MÉTODO DO COTOVELO):", 2, 12, 12)
-        num_clusters = st.sidebar.slider("NÚMERO DE CLUSTERS (ANÁLISE):", 1, 5, 5)
+        num_clusters = st.sidebar.slider("NÚMERO DE CLUSTERS (MATRIZ):", 1, 5, 5)
 
         # Exibir os gráficos
         st.subheader("MÉTODO DO COTOVELO")
