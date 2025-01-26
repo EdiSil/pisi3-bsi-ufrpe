@@ -93,10 +93,6 @@ def main():
         # Carregando os dados
         df = pd.read_csv(file_path)
         st.success("DADOS CARREGADOS COM SUCESSO!")
-        
-        # Exibindo um resumo dos dados
-        st.write("VISUALIZANDO AS PRIMEIRAS LINHAS DO DATASET:")
-        st.dataframe(df.head())
 
         # Criando uma instância da classe
         analysis = CarClusterAnalysis(df)
