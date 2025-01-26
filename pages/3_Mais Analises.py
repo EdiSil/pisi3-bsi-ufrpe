@@ -69,9 +69,13 @@ class CarClusterAnalysis:
         cm = confusion_matrix(y_true, y_pred)
         cm_norm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
-        # Ajustando a escala de acordo com os valores reais da matriz de confusão
+        # Garantindo que o valor mínimo não seja zero se a matriz for muito homogênea
         vmin = np.min(cm_norm)
         vmax = np.max(cm_norm)
+        
+        # Evitar que a matriz tenha um intervalo muito pequeno
+        if vmax - vmin < 0.01:
+            vmax = vmin + 0.01
 
         fig, ax = plt.subplots(figsize=(10, 8))
         heatmap = sns.heatmap(cm_norm, annot=True, fmt='.2%', cmap='magma', cbar=True, linewidths=1, 
@@ -80,7 +84,7 @@ class CarClusterAnalysis:
         # Ajustando a legenda de cores
         cbar = heatmap.collections[0].colorbar
         cbar.set_label('Proporção', rotation=270, labelpad=20)
-        
+
         # Exibir todos os valores possíveis na escala de cores
         ticks = np.linspace(vmin, vmax, num=5)  # Garantir que os ticks estejam corretamente espaçados
         cbar.set_ticks(ticks)  # Atualizar a escala de cores de acordo com os valores reais
