@@ -269,8 +269,8 @@ def main():
                     format_dict = {col: "{:,.2f} USD" if col == 'preco' else "{:,.2f}" 
                                   for col in stats.columns}
                     
-                    st.dataframe(stats.style.format(format_dict)
-                
+                    st.dataframe(stats.style.format(format_dict))
+
                 # Visualização interativa
                 st.subheader("VISUALIZAÇÃO INTERATIVA")
                 col5, col6 = st.columns(2)
