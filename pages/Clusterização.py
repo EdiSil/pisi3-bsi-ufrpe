@@ -105,15 +105,43 @@ class ClusterVisualizer:
         plt.grid(True, alpha=0.3)
         st.pyplot(plt)
 
-    def plot_silhouette(self, scores, max_clusters):
-        """Visualiza os scores de silhueta"""
-        plt.figure(figsize=(14, 7))
-        ax = sns.lineplot(x=range(2, max_clusters+1), y=scores, marker='o', linewidth=2)
-        plt.title('ANÁLISE DE SILHUETA', fontweight='bold', fontsize=18, pad=20)
-        plt.xlabel('NÚMERO DE CLUSTERS', fontweight='bold', labelpad=15)
-        plt.ylabel('SCORE MÉDIO', fontweight='bold', labelpad=15)
-        plt.grid(True, alpha=0.3)
-        st.pyplot(plt)
+    def plot_silhouette_analysis(self, X, labels, n_clusters):
+        """Análise detalhada de silhueta para cada cluster"""
+        try:
+            plt.figure(figsize=(14, 10))
+            silhouette_avg = silhouette_score(X, labels)
+            sample_silhouette_values = silhouette_samples(X, labels)
+
+            y_lower = 10
+            for i in range(n_clusters):
+                # Aggregate the silhouette scores for samples belonging to
+                ith_cluster_silhouette_values = sample_silhouette_values[labels == i]
+                ith_cluster_silhouette_values.sort()
+
+                size_cluster_i = ith_cluster_silhouette_values.shape[0]
+                y_upper = y_lower + size_cluster_i
+
+                color = plt.cm.husl(i/n_clusters)
+                plt.fill_betweenx(np.arange(y_lower, y_upper),
+                                  0, ith_cluster_silhouette_values,
+                                  facecolor=color, edgecolor=color, alpha=0.7)
+
+                # Label the silhouette plots with their cluster numbers
+                plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i),
+                         fontweight='bold', fontsize=12)
+                y_lower = y_upper + 10  # 10 for the 0 samples
+
+            plt.title('ANÁLISE DE SILHUETA POR CLUSTER', fontweight='bold', fontsize=18, pad=20)
+            plt.xlabel('COEFICIENTE DE SILHUETA', fontweight='bold', labelpad=15)
+            plt.ylabel('CLUSTER', fontweight='bold', labelpad=15)
+            plt.axvline(x=silhouette_avg, color="red", linestyle="--",
+                       linewidth=2, label='MÉDIA GLOBAL')
+            plt.yticks([])
+            plt.legend()
+            plt.grid(True, alpha=0.3)
+            st.pyplot(plt)
+        except Exception as e:
+            st.error(f"ERRO NA ANÁLISE DE SILHUETA: {str(e)}")
 
     def plot_cluster_distribution(self, data):
         """Visualiza a distribuição dos clusters"""
@@ -218,9 +246,9 @@ def main():
             visualizer.plot_elbow(inertia, 15)
         
         with col2:
-            st.subheader("ANÁLISE DE SILHUETA")
+            st.subheader("SCORE DE SILHUETA")
             scores = analyzer.calculate_silhouette(X, 15)
-            visualizer.plot_silhouette(scores, 15)
+            visualizer.plot_silhouette_analysis(X, np.zeros(X.shape[0]), 15)  # Placeholder
 
         # Clusterização e Visualizações
         st.subheader(f"MODELAGEM COM {n_clusters} CLUSTERS")
@@ -230,6 +258,10 @@ def main():
         
         df['Cluster'] = labels
         X_pca = analyzer.reduce_dimensionality(X)
+
+        # Análise de Silhueta Detalhada
+        st.subheader("ANÁLISE DE SILHUETA DETALHADA")
+        visualizer.plot_silhouette_analysis(X, labels, n_clusters)
 
         # Visualizações dos Resultados
         st.subheader("DISTRIBUIÇÃO DOS CLUSTERS")
