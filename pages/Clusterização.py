@@ -101,7 +101,7 @@ class ClusterVisualizer:
     def plot_elbow(self, inertia, max_clusters):
         """Visualiza o método do cotovelo"""
         plt.figure(figsize=(14, 7))
-        ax = sns.lineplot(x=range(1, max_clusters+1), y=inertia, marker='o', linewidth=2)
+        sns.lineplot(x=range(1, max_clusters+1), y=inertia, marker='o', linewidth=2)
         plt.title('MÉTODO DO COTOVELO', fontweight='bold', fontsize=18, pad=20)
         plt.xlabel('NÚMERO DE CLUSTERS', fontweight='bold', labelpad=15)
         plt.ylabel('INÉRCIA', fontweight='bold', labelpad=15)
@@ -111,7 +111,7 @@ class ClusterVisualizer:
     def plot_silhouette_scores(self, scores, max_clusters):
         """Visualiza os scores médios de silhueta"""
         plt.figure(figsize=(14, 7))
-        ax = sns.lineplot(x=range(2, max_clusters+1), y=scores, marker='o', linewidth=2)
+        sns.lineplot(x=range(2, max_clusters+1), y=scores, marker='o', linewidth=2)
         plt.title('SCORE MÉDIO DE SILHUETA', fontweight='bold', fontsize=18, pad=20)
         plt.xlabel('NÚMERO DE CLUSTERS', fontweight='bold', labelpad=15)
         plt.ylabel('SCORE DE SILHUETA', fontweight='bold', labelpad=15)
@@ -129,7 +129,7 @@ class ClusterVisualizer:
             sample_silhouette_values = silhouette_samples(X, labels)
 
             y_lower = 10
-            colors = sns.husl_palette(n_clusters)  # Corrigido uso da paleta
+            colors = sns.husl_palette(n_clusters)
             
             for i in range(n_clusters):
                 ith_cluster_silhouette_values = sample_silhouette_values[labels == i]
@@ -139,11 +139,11 @@ class ClusterVisualizer:
                 y_upper = y_lower + size_cluster_i
 
                 plt.fill_betweenx(np.arange(y_lower, y_upper),
-                                  0, ith_cluster_silhouette_values,
-                                  facecolor=colors[i], edgecolor=colors[i], alpha=0.7)
+                                0, ith_cluster_silhouette_values,
+                                facecolor=colors[i], edgecolor=colors[i], alpha=0.7)
 
                 plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i),
-                         fontweight='bold', fontsize=12)
+                        fontweight='bold', fontsize=12)
                 y_lower = y_upper + 10
 
             plt.title('ANÁLISE DE SILHUETA POR CLUSTER', fontweight='bold', fontsize=18, pad=20)
@@ -159,7 +159,7 @@ class ClusterVisualizer:
             st.error(f"ERRO NA ANÁLISE DE SILHUETA: {str(e)}")
 
     def plot_cluster_distribution(self, data):
-        """Visualiza a distribuição dos clusters"""
+        """Visualiza a distribuição dos clusters com cores distintas"""
         plt.figure(figsize=(14, 7))
         cluster_dist = data['Cluster'].value_counts().sort_index()
         bars = sns.barplot(x=cluster_dist.index, y=cluster_dist.values, palette="husl")
@@ -177,30 +177,25 @@ class ClusterVisualizer:
         st.pyplot(plt)
 
     def plot_pca_clusters(self, X_pca, labels):
-        """Visualiza clusters em espaço 2D reduzido"""
+        """Visualização 2D dos clusters com cores distintas"""
         plt.figure(figsize=(14, 10))
-        scatter = sns.scatterplot(x=X_pca[:,0], y=X_pca[:,1], hue=labels,
-                                 palette="husl", s=100, edgecolor='w', linewidth=0.5)
+        unique_labels = np.unique(labels)
+        colors = sns.husl_palette(len(unique_labels))
         
-        plt.title('VISUALIZAÇÃO DE CLUSTERS EM 2D', fontweight='bold', fontsize=18, pad=20)
+        for i, label in enumerate(unique_labels):
+            plt.scatter(X_pca[labels == label, 0], 
+                       X_pca[labels == label, 1],
+                       color=colors[i],
+                       s=100,
+                       edgecolor='w',
+                       linewidth=0.5,
+                       label=f'Cluster {label}')
+            
+        plt.title('VISUALIZAÇÃO DOS CLUSTERS', fontweight='bold', fontsize=18, pad=20)
         plt.xlabel('COMPONENTE PRINCIPAL 1', fontweight='bold', labelpad=15)
         plt.ylabel('COMPONENTE PRINCIPAL 2', fontweight='bold', labelpad=15)
         plt.legend(title='CLUSTER', bbox_to_anchor=(1.05, 1), borderaxespad=0)
         plt.grid(True, alpha=0.3)
-        st.pyplot(plt)
-
-    def plot_parallel_coordinates(self, data, features, labels):
-        """Visualização multivariada por coordenadas paralelas"""
-        plt.figure(figsize=(16, 10))
-        numeric_data = data[features].apply(pd.to_numeric, errors='coerce')
-        numeric_data['Cluster'] = labels
-        
-        plt.title('PERFIL MULTIVARIADO DOS CLUSTERS', fontweight='bold', fontsize=18, pad=20)
-        pd.plotting.parallel_coordinates(numeric_data, 'Cluster', color=sns.husl_palette(len(np.unique(labels))))
-        plt.xlabel('CARACTERÍSTICAS', fontweight='bold', labelpad=15)
-        plt.ylabel('VALORES NORMALIZADOS', fontweight='bold', labelpad=15)
-        plt.grid(True, alpha=0.3)
-        plt.xticks(rotation=45)
         st.pyplot(plt)
 
 def main():
@@ -253,19 +248,16 @@ def main():
 
         st.header("ANÁLISE EXPLORATÓRIA DE CLUSTERS")
         
-        # Seção de Métricas de Clusterização
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("MÉTODO DO COTOVELO")
-            inertia = analyzer.calculate_elbow(X, 15)
-            visualizer.plot_elbow(inertia, 15)
+        # Métricas de Clusterização
+        st.subheader("MÉTODO DO COTOVELO")
+        inertia = analyzer.calculate_elbow(X, 15)
+        visualizer.plot_elbow(inertia, 15)
         
-        with col2:
-            st.subheader("SCORE DE SILHUETA")
-            scores = analyzer.calculate_silhouette(X, 15)
-            visualizer.plot_silhouette_scores(scores, 15)
+        st.subheader("SCORE MÉDIO DE SILHUETA")
+        scores = analyzer.calculate_silhouette(X, 15)
+        visualizer.plot_silhouette_scores(scores, 15)
 
-        # Clusterização e Visualizações
+        # Clusterização
         st.subheader(f"MODELAGEM COM {n_clusters} CLUSTERS")
         labels = analyzer.perform_clustering(X, n_clusters)
         if labels is None:
@@ -274,18 +266,14 @@ def main():
         df['Cluster'] = labels
         X_pca = analyzer.reduce_dimensionality(X)
 
-        # Análise de Silhueta Detalhada
+        # Visualizações
         st.subheader("ANÁLISE DE SILHUETA DETALHADA")
         visualizer.plot_silhouette_analysis(X, labels, n_clusters)
 
-        # Visualizações dos Resultados
         st.subheader("DISTRIBUIÇÃO DOS CLUSTERS")
         visualizer.plot_cluster_distribution(df)
         
-        st.subheader("VISUALIZAÇÃO MULTIDIMENSIONAL")
-        visualizer.plot_parallel_coordinates(df, feature_keys, labels)
-        
-        st.subheader("PROJEÇÃO EM 2D")
+        st.subheader("VISUALIZAÇÃO DOS CLUSTERS")
         visualizer.plot_pca_clusters(X_pca, labels)
 
     except Exception as e:
