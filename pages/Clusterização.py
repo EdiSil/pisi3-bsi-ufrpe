@@ -39,7 +39,7 @@ class CarClusterAnalysis:
             X = self.data[features]
             return self.scaler.fit_transform(X)
         except KeyError as e:
-            st.error(f"Variável não encontrada: {e}")
+            st.error(f"VARIÁVEL NÃO ENCONTRADA: {e}")
             return None
 
     def calculate_elbow(self, X, max_clusters=15):
@@ -70,34 +70,35 @@ class CarClusterAnalysis:
             self.kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init='auto')
             return self.kmeans.fit_predict(X)
         except Exception as e:
-            st.error(f"Erro no clustering: {e}")
+            st.error(f"ERRO NO CLUSTERING: {e}")
             return None
 
     def plot_confusion_matrix(self, labels):
         """Plota a matriz de confusão"""
         try:
             if 'Cluster' not in self.data.columns:
-                st.warning("Dados originais de cluster não encontrados")
+                st.warning("DADOS ORIGINAIS DE CLUSTER NÃO ENCONTRADOS")
                 return
 
             cm = confusion_matrix(self.data['Cluster'], labels)
             plt.figure(figsize=(14, 8))
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-            plt.title('MATRIZ DE CONFUSÃO - CLUSTERS', fontweight='bold', pad=20)
-            plt.xlabel('Clusters Previstos', fontweight='bold')
-            plt.ylabel('Clusters Reais', fontweight='bold')
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                       xticklabels=True, yticklabels=True)
+            plt.title('MATRIZ DE CONFUSÃO', fontweight='bold', fontsize=16, pad=20)
+            plt.xlabel('CLUSTERS PREVISTOS', fontweight='bold')
+            plt.ylabel('CLUSTERS REAIS', fontweight='bold')
             st.pyplot(plt)
         except Exception as e:
-            st.error(f"Erro na matriz de confusão: {e}")
+            st.error(f"ERRO NA MATRIZ DE CONFUSÃO: {e}")
 
 class ClusterVisualizer:
     def __init__(self):
         self.format_config = {
-            'quilometragem': ('QUILOMETRAGEM (Km)', self.format_number),
+            'quilometragem': ('QUILOMETRAGEM (KM)', self.format_number),
             'preco': ('PREÇO (USD)', self.format_currency),
             'ano': ('ANO', self.format_number),
-            'full_range': ('AUTONOMIA (Km)', self.format_number),
-            'Car Age': ('IDADE DO VEÍCULO (Anos)', self.format_number)
+            'full_range': ('AUTONOMIA (KM)', self.format_number),
+            'Car Age': ('IDADE DO VEÍCULO (ANOS)', self.format_number)
         }
 
     def format_number(self, x, pos):
@@ -111,8 +112,8 @@ class ClusterVisualizer:
         plt.figure(figsize=(14, 7))
         sns.lineplot(x=range(1, max_clusters+1), y=inertia, marker='o', linewidth=2)
         plt.title('MÉTODO DO COTOVELO', fontweight='bold', fontsize=16, pad=20)
-        plt.xlabel('Número de Clusters', fontweight='bold')
-        plt.ylabel('Inércia', fontweight='bold')
+        plt.xlabel('NÚMERO DE CLUSTERS', fontweight='bold')
+        plt.ylabel('INÉRCIA', fontweight='bold')
         plt.grid(True, alpha=0.5)
         st.pyplot(plt)
 
@@ -121,8 +122,8 @@ class ClusterVisualizer:
         plt.figure(figsize=(14, 7))
         sns.lineplot(x=range(2, max_clusters+1), y=scores, marker='o', linewidth=2)
         plt.title('SCORE DE SILHUETA', fontweight='bold', fontsize=16, pad=20)
-        plt.xlabel('Número de Clusters', fontweight='bold')
-        plt.ylabel('Score Médio', fontweight='bold')
+        plt.xlabel('NÚMERO DE CLUSTERS', fontweight='bold')
+        plt.ylabel('SCORE MÉDIO', fontweight='bold')
         plt.grid(True, alpha=0.5)
         st.pyplot(plt)
 
@@ -147,12 +148,36 @@ class ClusterVisualizer:
         plt.gca().xaxis.set_major_formatter(mticker.FuncFormatter(x_formatter))
         plt.gca().yaxis.set_major_formatter(mticker.FuncFormatter(y_formatter))
         
-        plt.title(f'CLUSTERS: {x_label} vs {y_label}', fontweight='bold', fontsize=16, pad=20)
+        plt.title(f'DISTRIBUIÇÃO DE CLUSTERS: {x_label} vs {y_label}', 
+                 fontweight='bold', fontsize=16, pad=20)
         plt.xlabel(x_label, fontweight='bold')
         plt.ylabel(y_label, fontweight='bold')
-        plt.legend(title='Cluster', bbox_to_anchor=(1.05, 1), borderaxespad=0)
+        plt.legend(title='CLUSTER', bbox_to_anchor=(1.05, 1), borderaxespad=0)
         plt.grid(True, alpha=0.3)
         st.pyplot(plt)
+
+    def plot_cluster_distribution(self, data):
+        """Plota a distribuição de clusters em pizza"""
+        try:
+            plt.figure(figsize=(14, 8))
+            cluster_dist = data['Cluster'].value_counts().sort_index()
+            
+            colors = sns.color_palette('husl', len(cluster_dist))
+            
+            plt.pie(cluster_dist, 
+                    labels=cluster_dist.index,
+                    autopct='%1.1f%%',
+                    startangle=90,
+                    colors=colors,
+                    wedgeprops={'edgecolor': 'white', 'linewidth': 1},
+                    textprops={'fontweight': 'bold'})
+            
+            plt.title('DISTRIBUIÇÃO DE CLUSTERS', 
+                     fontweight='bold', fontsize=16, pad=20)
+            plt.axis('equal')
+            st.pyplot(plt)
+        except Exception as e:
+            st.error(f"ERRO AO PLOTAR DISTRIBUIÇÃO: {e}")
 
 def main():
     st.set_page_config(page_title="Análise de Clusters", layout="wide")
@@ -161,7 +186,7 @@ def main():
     # Carregamento de dados
     file_path = 'Datas/2_Cars_clusterizado.csv'
     if not os.path.exists(file_path):
-        st.error("Arquivo não encontrado!")
+        st.error("ARQUIVO NÃO ENCONTRADO!")
         return
 
     try:
@@ -169,7 +194,7 @@ def main():
         analyzer = CarClusterAnalysis(df)
         visualizer = ClusterVisualizer()
     except Exception as e:
-        st.error(f"Erro ao carregar dados: {e}")
+        st.error(f"ERRO AO CARREGAR DADOS: {e}")
         return
 
     # Sidebar
@@ -220,9 +245,15 @@ def main():
         labels = analyzer.perform_clustering(X, n_clusters)
         if labels is None:
             return
-            
+        
+        df['Cluster'] = labels
+        
+        # Novo gráfico de distribuição em pizza
+        st.subheader("DISTRIBUIÇÃO PERCENTUAL DOS CLUSTERS")
+        visualizer.plot_cluster_distribution(df)
+        
         # Gráfico de Dispersão
-        st.subheader("DISTRIBUIÇÃO DOS CLUSTERS")
+        st.subheader("VISUALIZAÇÃO DOS CLUSTERS")
         visualizer.plot_scatter(df, feature_keys[0], feature_keys[1], labels)
         
         # Matriz de Confusão
@@ -230,7 +261,7 @@ def main():
         analyzer.plot_confusion_matrix(labels)
 
     except Exception as e:
-        st.error(f"Erro na análise: {e}")
+        st.error(f"ERRO NA ANÁLISE: {e}")
 
 if __name__ == "__main__":
     main()
