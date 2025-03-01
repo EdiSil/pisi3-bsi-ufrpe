@@ -235,12 +235,20 @@ def main():
 
     # Sidebar controls
     st.sidebar.header("CONFIGURAÇÕES")
-    available_features = ['ano', 'full_range', 'quilometragem', 'preco', 'Car Age']
+    available_features = ['quilometragem', 'preco', 'ano', 'full_range', 'Car Age']
+    FEATURE_LABELS = {
+        'quilometragem': 'QUILOMETRAGEM',
+        'preco': 'PREÇO',
+        'ano': 'ANO',
+        'full_range': 'AUTONOMIA',
+        'Car Age': 'IDADE DO VEÍCULO'
+    }
     
     selected_features = st.sidebar.multiselect(
         "SELECIONE AS VARIÁVEIS PARA CLUSTERING:",
         options=available_features,
-        default=['quilometragem', 'preco', 'ano']
+        default=['quilometragem', 'preco', 'ano'],
+        format_func=lambda x: FEATURE_LABELS[x]
     )
     
     max_clusters_elbow = st.sidebar.slider(
@@ -270,17 +278,13 @@ def main():
                 if X is None:
                     return
                 
-                col1, col2 = st.columns(2)
+                st.subheader("MÉTODO DO COTOVELO")
+                inertia = analyzer.calculate_elbow(X, max_clusters_elbow)
+                visualizer.plot_elbow(inertia, max_clusters_elbow)
                 
-                with col1:
-                    st.subheader("MÉTODO DO COTOVELO")
-                    inertia = analyzer.calculate_elbow(X, max_clusters_elbow)
-                    visualizer.plot_elbow(inertia, max_clusters_elbow)
-                
-                with col2:
-                    st.subheader("ANÁLISE DE SILHUETA")
-                    silhouette_scores = analyzer.calculate_silhouette(X, max_clusters_silhouette)
-                    visualizer.plot_silhouette_scores(silhouette_scores, max_clusters_silhouette)
+                st.subheader("ANÁLISE DE SILHUETA")
+                silhouette_scores = analyzer.calculate_silhouette(X, max_clusters_silhouette)
+                visualizer.plot_silhouette_scores(silhouette_scores, max_clusters_silhouette)
                 
                 # Análise detalhada de clusters
                 st.subheader(f"ANÁLISE DETALHADA PARA {n_clusters} CLUSTERS")
@@ -289,28 +293,18 @@ def main():
                     return
                 df['Cluster'] = labels
                 
-                col3, col4 = st.columns(2)
-                
-                with col3:
-                    visualizer.plot_cluster_distribution(df)
-                
-                with col4:
-                    st.subheader("ESTATÍSTICAS POR CLUSTER")
-                    stats = df.groupby('Cluster')[selected_features].mean()
-                    
-                    format_dict = {col: "{:,.2f} USD" if col == 'preco' else "{:,.2f}" 
-                                  for col in stats.columns}
-                    
-                    st.dataframe(stats.style.format(format_dict))
+                visualizer.plot_cluster_distribution(df)
 
                 # Visualização interativa
                 st.subheader("VISUALIZAÇÃO INTERATIVA")
-                col5, col6 = st.columns(2)
+                col1, col2 = st.columns(2)
                 
-                with col5:
-                    x_axis = st.selectbox("EIXO X:", selected_features, index=0)
-                with col6:
-                    y_axis = st.selectbox("EIXO Y:", selected_features, index=1)
+                with col1:
+                    x_axis = st.selectbox("EIXO X:", selected_features, index=0,
+                                        format_func=lambda x: FEATURE_LABELS[x])
+                with col2:
+                    y_axis = st.selectbox("EIXO Y:", selected_features, index=1,
+                                        format_func=lambda x: FEATURE_LABELS[x])
                 
                 palette = sns.color_palette("husl", n_clusters)
                 visualizer.plot_scatter(df, x_axis, y_axis, 'Cluster', palette)
