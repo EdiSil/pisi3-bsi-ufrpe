@@ -67,6 +67,9 @@ class CarClusterAnalysis:
     def perform_clustering(self, X, n_clusters):
         """Executa o algoritmo K-Means e retorna os labels"""
         try:
+            if n_clusters < 2:
+                raise ValueError("Número de clusters deve ser pelo menos 2")
+                
             self.n_clusters = n_clusters
             self.kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init='auto')
             return self.kmeans.fit_predict(X)
@@ -105,31 +108,43 @@ class ClusterVisualizer:
         plt.grid(True, alpha=0.3)
         st.pyplot(plt)
 
+    def plot_silhouette_scores(self, scores, max_clusters):
+        """Visualiza os scores médios de silhueta"""
+        plt.figure(figsize=(14, 7))
+        ax = sns.lineplot(x=range(2, max_clusters+1), y=scores, marker='o', linewidth=2)
+        plt.title('SCORE MÉDIO DE SILHUETA', fontweight='bold', fontsize=18, pad=20)
+        plt.xlabel('NÚMERO DE CLUSTERS', fontweight='bold', labelpad=15)
+        plt.ylabel('SCORE DE SILHUETA', fontweight='bold', labelpad=15)
+        plt.grid(True, alpha=0.3)
+        st.pyplot(plt)
+
     def plot_silhouette_analysis(self, X, labels, n_clusters):
         """Análise detalhada de silhueta para cada cluster"""
         try:
+            if n_clusters < 2:
+                raise ValueError("Análise de silhueta requer pelo menos 2 clusters")
+                
             plt.figure(figsize=(14, 10))
             silhouette_avg = silhouette_score(X, labels)
             sample_silhouette_values = silhouette_samples(X, labels)
 
             y_lower = 10
+            colors = sns.husl_palette(n_clusters)  # Corrigido uso da paleta
+            
             for i in range(n_clusters):
-                # Aggregate the silhouette scores for samples belonging to
                 ith_cluster_silhouette_values = sample_silhouette_values[labels == i]
                 ith_cluster_silhouette_values.sort()
 
                 size_cluster_i = ith_cluster_silhouette_values.shape[0]
                 y_upper = y_lower + size_cluster_i
 
-                color = plt.cm.husl(i/n_clusters)
                 plt.fill_betweenx(np.arange(y_lower, y_upper),
                                   0, ith_cluster_silhouette_values,
-                                  facecolor=color, edgecolor=color, alpha=0.7)
+                                  facecolor=colors[i], edgecolor=colors[i], alpha=0.7)
 
-                # Label the silhouette plots with their cluster numbers
                 plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i),
                          fontweight='bold', fontsize=12)
-                y_lower = y_upper + 10  # 10 for the 0 samples
+                y_lower = y_upper + 10
 
             plt.title('ANÁLISE DE SILHUETA POR CLUSTER', fontweight='bold', fontsize=18, pad=20)
             plt.xlabel('COEFICIENTE DE SILHUETA', fontweight='bold', labelpad=15)
@@ -181,7 +196,7 @@ class ClusterVisualizer:
         numeric_data['Cluster'] = labels
         
         plt.title('PERFIL MULTIVARIADO DOS CLUSTERS', fontweight='bold', fontsize=18, pad=20)
-        pd.plotting.parallel_coordinates(numeric_data, 'Cluster', color=("#FF0000", "#00FF00", "#0000FF", "#FF00FF", "#00FFFF"))
+        pd.plotting.parallel_coordinates(numeric_data, 'Cluster', color=sns.husl_palette(len(np.unique(labels))))
         plt.xlabel('CARACTERÍSTICAS', fontweight='bold', labelpad=15)
         plt.ylabel('VALORES NORMALIZADOS', fontweight='bold', labelpad=15)
         plt.grid(True, alpha=0.3)
@@ -248,7 +263,7 @@ def main():
         with col2:
             st.subheader("SCORE DE SILHUETA")
             scores = analyzer.calculate_silhouette(X, 15)
-            visualizer.plot_silhouette_analysis(X, np.zeros(X.shape[0]), 15)  # Placeholder
+            visualizer.plot_silhouette_scores(scores, 15)
 
         # Clusterização e Visualizações
         st.subheader(f"MODELAGEM COM {n_clusters} CLUSTERS")
