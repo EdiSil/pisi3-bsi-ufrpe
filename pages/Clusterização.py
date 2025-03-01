@@ -74,7 +74,7 @@ class CarClusterAnalysis:
             return None
 
     def plot_confusion_matrix(self, labels):
-        """Plota a matriz de confusão"""
+        """Plota a matriz de confusão aprimorada"""
         try:
             if 'Cluster' not in self.data.columns:
                 st.warning("DADOS ORIGINAIS DE CLUSTER NÃO ENCONTRADOS")
@@ -82,9 +82,23 @@ class CarClusterAnalysis:
 
             cm = confusion_matrix(self.data['Cluster'], labels)
             plt.figure(figsize=(14, 8))
+            
+            # Calcular porcentagens
+            cm_sum = np.sum(cm, axis=1, keepdims=True)
+            cm_percent = cm / cm_sum.astype(float) * 100
+            
+            # Plotar heatmap com valores absolutos e porcentagens
             sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
-                       xticklabels=True, yticklabels=True)
-            plt.title('MATRIZ DE CONFUSÃO', fontweight='bold', fontsize=16, pad=20)
+                        annot_kws={"size": 12}, cbar=False)
+            
+            # Adicionar porcentagens
+            for i in range(cm.shape[0]):
+                for j in range(cm.shape[1]):
+                    plt.text(j+0.5, i+0.3, f"{cm_percent[i,j]:.1f}%",
+                            ha='center', va='center', color='black', fontsize=10)
+            
+            plt.title('MATRIZ DE CONFUSÃO - DISTRIBUIÇÃO DE CLUSTERS', 
+                     fontweight='bold', fontsize=16, pad=20)
             plt.xlabel('CLUSTERS PREVISTOS', fontweight='bold')
             plt.ylabel('CLUSTERS REAIS', fontweight='bold')
             st.pyplot(plt)
@@ -127,57 +141,70 @@ class ClusterVisualizer:
         plt.grid(True, alpha=0.5)
         st.pyplot(plt)
 
-    def plot_scatter(self, data, x_feat, y_feat, labels):
-        """Plota gráfico de dispersão dos clusters"""
-        plt.figure(figsize=(14, 8))
-        scatter = sns.scatterplot(
-            data=data,
-            x=x_feat,
-            y=y_feat,
-            hue=labels,
-            palette="husl",
-            s=100,
-            edgecolor='w',
-            linewidth=0.5
-        )
-        
-        # Formatação dos eixos
-        x_label, x_formatter = self.format_config[x_feat]
-        y_label, y_formatter = self.format_config[y_feat]
-        
-        plt.gca().xaxis.set_major_formatter(mticker.FuncFormatter(x_formatter))
-        plt.gca().yaxis.set_major_formatter(mticker.FuncFormatter(y_formatter))
-        
-        plt.title(f'DISTRIBUIÇÃO DE CLUSTERS: {x_label} vs {y_label}', 
-                 fontweight='bold', fontsize=16, pad=20)
-        plt.xlabel(x_label, fontweight='bold')
-        plt.ylabel(y_label, fontweight='bold')
-        plt.legend(title='CLUSTER', bbox_to_anchor=(1.05, 1), borderaxespad=0)
-        plt.grid(True, alpha=0.3)
-        st.pyplot(plt)
-
     def plot_cluster_distribution(self, data):
-        """Plota a distribuição de clusters em pizza"""
+        """Plota a distribuição de clusters em barras sobrepostas"""
         try:
             plt.figure(figsize=(14, 8))
             cluster_dist = data['Cluster'].value_counts().sort_index()
             
             colors = sns.color_palette('husl', len(cluster_dist))
             
-            plt.pie(cluster_dist, 
-                    labels=cluster_dist.index,
-                    autopct='%1.1f%%',
-                    startangle=90,
-                    colors=colors,
-                    wedgeprops={'edgecolor': 'white', 'linewidth': 1},
-                    textprops={'fontweight': 'bold'})
+            bars = plt.bar(cluster_dist.index.astype(str), 
+                          cluster_dist.values,
+                          color=colors,
+                          edgecolor='white',
+                          linewidth=1)
             
-            plt.title('DISTRIBUIÇÃO DE CLUSTERS', 
+            # Adicionar valores e porcentagens
+            total = sum(cluster_dist)
+            for bar in bars:
+                height = bar.get_height()
+                percent = (height / total) * 100
+                plt.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{height}\n({percent:.1f}%)',
+                        ha='center', va='center',
+                        fontweight='bold')
+            
+            plt.title('DISTRIBUIÇÃO DE CLUSTERS - CONTAGEM E PERCENTUAL', 
                      fontweight='bold', fontsize=16, pad=20)
-            plt.axis('equal')
+            plt.xlabel('CLUSTERS', fontweight='bold')
+            plt.ylabel('QUANTIDADE', fontweight='bold')
+            plt.grid(True, axis='y', alpha=0.3)
             st.pyplot(plt)
         except Exception as e:
             st.error(f"ERRO AO PLOTAR DISTRIBUIÇÃO: {e}")
+
+    def plot_parallel_coordinates(self, data, features, labels):
+        """Plota coordenadas paralelas para visualização multivariada"""
+        try:
+            plt.figure(figsize=(16, 8))
+            numeric_data = data[features].apply(pd.to_numeric, errors='coerce')
+            numeric_data['Cluster'] = labels
+            
+            # Amostrar dados para melhor visualização
+            if len(numeric_data) > 1000:
+                sample_data = numeric_data.sample(1000)
+            else:
+                sample_data = numeric_data
+            
+            sns.lineplot(data=sample_data.melt(id_vars='Cluster'),
+                        x='variable', 
+                        y='value',
+                        hue='Cluster',
+                        palette='husl',
+                        estimator='median',
+                        errorbar=None)
+            
+            plt.title('PERFIL DOS CLUSTERS - COORDENADAS PARALELAS',
+                    fontweight='bold', fontsize=16, pad=20)
+            plt.xlabel('VARIÁVEIS', fontweight='bold')
+            plt.ylabel('VALORES NORMALIZADOS', fontweight='bold')
+            plt.xticks(rotation=45)
+            plt.grid(True, alpha=0.3)
+            plt.legend(bbox_to_anchor=(1.05, 1), title='CLUSTER')
+            st.pyplot(plt)
+        except Exception as e:
+            st.error(f"ERRO NA VISUALIZAÇÃO MULTIVARIADA: {e}")
 
 def main():
     st.set_page_config(page_title="Análise de Clusters", layout="wide")
@@ -248,13 +275,13 @@ def main():
         
         df['Cluster'] = labels
         
-        # Novo gráfico de distribuição em pizza
-        st.subheader("DISTRIBUIÇÃO PERCENTUAL DOS CLUSTERS")
+        # Gráfico de distribuição atualizado
+        st.subheader("DISTRIBUIÇÃO DOS CLUSTERS")
         visualizer.plot_cluster_distribution(df)
         
-        # Gráfico de Dispersão
-        st.subheader("VISUALIZAÇÃO DOS CLUSTERS")
-        visualizer.plot_scatter(df, feature_keys[0], feature_keys[1], labels)
+        # Nova visualização multivariada
+        st.subheader("PERFIL MULTIVARIADO DOS CLUSTERS")
+        visualizer.plot_parallel_coordinates(df, feature_keys, labels)
         
         # Matriz de Confusão
         st.subheader("MATRIZ DE CONFUSÃO")
