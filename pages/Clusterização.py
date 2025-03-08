@@ -26,7 +26,7 @@ class CarClusterAnalysis:
         self.features = None
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (USD)',
+            'preco': 'PREÇO (R$)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -106,7 +106,7 @@ class ClusterVisualizer:
     def __init__(self):
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (USD)',
+            'preco': 'PREÇO (R$)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -115,8 +115,8 @@ class ClusterVisualizer:
     def format_thousands(self, x, pos):
         return f'{x:,.0f}'.replace(",", ".")
 
-    def format_dollars(self, x, pos):
-        return f'US$ {x:,.0f}'.replace(",", ".")
+    def format_reais(self, x, pos):
+        return f'R$ {x:,.0f}'.replace(",", ".")
 
     def plot_elbow(self, inertia, max_clusters):
         try:
@@ -152,7 +152,7 @@ class ClusterVisualizer:
             st.error(f"ERRO AO PLOTAR SCORES DE SILHUETA: {e}")
 
     def plot_scatter(self, data, x_col, y_col, hue_col, palette):
-        """Gráfico de dispersão K-Means sem centroides e sem legenda"""
+        """Gráfico de dispersão K-Means com formatação em Reais e escalas específicas"""
         try:
             fig, ax = plt.subplots(figsize=(10, 6))
             
@@ -167,17 +167,28 @@ class ClusterVisualizer:
                 ax=ax, 
                 edgecolor='w', 
                 linewidth=0.5,
-                legend=False  # Remove a legenda
+                legend=False
             )
 
-            # Formatação dos eixos
+            # Configuração personalizada para eixos de preço
+            def configure_price_axis(axis, data_col):
+                axis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
+                
+                # Escalas específicas em Reais
+                ticks = [10000, 50000, 100000, 200000, 300000, 400000, 500000]
+                valid_ticks = [t for t in ticks if t <= data[data_col].max()]
+                
+                axis.set_ticks(valid_ticks)
+                axis.set_ticklabels([self.format_reais(t, None) for t in valid_ticks])
+
+            # Configurar eixos
             if x_col == 'preco':
-                ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_dollars))
+                configure_price_axis(ax.xaxis, x_col)
             else:
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
             if y_col == 'preco':
-                ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_dollars))
+                configure_price_axis(ax.yaxis, y_col)
             else:
                 ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
@@ -197,7 +208,7 @@ class ClusterVisualizer:
 
 def main():
     st.set_page_config(page_title="Análise de Clusters de Carros", layout="wide")
-    st.title("ANÁLISE INTERATIVA DOS CLUSTERS")
+    st.title("ANÁLISE INTERATIVA DOS CLUSTERS ")
     
     file_path = 'Datas/2_Cars_clusterizado.csv'
     
@@ -231,7 +242,7 @@ def main():
     )
     
     max_clusters_elbow = st.sidebar.slider(
-        "SELECIONE NÚMERO MÁXIMO DOS CLUSTERS (COTOVELO):",
+        "SELECIONE NÚMERO MÁXIMO DE CLUSTERS (COTOVELO):",
         2, 15, 15
     )
     
@@ -241,7 +252,7 @@ def main():
     )
     
     n_clusters = st.sidebar.slider(
-        "SELECIONE NÚMERO DE CLUSTERS PARA (VISUALIZAÇÃO INTERATIVA):",
+        "SELECIONE NÚMERO DE CLUSTERS (VISUALIZAÇÃO INTERATIVA):",
         2, 15, 15
     )
     
