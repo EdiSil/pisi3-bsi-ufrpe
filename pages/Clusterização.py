@@ -116,7 +116,7 @@ class ClusterVisualizer:
         return f'{x:,.0f}'.replace(",", ".")
 
     def format_reais(self, x, pos):
-        return f' {x * 6000:,.0f}'.replace(",", ".")
+        return f' {int(x * 6000):,}'.replace(",", ".")
 
     def format_year(self, x, pos):
         return f'{int(x)}'
@@ -216,7 +216,6 @@ def main():
         if 'preco' in df.columns:
             df['preco'] = df['preco'] / 1000
         
-        # Garantir que o ano seja inteiro
         if 'ano' in df.columns:
             df['ano'] = df['ano'].astype(int)
         
