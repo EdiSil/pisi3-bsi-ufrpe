@@ -231,17 +231,17 @@ def main():
     )
     
     max_clusters_elbow = st.sidebar.slider(
-        "NÚMERO MÁXIMO DE CLUSTERS (COTOVELO):",
+        "SELECIONE NÚMERO MÁXIMO DOS CLUSTERS (COTOVELO):",
         2, 15, 15
     )
     
     max_clusters_silhouette = st.sidebar.slider(
-        "NÚMERO MÁXIMO DE CLUSTERS (SILHUETA):",
+        "SELECIONE NÚMERO MÁXIMO DE CLUSTERS (SILHUETA):",
         2, 15, 15
     )
     
     n_clusters = st.sidebar.slider(
-        "NÚMERO DE CLUSTERS PARA ANÁLISE DETALHADA:",
+        "SELECIONE NÚMERO DE CLUSTERS PARA ANÁLISE DETALHADA:",
         2, 15, 15
     )
     
