@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, silhouette_samples
 from sklearn.preprocessing import StandardScaler
 
-# Configuração de estilo profissional
+# Configuração de estilo
 try:
     plt.style.use('seaborn-v0_8-darkgrid')
 except OSError:
@@ -26,7 +26,7 @@ class CarClusterAnalysis:
         self.features = None
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (R$ x1000)',
+            'preco': 'PREÇO (R$)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -106,7 +106,7 @@ class ClusterVisualizer:
     def __init__(self):
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (R$ x1000)',
+            'preco': 'PREÇO (R$)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
