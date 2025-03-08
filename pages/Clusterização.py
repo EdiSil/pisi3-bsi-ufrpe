@@ -26,7 +26,7 @@ class CarClusterAnalysis:
         self.features = None
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (R$)',
+            'preco': 'PREÇO (BRL)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -106,7 +106,7 @@ class ClusterVisualizer:
     def __init__(self):
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (R$)',
+            'preco': 'PREÇO (BRL)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -117,6 +117,9 @@ class ClusterVisualizer:
 
     def format_reais(self, x, pos):
         return f' {x * 6000:,.0f}'.replace(",", ".")
+
+    def format_year(self, x, pos):
+        return f'{int(x)}'
 
     def plot_elbow(self, inertia, max_clusters):
         try:
@@ -168,13 +171,18 @@ class ClusterVisualizer:
                 legend=False
             )
 
+            # Formatação personalizada para cada eixo
             if x_col == 'preco':
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
+            elif x_col == 'ano':
+                ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_year))
             else:
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
             if y_col == 'preco':
                 ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
+            elif y_col == 'ano':
+                ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_year))
             else:
                 ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
@@ -207,6 +215,10 @@ def main():
         
         if 'preco' in df.columns:
             df['preco'] = df['preco'] / 1000
+        
+        # Garantir que o ano seja inteiro
+        if 'ano' in df.columns:
+            df['ano'] = df['ano'].astype(int)
         
         st.session_state['data'] = df
         st.success("DADOS CARREGADOS COM SUCESSO!")
