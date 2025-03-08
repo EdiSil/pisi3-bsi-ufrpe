@@ -26,7 +26,7 @@ class CarClusterAnalysis:
         self.features = None
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (BRL)',
+            'preco': 'PREÇO (R$)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -106,7 +106,7 @@ class ClusterVisualizer:
     def __init__(self):
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (BRL)',
+            'preco': 'PREÇO (R$)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
