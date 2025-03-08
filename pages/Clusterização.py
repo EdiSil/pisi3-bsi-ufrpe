@@ -195,25 +195,6 @@ class ClusterVisualizer:
         except Exception as e:
             st.error(f"ERRO AO GERAR GRÁFICO DE DISPERSÃO: {e}")
 
-    def plot_cluster_distribution(self, data):
-        """Plota a distribuição de clusters com formatação profissional"""
-        try:
-            fig, ax = plt.subplots(figsize=(10, 4))
-            
-            cluster_dist = data['Cluster'].value_counts().sort_index()
-            sns.barplot(x=cluster_dist.index, y=cluster_dist.values, palette="husl", ax=ax)
-            
-            ax.set_title('DISTRIBUIÇÃO DE CLUSTERS', fontweight='bold', pad=15)
-            ax.set_xlabel('CLUSTER', fontweight='bold')
-            ax.set_ylabel('QUANTIDADE', fontweight='bold')
-            ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
-            ax.tick_params(axis='both', labelsize=8)
-            ax.grid(True, axis='y', linestyle='--', alpha=0.7)
-            plt.tight_layout()
-            st.pyplot(fig)
-        except Exception as e:
-            st.error(f"ERRO AO PLOTAR DISTRIBUIÇÃO DE CLUSTERS: {e}")
-
 def main():
     st.set_page_config(page_title="Análise de Clusters de Carros", layout="wide")
     st.title("🚗 ANÁLISE DE CLUSTERS INTERATIVA")
@@ -286,14 +267,11 @@ def main():
                 silhouette_scores = analyzer.calculate_silhouette(X, max_clusters_silhouette)
                 visualizer.plot_silhouette_scores(silhouette_scores, max_clusters_silhouette)
                 
-                # Análise detalhada de clusters
-                st.subheader(f"ANÁLISE DETALHADA PARA {n_clusters} CLUSTERS")
+                # Execução do clustering
                 labels = analyzer.perform_clustering(X, n_clusters)
                 if labels is None:
                     return
                 df['Cluster'] = labels
-                
-                visualizer.plot_cluster_distribution(df)
 
                 # Visualização interativa
                 st.subheader("VISUALIZAÇÃO INTERATIVA")
