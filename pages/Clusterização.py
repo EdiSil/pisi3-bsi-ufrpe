@@ -241,7 +241,7 @@ def main():
     )
     
     n_clusters = st.sidebar.slider(
-        "SELECIONE NÚMERO DE CLUSTERS PARA ANÁLISE DETALHADA:",
+        "SELECIONE NÚMERO DE CLUSTERS PARA VISUALIZAÇÃO INTERATIVA:",
         2, 15, 15
     )
     
