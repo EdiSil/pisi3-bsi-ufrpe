@@ -116,10 +116,7 @@ class ClusterVisualizer:
         return f'{x:,.0f}'.replace(",", ".")
 
     def format_reais(self, x, pos):
-        return f'{x * 1000:,.0f}'.replace(",", ".")[:-3]  # Remove os últimos três zeros
-
-    def format_year(self, x, pos):
-        return f'{int(x)}'
+        return f' {x * 6000:,.0f}'.replace(",", ".")
 
     def plot_elbow(self, inertia, max_clusters):
         try:
@@ -171,18 +168,13 @@ class ClusterVisualizer:
                 legend=False
             )
 
-            # Formatação personalizada para cada eixo
             if x_col == 'preco':
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
-            elif x_col == 'ano':
-                ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_year))
             else:
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
             if y_col == 'preco':
                 ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
-            elif y_col == 'ano':
-                ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_year))
             else:
                 ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
@@ -213,12 +205,8 @@ def main():
     try:
         df = pd.read_csv(file_path)
         
-        # Mantém o preço original e converte para milhares
         if 'preco' in df.columns:
-            df['preco'] = df['preco'] / 1000  # Converte para milhares de USD
-        
-        if 'ano' in df.columns:
-            df['ano'] = df['ano'].astype(int)
+            df['preco'] = df['preco'] / 1000
         
         st.session_state['data'] = df
         st.success("DADOS CARREGADOS COM SUCESSO!")
