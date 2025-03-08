@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, silhouette_samples
 from sklearn.preprocessing import StandardScaler
 
-# Configuração de estilo profissional atualizada
+# Configuração de estilo profissional
 try:
     plt.style.use('seaborn-v0_8-darkgrid')
 except OSError:
@@ -26,7 +26,7 @@ class CarClusterAnalysis:
         self.features = None
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (USD)',
+            'preco': 'PREÇO (R$ x1000)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -106,7 +106,7 @@ class ClusterVisualizer:
     def __init__(self):
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (USD)',
+            'preco': 'PREÇO (R$ x1000)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -115,8 +115,8 @@ class ClusterVisualizer:
     def format_thousands(self, x, pos):
         return f'{x:,.0f}'.replace(",", ".")
 
-    def format_dollars(self, x, pos):
-        return f'US$ {x:,.0f}'.replace(",", ".")
+    def format_reais(self, x, pos):
+        return f'R$ {x:,.0f}'.replace(",", ".")
 
     def plot_elbow(self, inertia, max_clusters):
         try:
@@ -152,11 +152,10 @@ class ClusterVisualizer:
             st.error(f"ERRO AO PLOTAR SCORES DE SILHUETA: {e}")
 
     def plot_scatter(self, data, x_col, y_col, hue_col, palette):
-        """Gráfico de dispersão K-Means sem centroides e sem legenda"""
+        """Gráfico de dispersão com valores em milhares"""
         try:
             fig, ax = plt.subplots(figsize=(10, 6))
             
-            # Plotagem principal sem legenda
             sns.scatterplot(
                 data=data, 
                 x=x_col, 
@@ -167,21 +166,21 @@ class ClusterVisualizer:
                 ax=ax, 
                 edgecolor='w', 
                 linewidth=0.5,
-                legend=False  # Remove a legenda
+                legend=False
             )
 
-            # Formatação dos eixos
+            # Configuração dos formatadores
             if x_col == 'preco':
-                ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_dollars))
+                ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
             else:
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
             if y_col == 'preco':
-                ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_dollars))
+                ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
             else:
                 ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
-            ax.set_title(f'K-MEANS CLUSTERING: {self.LABEL_MAP[x_col]} vs {self.LABEL_MAP[y_col]}',
+            ax.set_title(f'CLUSTERS: {self.LABEL_MAP[x_col]} vs {self.LABEL_MAP[y_col]}',
                         fontsize=12, fontweight='bold', pad=15)
             ax.set_xlabel(self.LABEL_MAP[x_col], fontweight='bold')
             ax.set_ylabel(self.LABEL_MAP[y_col], fontweight='bold')
@@ -197,7 +196,7 @@ class ClusterVisualizer:
 
 def main():
     st.set_page_config(page_title="Análise de Clusters de Carros", layout="wide")
-    st.title("ANÁLISE INTERATIVA DOS CLUSTERS")
+    st.title("ANÁLISE INTERATIVA DOS CLUSTERS ")
     
     file_path = 'Datas/2_Cars_clusterizado.csv'
     
@@ -207,6 +206,11 @@ def main():
 
     try:
         df = pd.read_csv(file_path)
+        
+        # Converter preço para milhares
+        if 'preco' in df.columns:
+            df['preco'] = df['preco'] / 1000
+        
         st.session_state['data'] = df
         st.success("DADOS CARREGADOS COM SUCESSO!")
     except Exception as e:
@@ -231,18 +235,18 @@ def main():
     )
     
     max_clusters_elbow = st.sidebar.slider(
-        "SELECIONE NÚMERO MÁXIMO DOS CLUSTERS (COTOVELO):",
-        2, 15, 15
+        "SELECIONE NÚMERO MÁXIMO DE CLUSTERS (COTOVELO):",
+        2, 20, 20
     )
     
     max_clusters_silhouette = st.sidebar.slider(
         "SELECIONE NÚMERO MÁXIMO DE CLUSTERS (SILHUETA):",
-        2, 15, 15
+        2, 20, 20
     )
     
     n_clusters = st.sidebar.slider(
-        "SELECIONE NÚMERO DE CLUSTERS PARA (VISUALIZAÇÃO INTERATIVA):",
-        2, 15, 15
+        "SELECIONE NÚMERO DE CLUSTERS (VISUALIZAÇÃO INTERATIVA):",
+        2, 20, 20
     )
     
     analyzer = CarClusterAnalysis(df)
@@ -255,7 +259,7 @@ def main():
                 if X is None:
                     return
                 
-                st.subheader("MÉTODO DO COTOVELO")
+                st.subheader("ANÁLISE DO COTOVELO")
                 inertia = analyzer.calculate_elbow(X, max_clusters_elbow)
                 visualizer.plot_elbow(inertia, max_clusters_elbow)
                 
@@ -268,7 +272,7 @@ def main():
                     return
                 df['Cluster'] = labels
 
-                st.subheader("VISUALIZAÇÃO INTERATIVA")
+                st.subheader("VISUALIZAÇÃO DOS CLUSTERS")
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -281,13 +285,13 @@ def main():
                 palette = sns.color_palette("husl", n_clusters)
                 visualizer.plot_scatter(df, x_axis, y_axis, 'Cluster', palette)
                 
-                st.subheader("ANÁLISE DE SILHUETA POR CLUSTER")
+                st.subheader("DETALHES DA SILHUETA POR CLUSTER")
                 analyzer.plot_silhouette_analysis(X, labels)
                 
             except Exception as e:
                 st.error(f"ERRO NA ANÁLISE: {e}")
         else:
-            st.warning("SELECIONE PELO MENOS 2 VARIÁVEIS PARA REALIZAR O CLUSTERING!")
+            st.warning("SELECIONE PELO MENOS 2 VARIÁVEIS PARA CLUSTERING!")
 
 if __name__ == "__main__":
     main()
