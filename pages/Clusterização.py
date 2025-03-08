@@ -197,7 +197,7 @@ class ClusterVisualizer:
 
 def main():
     st.set_page_config(page_title="Análise de Clusters de Carros", layout="wide")
-    st.title("🚗 ANÁLISE DE CLUSTERS INTERATIVA")
+    st.title("ANÁLISE INTERATIVA DO CLUSTERS")
     
     # Carregamento de dados
     file_path = 'Datas/2_Cars_clusterizado.csv'
