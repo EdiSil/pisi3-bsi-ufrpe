@@ -11,9 +11,9 @@ from sklearn.preprocessing import StandardScaler
 
 # Configuração de estilo profissional atualizada
 try:
-    plt.style.use('seaborn-v0_8-darkgrid')  # Nome correto para versões recentes
+    plt.style.use('seaborn-v0_8-darkgrid')
 except OSError:
-    plt.style.use('ggplot')  # Fallback para versões mais antigas
+    plt.style.use('ggplot')
 
 sns.set_palette("husl")
 
@@ -33,7 +33,6 @@ class CarClusterAnalysis:
         }
 
     def prepare_data(self, features):
-        """Prepara os dados para clustering com normalização"""
         try:
             self.features = features
             X = self.data[features]
@@ -43,7 +42,6 @@ class CarClusterAnalysis:
             return None
 
     def calculate_elbow(self, X, max_clusters=10):
-        """Calcula os valores de inércia para o método do cotovelo"""
         inertia = []
         for k in range(1, max_clusters + 1):
             kmeans = KMeans(n_clusters=k, random_state=42, n_init='auto')
@@ -52,19 +50,17 @@ class CarClusterAnalysis:
         return inertia
 
     def calculate_silhouette(self, X, max_clusters=10):
-        """Calcula os scores de silhueta para diferentes números de clusters"""
         silhouette_scores = []
         for k in range(2, max_clusters + 1):
             kmeans = KMeans(n_clusters=k, random_state=42, n_init='auto')
             labels = kmeans.fit_predict(X)
-            if len(np.unique(labels)) > 1:  # Evitar erro de silhueta com 1 cluster
+            if len(np.unique(labels)) > 1:
                 silhouette_scores.append(silhouette_score(X, labels))
             else:
                 silhouette_scores.append(0)
         return silhouette_scores
 
     def perform_clustering(self, X, n_clusters):
-        """Executa o clustering K-means e retorna os labels"""
         try:
             self.n_clusters = n_clusters
             self.kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init='auto')
@@ -74,7 +70,6 @@ class CarClusterAnalysis:
             return None
 
     def plot_silhouette_analysis(self, X, labels):
-        """Plota a análise de silhueta detalhada"""
         try:
             silhouette_avg = silhouette_score(X, labels)
             sample_silhouette_values = silhouette_samples(X, labels)
@@ -124,7 +119,6 @@ class ClusterVisualizer:
         return f'US$ {x:,.0f}'.replace(",", ".")
 
     def plot_elbow(self, inertia, max_clusters):
-        """Plota o gráfico do método do cotovelo com formatação profissional"""
         try:
             fig, ax = plt.subplots(figsize=(10, 6))
             sns.lineplot(x=range(1, max_clusters + 1), y=inertia, marker='o', ax=ax)
@@ -142,7 +136,6 @@ class ClusterVisualizer:
             st.error(f"ERRO AO PLOTAR MÉTODO DO COTOVELO: {e}")
 
     def plot_silhouette_scores(self, scores, max_clusters):
-        """Plota os scores de silhueta médios"""
         try:
             fig, ax = plt.subplots(figsize=(10, 6))
             sns.lineplot(x=range(2, max_clusters + 1), y=scores, marker='o', ax=ax)
@@ -159,13 +152,25 @@ class ClusterVisualizer:
             st.error(f"ERRO AO PLOTAR SCORES DE SILHUETA: {e}")
 
     def plot_scatter(self, data, x_col, y_col, hue_col, palette):
-        """Plota gráfico de dispersão com formatação profissional"""
+        """Gráfico de dispersão K-Means sem centroides e sem legenda"""
         try:
             fig, ax = plt.subplots(figsize=(10, 6))
             
-            sns.scatterplot(data=data, x=x_col, y=y_col, hue=hue_col,
-                           palette=palette, s=60, ax=ax, edgecolor='w', linewidth=0.5)
+            # Plotagem principal sem legenda
+            sns.scatterplot(
+                data=data, 
+                x=x_col, 
+                y=y_col, 
+                hue=hue_col,
+                palette=palette, 
+                s=60, 
+                ax=ax, 
+                edgecolor='w', 
+                linewidth=0.5,
+                legend=False  # Remove a legenda
+            )
 
+            # Formatação dos eixos
             if x_col == 'preco':
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_dollars))
             else:
@@ -176,15 +181,10 @@ class ClusterVisualizer:
             else:
                 ax.yaxis.set_major_formatter(mticker.FuncFormatter(self.format_thousands))
 
-            ax.set_title(f'CLUSTERS: {self.LABEL_MAP[x_col]} vs {self.LABEL_MAP[y_col]}',
+            ax.set_title(f'K-MEANS CLUSTERING: {self.LABEL_MAP[x_col]} vs {self.LABEL_MAP[y_col]}',
                         fontsize=12, fontweight='bold', pad=15)
             ax.set_xlabel(self.LABEL_MAP[x_col], fontweight='bold')
             ax.set_ylabel(self.LABEL_MAP[y_col], fontweight='bold')
-            
-            ax.legend(title='CLUSTERS', 
-                     bbox_to_anchor=(1.05, 1), 
-                     loc='upper left',
-                     title_fontproperties={'weight':'bold'})
             
             ax.tick_params(axis='both', labelsize=8)
             plt.xticks(rotation=45)
@@ -197,9 +197,8 @@ class ClusterVisualizer:
 
 def main():
     st.set_page_config(page_title="Análise de Clusters de Carros", layout="wide")
-    st.title("ANÁLISE INTERATIVA DO CLUSTERS")
+    st.title("ANÁLISE INTERATIVA DOS CLUSTERS")
     
-    # Carregamento de dados
     file_path = 'Datas/2_Cars_clusterizado.csv'
     
     if not os.path.exists(file_path):
@@ -214,7 +213,6 @@ def main():
         st.error(f"ERRO AO CARREGAR DADOS: {e}")
         return
 
-    # Sidebar controls
     st.sidebar.header("CONFIGURAÇÕES")
     available_features = ['quilometragem', 'preco', 'ano', 'full_range', 'Car Age']
     FEATURE_LABELS = {
@@ -234,24 +232,22 @@ def main():
     
     max_clusters_elbow = st.sidebar.slider(
         "NÚMERO MÁXIMO DE CLUSTERS (COTOVELO):",
-        2, 15, 10
+        2, 15, 15
     )
     
     max_clusters_silhouette = st.sidebar.slider(
         "NÚMERO MÁXIMO DE CLUSTERS (SILHUETA):",
-        2, 15, 8
+        2, 15, 15
     )
     
     n_clusters = st.sidebar.slider(
         "NÚMERO DE CLUSTERS PARA ANÁLISE DETALHADA:",
-        2, 10, 5
+        2, 15, 15
     )
     
-    # Inicialização do modelo
     analyzer = CarClusterAnalysis(df)
     visualizer = ClusterVisualizer()
     
-    # Container principal
     with st.container():
         if len(selected_features) >= 2:
             try:
@@ -267,13 +263,11 @@ def main():
                 silhouette_scores = analyzer.calculate_silhouette(X, max_clusters_silhouette)
                 visualizer.plot_silhouette_scores(silhouette_scores, max_clusters_silhouette)
                 
-                # Execução do clustering
                 labels = analyzer.perform_clustering(X, n_clusters)
                 if labels is None:
                     return
                 df['Cluster'] = labels
 
-                # Visualização interativa
                 st.subheader("VISUALIZAÇÃO INTERATIVA")
                 col1, col2 = st.columns(2)
                 
@@ -287,7 +281,6 @@ def main():
                 palette = sns.color_palette("husl", n_clusters)
                 visualizer.plot_scatter(df, x_axis, y_axis, 'Cluster', palette)
                 
-                # Análise de silhueta detalhada
                 st.subheader("ANÁLISE DE SILHUETA POR CLUSTER")
                 analyzer.plot_silhouette_analysis(X, labels)
                 
