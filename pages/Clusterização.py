@@ -116,7 +116,7 @@ class ClusterVisualizer:
         return f'{x:,.0f}'.replace(",", ".")
 
     def format_reais(self, x, pos):
-        return f' {int(x * 6000):,}'.replace(",", ".")
+        return f'{x * 1000:,.0f}'.replace(",", ".")[:-3]  # Remove os últimos três zeros
 
     def format_year(self, x, pos):
         return f'{int(x)}'
@@ -213,8 +213,9 @@ def main():
     try:
         df = pd.read_csv(file_path)
         
+        # Mantém o preço original e converte para milhares
         if 'preco' in df.columns:
-            df['preco'] = df['preco'] / 1000
+            df['preco'] = df['preco'] / 1000  # Converte para milhares de USD
         
         if 'ano' in df.columns:
             df['ano'] = df['ano'].astype(int)
