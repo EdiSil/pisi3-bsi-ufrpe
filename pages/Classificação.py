@@ -71,7 +71,7 @@ class SistemaClassificacaoCarros:
 
 def main():
     st.set_page_config(page_title="Sistema de Classificação de Preços de Carros", layout="wide")
-    st.title("🚗 Sistema de Classificação de Preços de Carros")
+    st.title("Sistema de Classificação de Preços")
     
     # Inicializar o sistema de classificação
     sistema = SistemaClassificacaoCarros()
@@ -79,20 +79,40 @@ def main():
     # Carregar dados
     dados = sistema.carregar_dados('Datas/1_Cars_processado.csv')
     
-    # Barra lateral para interação do usuário
-    st.sidebar.header("Configuração do Modelo")
-    
     # Treinar modelo
     X, y = sistema.preprocessar_dados()
     modelo = sistema.treinar_modelo(X, y)
     
-    # Área principal de conteúdo
+    # Interface do usuário
+    st.sidebar.header("Previsão de Faixa de Preço")
+    marca = st.sidebar.selectbox("Marca", dados['marca'].unique())
+    modelo = st.sidebar.selectbox("Modelo", dados[dados['marca'] == marca]['modelo'].unique())
+    ano = st.sidebar.number_input("Ano", min_value=2000, max_value=2023, value=2020)
+    quilometragem = st.sidebar.number_input("Quilometragem", min_value=0, value=50000)
+    combustivel = st.sidebar.selectbox("Tipo de Combustível", dados['combustivel'].unique())
+    car_documents = st.sidebar.selectbox("Documentação", dados['car_documents'].unique())
+    tipo = st.sidebar.selectbox("Tipo", dados['tipo'].unique())
+    transmissao = st.sidebar.selectbox("Transmissão", dados['transmissão'].unique())
+    
+    if st.sidebar.button("Prever Faixa de Preço", use_container_width=True):
+        dados_entrada = pd.DataFrame({
+            'marca': [marca],
+            'modelo': [modelo],
+            'ano': [ano],
+            'quilometragem': [quilometragem],
+            'combustivel': [combustivel],
+            'car_documents': [car_documents],
+            'tipo': [tipo],
+            'transmissão': [transmissao]
+        })
+        
+        previsao = sistema.prever(dados_entrada)
+        st.sidebar.success(f"Faixa de Preço Prevista: {previsao[0]}")
+    
+    # Área de visualização
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("Visão Geral dos Dados")
-        st.write(dados.head())
-        
         st.subheader("Distribuição das Faixas de Preço")
         fig, ax = plt.subplots(figsize=(10, 6))
         dados['faixa_preco'].value_counts().plot(kind='bar')
@@ -102,47 +122,9 @@ def main():
         st.pyplot(fig)
     
     with col2:
-        st.subheader("Fazer uma Previsão")
-        marca = st.selectbox("Marca", dados['marca'].unique())
-        modelo = st.selectbox("Modelo", dados[dados['marca'] == marca]['modelo'].unique())
-        ano = st.number_input("Ano", min_value=2000, max_value=2023, value=2020)
-        quilometragem = st.number_input("Quilometragem", min_value=0, value=50000)
-        combustivel = st.selectbox("Tipo de Combustível", dados['combustivel'].unique())
-        car_documents = st.selectbox("Documentação", dados['car_documents'].unique())
-        tipo = st.selectbox("Tipo", dados['tipo'].unique())
-        transmissao = st.selectbox("Transmissão", dados['transmissão'].unique())
-        
-        if st.button("Prever Faixa de Preço"):
-            dados_entrada = pd.DataFrame({
-                'marca': [marca],
-                'modelo': [modelo],
-                'ano': [ano],
-                'quilometragem': [quilometragem],
-                'combustivel': [combustivel],
-                'car_documents': [car_documents],
-                'tipo': [tipo],
-                'transmissão': [transmissao]
-            })
-            
-            previsao = sistema.prever(dados_entrada)
-            st.success(f"Faixa de Preço Prevista: {previsao[0]}")
-    
-    # Métricas de Desempenho do Modelo
-    st.subheader("Desempenho do Modelo")
-    X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
-    y_pred = modelo.predict(X_teste)
-    
-    col3, col4 = st.columns(2)
-    
-    with col3:
-        st.write("Relatório de Classificação")
-        relatorio = classification_report(y_teste, y_pred, 
-                                      target_names=sistema.codificadores[sistema.coluna_alvo].classes_,
-                                      output_dict=True)
-        st.write(pd.DataFrame(relatorio).transpose())
-    
-    with col4:
-        st.write("Matriz de Confusão")
+        st.subheader("Matriz de Confusão do Modelo")
+        X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
+        y_pred = modelo.predict(X_teste)
         cm = confusion_matrix(y_teste, y_pred)
         fig, ax = plt.subplots(figsize=(10, 6))
         sns.heatmap(cm, annot=True, fmt='d', ax=ax,
