@@ -183,7 +183,7 @@ def main():
     st.pyplot(fig2)
     
     # Área de previsão com destaque
-    st.subheader("PREVISÃO DE FAIXA DE PREÇO")
+    st.subheader("PREVISÃO DE PREÇO")
     col1, col2 = st.columns([2, 1])
     
     with col2:
