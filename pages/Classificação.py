@@ -93,6 +93,21 @@ def main():
     tipo = st.sidebar.selectbox("Tipo", dados['tipo'].unique())
     transmissao = st.sidebar.selectbox("Transmissão", dados['transmissão'].unique())
     
+    if st.sidebar.button("Prever Faixa de Preço", use_container_width=True):
+        dados_entrada = pd.DataFrame({
+            'marca': [marca],
+            'modelo': [modelo],
+            'ano': [ano],
+            'quilometragem': [quilometragem],
+            'combustivel': [combustivel],
+            'car_documents': ['Original'],
+            'tipo': [tipo],
+            'transmissão': [transmissao]
+        })
+        
+        previsao = sistema.prever(dados_entrada)
+        st.sidebar.success(f"Faixa de Preço Prevista: {previsao[0]}")
+    
     # Área de visualização
     st.subheader("DISTRIBUIÇÃO DAS FAIXAS DE PREÇO")
     fig1, ax1 = plt.subplots(figsize=(12, 6))
@@ -121,66 +136,27 @@ def main():
     plt.ylabel('VALOR REAL', fontsize=10, color='black')
     plt.tight_layout()
     st.pyplot(fig2)
-
-    # Botão de previsão com destaque
-    st.markdown("""<style>
-        div.stButton > button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-            border: none;
-            width: 100%;
-        }
-        div.stButton > button:hover {
-            background-color: #45a049;
-        }
-    </style>""", unsafe_allow_html=True)
-
-    if st.button("PREVER FAIXA DE PREÇO", key="prever_button"):
-        # Criar DataFrame com os dados de entrada
-        dados_entrada = pd.DataFrame({
-            'marca': [marca],
-            'modelo': [modelo],
-            'ano': [ano],
-            'quilometragem': [quilometragem],
-            'combustivel': [combustivel],
-            'car_documents': ['Original'],  # Valor padrão
-            'tipo': [tipo],
-            'transmissão': [transmissao]
-        })
-        
-        # Fazer previsão
-        previsao = sistema.prever(dados_entrada)
-        
-        # Exibir resultado com destaque
-        st.markdown("""<style>
-            .prediction-box {
-                background-color: #f0f2f6;
-                border-radius: 10px;
-                padding: 20px;
-                margin: 20px 0;
-                text-align: center;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }
-            .prediction-label {
-                font-size: 24px;
-                font-weight: bold;
-                color: #1f77b4;
-                margin-bottom: 10px;
-            }
-        </style>""", unsafe_allow_html=True)
-        
-        st.markdown(f"""<div class='prediction-box'>
-            <div class='prediction-label'>Faixa de Preço Prevista</div>
-            <h2>{previsao[0]}</h2>
-        </div>""", unsafe_allow_html=True)
+    
+    # Área de previsão com destaque
+    st.subheader("PREVISÃO DE FAIXA DE PREÇO")
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        if st.button("REALIZAR PREVISÃO", use_container_width=True):
+            dados_entrada = pd.DataFrame({
+                'marca': [marca],
+                'modelo': [modelo],
+                'ano': [ano],
+                'quilometragem': [quilometragem],
+                'combustivel': [combustivel],
+                'car_documents': ['Original'],
+                'tipo': [tipo],
+                'transmissão': [transmissao]
+            })
+            
+            previsao = sistema.prever(dados_entrada)
+            with col2:
+                st.success(f"Faixa de Preço Prevista:\n{previsao[0]}", icon="✨")
 
 if __name__ == "__main__":
     main()
