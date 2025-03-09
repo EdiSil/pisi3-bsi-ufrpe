@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -161,13 +162,16 @@ class ClusterVisualizer:
                 y=y_col, 
                 hue=hue_col,
                 palette=palette, 
-                s=60, 
+                s=100, 
                 ax=ax, 
-                edgecolor='w', 
+                edgecolor='black', 
                 linewidth=0.5,
-                legend=False
+                alpha=0.7,
+                legend='brief'
             )
 
+            # Add legend with custom title
+            ax.legend(title='Clusters', bbox_to_anchor=(1.05, 1), loc='upper left')
             if x_col == 'preco':
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
             else:
@@ -279,8 +283,9 @@ def main():
                     y_axis = st.selectbox("EIXO Y:", selected_features, index=1,
                                         format_func=lambda x: FEATURE_LABELS[x])
                 
-                palette = sns.color_palette("husl", n_clusters)
-                visualizer.plot_scatter(df, x_axis, y_axis, 'Cluster', palette)
+                # Generate distinct colors for each cluster
+                colors = [f'#{hash(str(i)) % 0xFFFFFF:06x}' for i in range(n_clusters)]
+                visualizer.plot_scatter(df, x_axis, y_axis, 'Cluster', colors)
                 
                 st.subheader("DETALHES DA SILHUETA POR CLUSTER")
                 analyzer.plot_silhouette_analysis(X, labels)
