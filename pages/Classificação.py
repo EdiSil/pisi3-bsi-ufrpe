@@ -20,7 +20,7 @@ class SistemaClassificacaoCarros:
         """Carrega e pré-processa o conjunto de dados de carros"""
         self.dados = pd.read_csv(caminho_arquivo)
         # Criar faixas de preço para classificação
-        faixas_preco = [0, 200.000, 300.000, 400.000, float('inf')]
+        faixas_preco = [0, 200000, 300000, 400000, float('inf')]
         rotulos_preco = ['Econômico', 'Intermediário', 'Premium', 'Luxo']
         self.dados['faixa_preco'] = pd.cut(self.dados['preco'], 
                                         bins=faixas_preco, 
