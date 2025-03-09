@@ -279,30 +279,7 @@ def main():
                     y_axis = st.selectbox("EIXO Y:", selected_features, index=1,
                                         format_func=lambda x: FEATURE_LABELS[x])
                 
-                custom_colors = [
-                    '#0F52BA',  # Azul Safira
-                    '#50C878',  # Verde Esmeralda
-                    '#E0115F',  # Vermelho Rubi
-                    '#FFBF00',  # Amarelo Âmbar
-                    '#9966CC',  # Roxo Ametista
-                    '#B87333',  # Laranja Cobre
-                    '#00FFFF',  # Azul Ciano
-                    '#32CD32',  # Verde Lima
-                    '#FF00FF',  # Rosa Magenta
-                    '#C0C0C0',  # Cinza Prata
-                    '#8B4513',  # Marrom Terra
-                    '#87CEEB',  # Azul Celeste
-                    '#3C341F',  # Verde Musgo
-                    '#DC143C',  # Vermelho Carmesim
-                    '#FFD700',  # Dourado Solar
-                    '#E6E6FA',  # Lilás Lavanda
-                    '#F5DEB3',  # Bege Areia
-                    '#353935',  # Preto Ônix
-                    '#40E0D0',  # Azul Turquesa
-                    '#FFFAFA'   # Branco Neve
-                ]
-                # Use only the number of colors needed for the clusters
-                palette = custom_colors[:n_clusters]
+                palette = sns.color_palette("husl", n_clusters)
                 visualizer.plot_scatter(df, x_axis, y_axis, 'Cluster', palette)
                 
                 st.subheader("DETALHES DA SILHUETA POR CLUSTER")
