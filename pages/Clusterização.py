@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -161,13 +162,16 @@ class ClusterVisualizer:
                 y=y_col, 
                 hue=hue_col,
                 palette=palette, 
-                s=60, 
+                s=100, 
                 ax=ax, 
-                edgecolor='w', 
+                edgecolor='black', 
                 linewidth=0.5,
-                legend=False
+                alpha=0.7,
+                legend='brief'
             )
 
+            # Add legend with custom title
+            ax.legend(title='Clusters', bbox_to_anchor=(1.05, 1), loc='upper left')
             if x_col == 'preco':
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
             else:
