@@ -206,7 +206,7 @@ def main():
         df = pd.read_csv(file_path)
         
         if 'preco' in df.columns:
-            df['preco'] = df['preco'] * 6
+            df['preco'] = df['preco'] * 6 / 1000
         
         st.session_state['data'] = df
         st.success("DADOS CARREGADOS COM SUCESSO!")
