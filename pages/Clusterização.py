@@ -279,7 +279,7 @@ def main():
                     y_axis = st.selectbox("EIXO Y:", selected_features, index=1,
                                         format_func=lambda x: FEATURE_LABELS[x])
                 
-                palette = [(i/n_clusters, 1-i/n_clusters, 0.5+0.5*np.sin(i*np.pi/n_clusters)) for i in range(n_clusters)]
+                palette = sns.color_palette("husl", n_clusters)
                 visualizer.plot_scatter(df, x_axis, y_axis, 'Cluster', palette)
                 
                 st.subheader("DETALHES DA SILHUETA POR CLUSTER")
