@@ -71,14 +71,13 @@ class SistemaClassificacaoCarros:
 
 def main():
     st.set_page_config(page_title="Sistema de Classificação de Preços de Carros", layout="wide")
-    st.title("Sistema de Classificação de Preços")
+    st.title("🚗 Sistema de Classificação de Preços de Carros")
     
     # Inicializar o sistema de classificação
     sistema = SistemaClassificacaoCarros()
     
     # Carregar dados
-    #dados = sistema.carregar_dados('1_Cars_processado.csv')
-    dados = Datas/1_Cars_processado.csv
+    dados = sistema.carregar_dados('Datas/1_Cars_processado.csv')
     
     # Barra lateral para interação do usuário
     st.sidebar.header("Configuração do Modelo")
