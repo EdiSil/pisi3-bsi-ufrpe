@@ -67,7 +67,12 @@ class SistemaClassificacaoCarros:
         
         # Fazer previsão
         previsao = self.modelo.predict(dados_entrada)
-        return self.codificadores[self.coluna_alvo].inverse_transform(previsao)
+        faixa_preco = self.codificadores[self.coluna_alvo].inverse_transform(previsao)[0]
+        
+        # Calcular valor estimado (média da faixa)
+        valor_estimado = self.dados[self.dados['faixa_preco'] == faixa_preco]['preco'].mean()
+        
+        return faixa_preco, valor_estimado
 
 def main():
     st.set_page_config(page_title="Sistema de Classificação de Preços de Carros", layout="wide")
@@ -139,9 +144,13 @@ def main():
                 'transmissão': [transmissao]
             })
             
-            previsao = sistema.prever(dados_entrada)
+            previsao, valor_estimado = sistema.prever(dados_entrada)
             with col2:
-                st.success(f"Faixa de Preço Prevista:\n{previsao[0]}", icon="✨")
+                st.success(
+                    f"Faixa de Preço Prevista: {previsao}\n\n" +
+                    f"Valor Estimado: R$ {valor_estimado:,.2f}",
+                    icon="✨"
+                )
 
 if __name__ == "__main__":
     main()
