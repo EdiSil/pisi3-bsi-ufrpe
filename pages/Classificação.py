@@ -48,6 +48,23 @@ class SistemaClassificacaoCarros:
         
         return X, y
     
+    def preprocessar_dados_filtrados(self, dados_filtrados):
+        """Prepara os dados filtrados para previsão"""
+        # Selecionar características para classificação
+        caracteristicas = ['marca', 'modelo', 'ano', 'quilometragem', 'combustivel',
+                        'car_documents', 'tipo', 'transmissão']
+        
+        # Codificar variáveis categóricas
+        X = dados_filtrados[caracteristicas].copy()
+        for coluna in X.select_dtypes(include=['object']):
+            X[coluna] = self.codificadores[coluna].transform(X[coluna])
+        
+        # Normalizar características numéricas
+        caracteristicas_numericas = ['ano', 'quilometragem']
+        X[caracteristicas_numericas] = self.normalizador.transform(X[caracteristicas_numericas])
+        
+        return X
+    
     def treinar_modelo(self, X, y):
         """Treina o classificador Random Forest"""
         self.modelo = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -98,19 +115,55 @@ def main():
     tipo = st.sidebar.selectbox("Tipo", dados['tipo'].unique())
     transmissao = st.sidebar.selectbox("Transmissão", dados['transmissão'].unique())
     
+    # Criar DataFrame com os dados de entrada
+    dados_entrada = pd.DataFrame({
+        'marca': [marca],
+        'modelo': [modelo],
+        'ano': [ano],
+        'quilometragem': [quilometragem],
+        'combustivel': [combustivel],
+        'car_documents': ['Original'],
+        'tipo': [tipo],
+        'transmissão': [transmissao]
+    })
+    
+    # Fazer previsão
+    previsao, valor_estimado = sistema.prever(dados_entrada)
+    
     # Área de visualização
     st.subheader("DISTRIBUIÇÃO DAS FAIXAS DE PREÇO")
     fig1, ax1 = plt.subplots(figsize=(12, 6))
-    dados['faixa_preco'].value_counts().plot(kind='bar')
+    
+    # Filtrar dados baseado nos parâmetros selecionados
+    dados_filtrados = dados[
+        (dados['marca'] == marca) &
+        (dados['modelo'] == modelo) &
+        (dados['combustivel'] == combustivel) &
+        (dados['tipo'] == tipo) &
+        (dados['transmissão'] == transmissao)
+    ]
+    
+    if not dados_filtrados.empty:
+        dados_filtrados['faixa_preco'].value_counts().plot(kind='bar')
+    else:
+        dados['faixa_preco'].value_counts().plot(kind='bar')
+    
     plt.title('DISTRIBUIÇÃO DAS FAIXAS DE PREÇO DOS CARROS', fontsize=12, pad=20, color='black')
     plt.xlabel('FAIXA DE PREÇO', fontsize=10, color='black')
-    plt.ylabel('QUANTIDADE DESPONÍVEL', fontsize=10, color='black')
+    plt.ylabel('QUANTIDADE DE CARROS', fontsize=10, color='black')
     plt.xticks(rotation=45)
     plt.tight_layout()
     st.pyplot(fig1)
     
     st.subheader("MATRIZ DE CONFUSÃO DO MODELO")
-    X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Atualizar matriz de confusão com base nos dados filtrados
+    if not dados_filtrados.empty:
+        X_filtrado = sistema.preprocessar_dados_filtrados(dados_filtrados)
+        y_filtrado = sistema.codificadores[sistema.coluna_alvo].transform(dados_filtrados[sistema.coluna_alvo])
+        X_treino, X_teste, y_treino, y_teste = train_test_split(X_filtrado, y_filtrado, test_size=0.2, random_state=42)
+    else:
+        X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
+    
     y_pred = sistema.modelo.predict(X_teste)
     cm = confusion_matrix(y_teste, y_pred)
     
@@ -131,26 +184,12 @@ def main():
     st.subheader("PREVISÃO DE FAIXA DE PREÇO")
     col1, col2 = st.columns([2, 1])
     
-    with col1:
-        if st.button("REALIZAR PREVISÃO", use_container_width=True):
-            dados_entrada = pd.DataFrame({
-                'marca': [marca],
-                'modelo': [modelo],
-                'ano': [ano],
-                'quilometragem': [quilometragem],
-                'combustivel': [combustivel],
-                'car_documents': ['Original'],
-                'tipo': [tipo],
-                'transmissão': [transmissao]
-            })
-            
-            previsao, valor_estimado = sistema.prever(dados_entrada)
-            with col2:
-                st.success(
-                    f"Faixa de Preço Prevista: {previsao}\n\n" +
-                    f"Valor Estimado: R$ {valor_estimado:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'),
-                    icon="✨"
-                )
+    with col2:
+        st.success(
+            f"Faixa de Preço Prevista: {previsao}\n\n" +
+            f"Valor Estimado: R$ {valor_estimado:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'),
+            icon="✨"
+        )
 
 if __name__ == "__main__":
     main()
