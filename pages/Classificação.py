@@ -71,7 +71,7 @@ class SistemaClassificacaoCarros:
 
 def main():
     st.set_page_config(page_title="Sistema de Classificação de Preços de Carros", layout="wide")
-    st.title("Sistema de Classificação de Preços")
+    st.title("🚗 Sistema de Classificação de Preços de Carros")
     
     # Inicializar o sistema de classificação
     sistema = SistemaClassificacaoCarros()
@@ -81,7 +81,7 @@ def main():
     
     # Treinar modelo
     X, y = sistema.preprocessar_dados()
-    modelo = sistema.treinar_modelo(X, y)
+    sistema.treinar_modelo(X, y)
     
     # Interface do usuário
     st.sidebar.header("Previsão de Faixa de Preço")
@@ -124,7 +124,7 @@ def main():
     with col2:
         st.subheader("Matriz de Confusão do Modelo")
         X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
-        y_pred = modelo.predict(X_teste)
+        y_pred = sistema.modelo.predict(X_teste)
         cm = confusion_matrix(y_teste, y_pred)
         fig, ax = plt.subplots(figsize=(10, 6))
         sns.heatmap(cm, annot=True, fmt='d', ax=ax,
