@@ -71,7 +71,7 @@ class SistemaClassificacaoCarros:
 
 def main():
     st.set_page_config(page_title="Sistema de Classificação de Preços de Carros", layout="wide")
-    st.title("🚗 Sistema de Classificação de Preços de Carros")
+    st.title("Sistema de Classificação de Preços")
     
     # Inicializar o sistema de classificação
     sistema = SistemaClassificacaoCarros()
