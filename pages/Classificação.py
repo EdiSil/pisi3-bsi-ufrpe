@@ -77,7 +77,8 @@ def main():
     sistema = SistemaClassificacaoCarros()
     
     # Carregar dados
-    dados = sistema.carregar_dados('1_Cars_processado.csv')
+    #dados = sistema.carregar_dados('1_Cars_processado.csv')
+    dados = Datas/1_Cars_processado.csv
     
     # Barra lateral para interação do usuário
     st.sidebar.header("Configuração do Modelo")
