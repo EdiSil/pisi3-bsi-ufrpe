@@ -71,7 +71,7 @@ class SistemaClassificacaoCarros:
 
 def main():
     st.set_page_config(page_title="Sistema de Classificação de Preços de Carros", layout="wide")
-    st.title("Sistema de Classificação de Preços")
+    st.title("🚗 Sistema de Classificação de Preços de Carros")
     
     # Inicializar o sistema de classificação
     sistema = SistemaClassificacaoCarros()
@@ -127,9 +127,12 @@ def main():
     cm = confusion_matrix(y_teste, y_pred)
     
     fig2, ax2 = plt.subplots(figsize=(12, 8))
-    sns.heatmap(cm, annot=True, fmt='d', ax=ax2, cmap='Blues',
+    vmin = cm.min().min()
+    vmax = cm.max().max()
+    sns.heatmap(cm, annot=True, fmt='d', ax=ax2, cmap='YlOrRd',
                 xticklabels=sistema.codificadores[sistema.coluna_alvo].classes_,
-                yticklabels=sistema.codificadores[sistema.coluna_alvo].classes_)
+                yticklabels=sistema.codificadores[sistema.coluna_alvo].classes_,
+                vmin=vmin, vmax=vmax)
     plt.title('Matriz de Confusão', fontsize=12, pad=20)
     plt.xlabel('Previsão', fontsize=10)
     plt.ylabel('Valor Real', fontsize=10)
