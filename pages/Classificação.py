@@ -110,28 +110,31 @@ def main():
         st.sidebar.success(f"Faixa de Preço Prevista: {previsao[0]}")
     
     # Área de visualização
-    col1, col2 = st.columns(2)
+    # Área de visualização
+    st.subheader("Distribuição das Faixas de Preço")
+    fig1, ax1 = plt.subplots(figsize=(12, 6))
+    dados['faixa_preco'].value_counts().plot(kind='bar')
+    plt.title('Distribuição das Faixas de Preço dos Carros', fontsize=12, pad=20)
+    plt.xlabel('Faixa de Preço', fontsize=10)
+    plt.ylabel('Quantidade', fontsize=10)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    st.pyplot(fig1)
     
-    with col1:
-        st.subheader("Distribuição das Faixas de Preço")
-        fig, ax = plt.subplots(figsize=(10, 6))
-        dados['faixa_preco'].value_counts().plot(kind='bar')
-        plt.title('Distribuição das Faixas de Preço dos Carros')
-        plt.xlabel('Faixa de Preço')
-        plt.ylabel('Quantidade')
-        st.pyplot(fig)
+    st.subheader("Matriz de Confusão do Modelo")
+    X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
+    y_pred = sistema.modelo.predict(X_teste)
+    cm = confusion_matrix(y_teste, y_pred)
     
-    with col2:
-        st.subheader("Matriz de Confusão do Modelo")
-        X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
-        y_pred = sistema.modelo.predict(X_teste)
-        cm = confusion_matrix(y_teste, y_pred)
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.heatmap(cm, annot=True, fmt='d', ax=ax,
-                    xticklabels=sistema.codificadores[sistema.coluna_alvo].classes_,
-                    yticklabels=sistema.codificadores[sistema.coluna_alvo].classes_)
-        plt.title('Matriz de Confusão')
-        st.pyplot(fig)
+    fig2, ax2 = plt.subplots(figsize=(12, 8))
+    sns.heatmap(cm, annot=True, fmt='d', ax=ax2, cmap='Blues',
+                xticklabels=sistema.codificadores[sistema.coluna_alvo].classes_,
+                yticklabels=sistema.codificadores[sistema.coluna_alvo].classes_)
+    plt.title('Matriz de Confusão', fontsize=12, pad=20)
+    plt.xlabel('Previsão', fontsize=10)
+    plt.ylabel('Valor Real', fontsize=10)
+    plt.tight_layout()
+    st.pyplot(fig2)
 
 if __name__ == "__main__":
     main()
