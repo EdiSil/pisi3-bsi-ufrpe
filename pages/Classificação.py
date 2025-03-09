@@ -71,7 +71,7 @@ class SistemaClassificacaoCarros:
 
 def main():
     st.set_page_config(page_title="Sistema de Classificação de Preços de Carros", layout="wide")
-    st.title("🚗 Sistema de Classificação de Preços de Carros")
+    st.title("Sistema de Classificação de Preços")
     
     # Inicializar o sistema de classificação
     sistema = SistemaClassificacaoCarros()
@@ -90,7 +90,6 @@ def main():
     ano = st.sidebar.number_input("Ano", min_value=2000, max_value=2023, value=2020)
     quilometragem = st.sidebar.number_input("Quilometragem", min_value=0, value=50000)
     combustivel = st.sidebar.selectbox("Tipo de Combustível", dados['combustivel'].unique())
-    car_documents = st.sidebar.selectbox("Documentação", dados['car_documents'].unique())
     tipo = st.sidebar.selectbox("Tipo", dados['tipo'].unique())
     transmissao = st.sidebar.selectbox("Transmissão", dados['transmissão'].unique())
     
@@ -101,7 +100,7 @@ def main():
             'ano': [ano],
             'quilometragem': [quilometragem],
             'combustivel': [combustivel],
-            'car_documents': [car_documents],
+            'car_documents': ['Original'],
             'tipo': [tipo],
             'transmissão': [transmissao]
         })
