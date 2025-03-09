@@ -157,15 +157,17 @@ def main():
     
     st.subheader("MATRIZ DE CONFUSÃO DO MODELO")
     # Atualizar matriz de confusão com base nos dados filtrados
-    if not dados_filtrados.empty:
+    if not dados_filtrados.empty and len(dados_filtrados) > 5:  # Ensure enough samples for splitting
         X_filtrado = sistema.preprocessar_dados_filtrados(dados_filtrados)
         y_filtrado = sistema.codificadores[sistema.coluna_alvo].transform(dados_filtrados[sistema.coluna_alvo])
         X_treino, X_teste, y_treino, y_teste = train_test_split(X_filtrado, y_filtrado, test_size=0.2, random_state=42)
+        y_pred = sistema.modelo.predict(X_teste)
+        cm = confusion_matrix(y_teste, y_pred)
     else:
+        # Use the full dataset if filtered data is insufficient
         X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    y_pred = sistema.modelo.predict(X_teste)
-    cm = confusion_matrix(y_teste, y_pred)
+        y_pred = sistema.modelo.predict(X_teste)
+        cm = confusion_matrix(y_teste, y_pred)
     
     fig2, ax2 = plt.subplots(figsize=(12, 8))
     vmin = cm.min().min()
