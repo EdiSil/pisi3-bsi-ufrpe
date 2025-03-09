@@ -111,17 +111,17 @@ def main():
     
     # Área de visualização
     # Área de visualização
-    st.subheader("Distribuição das Faixas de Preço")
+    st.subheader("DISTRIBUIÇÃO DAS FAIXAS DE PREÇO")
     fig1, ax1 = plt.subplots(figsize=(12, 6))
     dados['faixa_preco'].value_counts().plot(kind='bar')
-    plt.title('Distribuição das Faixas de Preço dos Carros', fontsize=12, pad=20)
-    plt.xlabel('Faixa de Preço', fontsize=10)
-    plt.ylabel('Quantidade', fontsize=10)
+    plt.title('DISTRIBUIÇÃO DAS FAIXAS DE PREÇO DOS CARROS', fontsize=12, pad=20, color='black')
+    plt.xlabel('FAIXA DE PREÇO', fontsize=10, color='black')
+    plt.ylabel('QUANTIDADE', fontsize=10, color='black')
     plt.xticks(rotation=45)
     plt.tight_layout()
     st.pyplot(fig1)
     
-    st.subheader("Matriz de Confusão do Modelo")
+    st.subheader("MATRIZ DE CONFUSÃO DO MODELO")
     X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
     y_pred = sistema.modelo.predict(X_teste)
     cm = confusion_matrix(y_teste, y_pred)
@@ -133,9 +133,9 @@ def main():
                 xticklabels=sistema.codificadores[sistema.coluna_alvo].classes_,
                 yticklabels=sistema.codificadores[sistema.coluna_alvo].classes_,
                 vmin=vmin, vmax=vmax)
-    plt.title('Matriz de Confusão', fontsize=12, pad=20)
-    plt.xlabel('Previsão', fontsize=10)
-    plt.ylabel('Valor Real', fontsize=10)
+    plt.title('MATRIZ DE CONFUSÃO', fontsize=12, pad=20, color='black')
+    plt.xlabel('PREVISÃO', fontsize=10, color='black')
+    plt.ylabel('VALOR REAL', fontsize=10, color='black')
     plt.tight_layout()
     st.pyplot(fig2)
 
