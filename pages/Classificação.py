@@ -104,7 +104,7 @@ def main():
     dados['faixa_preco'].value_counts().plot(kind='bar')
     plt.title('DISTRIBUIÇÃO DAS FAIXAS DE PREÇO DOS CARROS', fontsize=12, pad=20, color='black')
     plt.xlabel('FAIXA DE PREÇO', fontsize=10, color='black')
-    plt.ylabel('QUANTIDADE', fontsize=10, color='black')
+    plt.ylabel('VALOR ESTIMADO', fontsize=10, color='black')
     plt.xticks(rotation=45)
     plt.tight_layout()
     st.pyplot(fig1)
@@ -148,7 +148,7 @@ def main():
             with col2:
                 st.success(
                     f"Faixa de Preço Prevista: {previsao}\n\n" +
-                    f"Valor Estimado: R$ {valor_estimado:,.2f}",
+                    f"Valor Estimado: R$ {valor_estimado:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'),
                     icon="✨"
                 )
 
