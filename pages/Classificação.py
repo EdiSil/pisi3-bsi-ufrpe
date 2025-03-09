@@ -20,7 +20,7 @@ class SistemaClassificacaoCarros:
         """Carrega e pré-processa o conjunto de dados de carros"""
         self.dados = pd.read_csv(caminho_arquivo)
         # Criar faixas de preço para classificação
-        faixas_preco = [0, 200000, 300000, 400000, float('inf')]
+        faixas_preco = [0, 200.000, 300.000, 400.000, float('inf')]
         rotulos_preco = ['Econômico', 'Intermediário', 'Premium', 'Luxo']
         self.dados['faixa_preco'] = pd.cut(self.dados['preco'], 
                                         bins=faixas_preco, 
@@ -104,7 +104,7 @@ def main():
     dados['faixa_preco'].value_counts().plot(kind='bar')
     plt.title('DISTRIBUIÇÃO DAS FAIXAS DE PREÇO DOS CARROS', fontsize=12, pad=20, color='black')
     plt.xlabel('FAIXA DE PREÇO', fontsize=10, color='black')
-    plt.ylabel('VALOR ESTIMADO', fontsize=10, color='black')
+    plt.ylabel('QUANTIDADE', fontsize=10, color='black')
     plt.xticks(rotation=45)
     plt.tight_layout()
     st.pyplot(fig1)
