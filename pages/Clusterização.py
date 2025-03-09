@@ -116,7 +116,7 @@ class ClusterVisualizer:
         return f'{x:,.0f}'.replace(",", ".")
 
     def format_reais(self, x, pos):
-        return f' {x:,.0f}'.replace(",", ".")
+        return f' {x * 6000:,.0f}'.replace(",", ".")
 
     def plot_elbow(self, inertia, max_clusters):
         try:
