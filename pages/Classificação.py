@@ -71,7 +71,7 @@ class SistemaClassificacaoCarros:
 
 def main():
     st.set_page_config(page_title="Sistema de Classificação de Preços de Carros", layout="wide")
-    st.title("Sistema de Classificação de Preços")
+    st.title("🚗 Sistema de Classificação de Preços de Carros")
     
     # Inicializar o sistema de classificação
     sistema = SistemaClassificacaoCarros()
@@ -93,22 +93,6 @@ def main():
     tipo = st.sidebar.selectbox("Tipo", dados['tipo'].unique())
     transmissao = st.sidebar.selectbox("Transmissão", dados['transmissão'].unique())
     
-    if st.sidebar.button("Prever Faixa de Preço", use_container_width=True):
-        dados_entrada = pd.DataFrame({
-            'marca': [marca],
-            'modelo': [modelo],
-            'ano': [ano],
-            'quilometragem': [quilometragem],
-            'combustivel': [combustivel],
-            'car_documents': ['Original'],
-            'tipo': [tipo],
-            'transmissão': [transmissao]
-        })
-        
-        previsao = sistema.prever(dados_entrada)
-        st.sidebar.success(f"Faixa de Preço Prevista: {previsao[0]}")
-    
-    # Área de visualização
     # Área de visualização
     st.subheader("DISTRIBUIÇÃO DAS FAIXAS DE PREÇO")
     fig1, ax1 = plt.subplots(figsize=(12, 6))
