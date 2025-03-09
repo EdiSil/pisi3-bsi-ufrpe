@@ -26,7 +26,7 @@ class CarClusterAnalysis:
         self.features = None
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (R$)',
+            'preco': 'PREÇO (USD)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -106,7 +106,7 @@ class ClusterVisualizer:
     def __init__(self):
         self.LABEL_MAP = {
             'quilometragem': 'QUILOMETRAGEM (Km)',
-            'preco': 'PREÇO (R$)',
+            'preco': 'PREÇO (USD)',
             'ano': 'ANO DE FABRICAÇÃO',
             'full_range': 'AUTONOMIA (Km)',
             'Car Age': 'IDADE DO VEÍCULO (Anos)'
@@ -116,7 +116,7 @@ class ClusterVisualizer:
         return f'{x:,.0f}'.replace(",", ".")
 
     def format_reais(self, x, pos):
-        return f' {x * 6000:,.0f}'.replace(",", ".")
+        return f' {x:,.0f}'.replace(",", ".")
 
     def plot_elbow(self, inertia, max_clusters):
         try:
@@ -152,6 +152,7 @@ class ClusterVisualizer:
             st.error(f"ERRO AO PLOTAR SCORES DE SILHUETA: {e}")
 
     def plot_scatter(self, data, x_col, y_col, hue_col, palette):
+        """Gráfico de dispersão com valores em milhares"""
         try:
             fig, ax = plt.subplots(figsize=(10, 6))
             
@@ -168,6 +169,7 @@ class ClusterVisualizer:
                 legend=False
             )
 
+            # Configuração dos formatadores
             if x_col == 'preco':
                 ax.xaxis.set_major_formatter(mticker.FuncFormatter(self.format_reais))
             else:
@@ -205,6 +207,7 @@ def main():
     try:
         df = pd.read_csv(file_path)
         
+        # Converter preço para milhares
         if 'preco' in df.columns:
             df['preco'] = df['preco'] / 1000
         
