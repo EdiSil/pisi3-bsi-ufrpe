@@ -131,7 +131,7 @@ def main():
     if input_file is not None:
         input_file_path = input_file.name
     else:
-        input_file_path = os.path.join(os.path.expanduser('~'), 'Desktop', '03_Cars_predictions.csv')
+        input_file_path = os.path.join('Datas', '3_Cars_predictions.csv')
 
     # Instância da classe ModelEvaluation
     evaluator = ModelEvaluation(input_file_path, target_column='Cluster')
