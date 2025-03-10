@@ -171,7 +171,7 @@ class AvaliacaoModelos:
 
 def main():
     st.set_page_config(page_title="Avaliação de Modelos de Machine Learning", layout="wide")
-    st.title("Sistema de Avaliação de Modelos de Machine Learning")
+    st.title("Sistema de Avaliação dos Modelos de Machine Learning")
 
     # Instância da classe AvaliacaoModelos
     caminho_arquivo_entrada = os.path.join('Datas', '3_Cars_predictions.csv')
