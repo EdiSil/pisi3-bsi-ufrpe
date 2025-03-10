@@ -10,49 +10,49 @@ import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-class ModelEvaluation:
-    def __init__(self, file_path, target_column):
+class AvaliacaoModelos:
+    def __init__(self, caminho_arquivo, coluna_alvo):
         """Inicializa o pipeline de avaliação de modelos."""
-        self.file_path = file_path
-        self.target_column = target_column
-        self.data = None
-        self.features = None
-        self.target = None
-        self.results = []
-        self.models = {}
+        self.caminho_arquivo = caminho_arquivo
+        self.coluna_alvo = coluna_alvo
+        self.dados = None
+        self.caracteristicas = None
+        self.alvo = None
+        self.resultados = []
+        self.modelos = {}
 
-    def load_data(self):
-        """Carrega o dataset."""
+    def carregar_dados(self):
+        """Carrega o conjunto de dados."""
         try:
-            self.data = pd.read_csv(self.file_path)
+            self.dados = pd.read_csv(self.caminho_arquivo)
             st.success("Dados carregados com sucesso.")
             return True
         except FileNotFoundError:
-            st.error(f"Erro: O arquivo {self.file_path} não foi encontrado.")
+            st.error(f"Erro: O arquivo {self.caminho_arquivo} não foi encontrado.")
             return False
         except Exception as e:
             st.error(f"Erro ao carregar os dados: {e}")
             return False
 
-    def prepare_data(self, feature_columns):
+    def preparar_dados(self, colunas_caracteristicas):
         """Prepara os dados para treinamento e teste."""
-        if self.data is not None:
-            # Create a copy of the data to avoid modifying the original
-            self.features = self.data[feature_columns].copy()
+        if self.dados is not None:
+            # Criar uma cópia dos dados para evitar modificar o original
+            self.caracteristicas = self.dados[colunas_caracteristicas].copy()
             
-            # Convert categorical columns to numeric using one-hot encoding
-            categorical_columns = self.features.select_dtypes(include=['object']).columns
-            if not categorical_columns.empty:
-                self.features = pd.get_dummies(self.features, columns=categorical_columns)
+            # Converter colunas categóricas para numéricas usando codificação one-hot
+            colunas_categoricas = self.caracteristicas.select_dtypes(include=['object']).columns
+            if not colunas_categoricas.empty:
+                self.caracteristicas = pd.get_dummies(self.caracteristicas, columns=colunas_categoricas)
             
-            # Handle missing values
-            self.features = self.features.fillna(self.features.mean())
+            # Tratar valores ausentes
+            self.caracteristicas = self.caracteristicas.fillna(self.caracteristicas.mean())
             
-            # Ensure all data is numeric
-            self.features = self.features.astype(float)
+            # Garantir que todos os dados sejam numéricos
+            self.caracteristicas = self.caracteristicas.astype(float)
             
-            # Prepare target variable
-            self.target = self.data[self.target_column].astype(int)
+            # Preparar variável alvo
+            self.alvo = self.dados[self.coluna_alvo].astype(int)
             
             st.success("Dados preparados para treinamento e teste.")
             return True
@@ -60,139 +60,139 @@ class ModelEvaluation:
             st.error("Erro: Os dados não foram carregados.")
             return False
 
-    def train_evaluate(self, model, model_name):
+    def treinar_avaliar(self, modelo, nome_modelo):
         """Treina e avalia um modelo específico."""
-        if self.features is not None and self.target is not None:
-            X_train, X_test, y_train, y_test = train_test_split(
-                self.features, self.target, test_size=0.3, random_state=42
+        if self.caracteristicas is not None and self.alvo is not None:
+            X_treino, X_teste, y_treino, y_teste = train_test_split(
+                self.caracteristicas, self.alvo, test_size=0.3, random_state=42
             )
 
             # Treinamento do modelo
-            model.fit(X_train, y_train)
-            predictions = model.predict(X_test)
-            self.models[model_name] = model
+            modelo.fit(X_treino, y_treino)
+            previsoes = modelo.predict(X_teste)
+            self.modelos[nome_modelo] = modelo
 
             # Avaliação do modelo
-            report = classification_report(y_test, predictions, output_dict=True)
-            accuracy = accuracy_score(y_test, predictions)
-            conf_matrix = confusion_matrix(y_test, predictions)
+            relatorio = classification_report(y_teste, previsoes, output_dict=True)
+            acuracia = accuracy_score(y_teste, previsoes)
+            matriz_confusao = confusion_matrix(y_teste, previsoes)
 
-            self.results.append({
-                'Model': model_name,
-                'Metrics': report,
-                'Accuracy': accuracy,
-                'Confusion_Matrix': conf_matrix,
-                'Test_Data': (X_test, y_test)
+            self.resultados.append({
+                'Modelo': nome_modelo,
+                'Metricas': relatorio,
+                'Acuracia': acuracia,
+                'Matriz_Confusao': matriz_confusao,
+                'Dados_Teste': (X_teste, y_teste)
             })
-            st.success(f"Modelo {model_name} avaliado com sucesso.")
+            st.success(f"Modelo {nome_modelo} avaliado com sucesso.")
             return True
         else:
             st.error("Erro: Os dados não foram preparados para treinamento.")
             return False
 
-    def plot_confusion_matrix(self, model_name):
+    def plotar_matriz_confusao(self, nome_modelo):
         """Plota a matriz de confusão para um modelo específico."""
-        for result in self.results:
-            if result['Model'] == model_name:
+        for resultado in self.resultados:
+            if resultado['Modelo'] == nome_modelo:
                 plt.figure(figsize=(8, 6))
-                cm = result['Confusion_Matrix']
+                mc = resultado['Matriz_Confusao']
                 vmin = 0
-                vmax = cm.max().max()
-                sns.heatmap(cm, annot=True, fmt='d', cmap='YlOrRd', vmin=vmin, vmax=vmax)
-                plt.title(f'Matriz de Confusão - {model_name}')
+                vmax = mc.max().max()
+                sns.heatmap(mc, annot=True, fmt='d', cmap='YlOrRd', vmin=vmin, vmax=vmax)
+                plt.title(f'Matriz de Confusão - {nome_modelo}')
                 plt.ylabel('Real')
-                plt.xlabel('Predito')
+                plt.xlabel('Previsto')
                 st.pyplot(plt)
                 plt.close()
 
-    def plot_feature_importance(self, model_name):
-        """Plota a importância das features para modelos que suportam esta funcionalidade."""
-        if model_name in self.models:
-            model = self.models[model_name]
-            if hasattr(model, 'feature_importances_'):
-                importances = model.feature_importances_
-                feature_names = self.features.columns
+    def plotar_importancia_caracteristicas(self, nome_modelo):
+        """Plota a importância das características para modelos que suportam esta funcionalidade."""
+        if nome_modelo in self.modelos:
+            modelo = self.modelos[nome_modelo]
+            if hasattr(modelo, 'feature_importances_'):
+                importancias = modelo.feature_importances_
+                nomes_caracteristicas = self.caracteristicas.columns
                 
                 plt.figure(figsize=(10, 6))
-                sns.barplot(x=importances, y=feature_names)
-                plt.title(f'Importância dos recursos - {model_name}')
+                sns.barplot(x=importancias, y=nomes_caracteristicas)
+                plt.title(f'Importância das Características - {nome_modelo}')
                 plt.xlabel('Importância')
                 st.pyplot(plt)
                 plt.close()
             else:
-                st.info(f"O modelo {model_name} não suporta visualização de importância de features.")
+                st.info(f"O modelo {nome_modelo} não suporta visualização de importância de características.")
 
-    def display_metrics(self, model_name):
+    def exibir_metricas(self, nome_modelo):
         """Exibe as métricas detalhadas para um modelo específico."""
-        for result in self.results:
-            if result['Model'] == model_name:
-                metrics = result['Metrics']
-                st.write(f"### Métricas Detalhadas - {model_name}")
+        for resultado in self.resultados:
+            if resultado['Modelo'] == nome_modelo:
+                metricas = resultado['Metricas']
+                st.write(f"### Métricas Detalhadas - {nome_modelo}")
                 
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.metric("Acurácia", f"{result['Accuracy']:.3f}")
+                    st.metric("Acurácia", f"{resultado['Acuracia']:.3f}")
                 with col2:
-                    st.metric("Precisão Média", f"{metrics['macro avg']['precision']:.3f}")
+                    st.metric("Precisão Média", f"{metricas['macro avg']['precision']:.3f}")
                 with col3:
-                    st.metric("Recall Médio", f"{metrics['macro avg']['recall']:.3f}")
+                    st.metric("Recall Médio", f"{metricas['macro avg']['recall']:.3f}")
 
 def main():
     st.set_page_config(page_title="Avaliação de Modelos de Machine Learning", layout="wide")
     st.title("Sistema de Avaliação de Modelos de Machine Learning")
 
-    # Instância da classe ModelEvaluation
-    input_file_path = os.path.join('Datas', '3_Cars_predictions.csv')
-    evaluator = ModelEvaluation(input_file_path, target_column='Cluster')
+    # Instância da classe AvaliacaoModelos
+    caminho_arquivo_entrada = os.path.join('Datas', '3_Cars_predictions.csv')
+    avaliador = AvaliacaoModelos(caminho_arquivo_entrada, coluna_alvo='Cluster')
 
     # Carregar e preparar dados
-    if evaluator.load_data():
-        # Seleção de features
-        all_features = evaluator.data.columns.tolist()
-        selected_features = st.sidebar.multiselect(
-            "Selecione os Recursos",
-            all_features,
+    if avaliador.carregar_dados():
+        # Seleção de características
+        todas_caracteristicas = avaliador.dados.columns.tolist()
+        caracteristicas_selecionadas = st.sidebar.multiselect(
+            "Selecione as Características",
+            todas_caracteristicas,
             default=['quilometragem', 'Car Age', 'Cluster']
         )
 
-        if selected_features:
-            if evaluator.prepare_data(selected_features):
+        if caracteristicas_selecionadas:
+            if avaliador.preparar_dados(caracteristicas_selecionadas):
                 # Configurações dos modelos
                 st.sidebar.header("Configurações dos Modelos")
                 
                 # Seleção do modelo
-                model_options = {
+                opcoes_modelos = {
                     "SVM": SVC(),
                     "Random Forest": RandomForestClassifier(),
                     "KNN": KNeighborsClassifier(),
                     "Gradient Boosting": GradientBoostingClassifier()
                 }
                 
-                selected_model = st.sidebar.selectbox(
+                modelo_selecionado = st.sidebar.selectbox(
                     "Selecione o Modelo",
-                    list(model_options.keys())
+                    list(opcoes_modelos.keys())
                 )
 
                 # Treinamento e avaliação do modelo selecionado
                 if st.sidebar.button("Treinar e Avaliar Modelo"):
-                    with st.spinner(f"Treinando {selected_model}..."):
-                        model = model_options[selected_model]
-                        evaluator.train_evaluate(model, selected_model)
+                    with st.spinner(f"Treinando {modelo_selecionado}..."):
+                        modelo = opcoes_modelos[modelo_selecionado]
+                        avaliador.treinar_avaliar(modelo, modelo_selecionado)
 
                 # Visualização dos resultados
-                if evaluator.results:
-                    st.header(f"Resultados da Avaliação do Modelo {selected_model}")
+                if avaliador.resultados:
+                    st.header(f"Resultados da Avaliação do Modelo {modelo_selecionado}")
                     
                     # Métricas detalhadas
-                    evaluator.display_metrics(selected_model)
+                    avaliador.exibir_metricas(modelo_selecionado)
                     
                     # Matriz de Confusão
                     st.subheader("Matriz de Confusão")
-                    evaluator.plot_confusion_matrix(selected_model)
+                    avaliador.plotar_matriz_confusao(modelo_selecionado)
                     
-                    # Importância das Features
-                    st.subheader("Importância dos recursos")
-                    evaluator.plot_feature_importance(selected_model)
+                    # Importância das Características
+                    st.subheader("Importância das Características")
+                    avaliador.plotar_importancia_caracteristicas(modelo_selecionado)
 
 if __name__ == "__main__":
     main()
