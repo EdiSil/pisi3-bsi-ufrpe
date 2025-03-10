@@ -112,7 +112,7 @@ class ModelEvaluation:
                 
                 plt.figure(figsize=(10, 6))
                 sns.barplot(x=importances, y=feature_names)
-                plt.title(f'Importância das Features - {model_name}')
+                plt.title(f'Importância dos recursos - {model_name}')
                 plt.xlabel('Importância')
                 st.pyplot(plt)
                 plt.close()
@@ -204,7 +204,7 @@ def main():
                         evaluator.plot_confusion_matrix(model_name)
                         
                         # Importância das Features
-                        st.write("### Importância das Features")
+                        st.write("### Importância dos recursos")
                         evaluator.plot_feature_importance(model_name)
                         
                         st.markdown("---")
@@ -219,7 +219,7 @@ def main():
                         st.subheader("Matriz de Confusão")
                         evaluator.plot_confusion_matrix(selected_model)
                     with col2:
-                        st.subheader("Importância das Features")
+                        st.subheader("Importância dos recursos")
                         evaluator.plot_feature_importance(selected_model)
 
                     # Métricas detalhadas
