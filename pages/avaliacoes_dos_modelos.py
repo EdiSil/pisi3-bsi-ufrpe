@@ -111,8 +111,8 @@ class AvaliacaoModelos:
             modelo = self.modelos[nome_modelo]
             nomes_caracteristicas = self.caracteristicas.columns
             
-            if isinstance(modelo, SVC):
-                # Usar permutation importance para SVM
+            # Para SVM e KNN, usar permutation importance
+            if isinstance(modelo, (SVC, KNeighborsClassifier)):
                 from sklearn.inspection import permutation_importance
                 resultado = None
                 for res in self.resultados:
