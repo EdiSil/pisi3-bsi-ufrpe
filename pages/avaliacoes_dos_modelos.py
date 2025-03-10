@@ -9,6 +9,7 @@ from sklearn.metrics import classification_report, accuracy_score, confusion_mat
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.inspection import permutation_importance
 
 class AvaliacaoModelos:
     def __init__(self, caminho_arquivo, coluna_alvo):
@@ -106,35 +107,34 @@ class AvaliacaoModelos:
                 plt.close()
 
     def plotar_importancia_caracteristicas(self, nome_modelo):
-        """Plota a importância das características para todos os modelos usando técnicas apropriadas."""
+        """Plota a importância das características para modelos que suportam esta funcionalidade."""
         if nome_modelo in self.modelos:
             modelo = self.modelos[nome_modelo]
-            nomes_caracteristicas = self.caracteristicas.columns
             
-            # Para SVM e KNN, usar permutation importance
-            if isinstance(modelo, (SVC, KNeighborsClassifier)):
-                from sklearn.inspection import permutation_importance
-                resultado = None
-                for res in self.resultados:
-                    if res['Modelo'] == nome_modelo:
-                        X_teste, y_teste = res['Dados_Teste']
-                        resultado = permutation_importance(
-                            modelo, X_teste, y_teste,
-                            n_repeats=10,
-                            random_state=42
-                        )
-                        break
+            # Encontrar os dados de teste para este modelo
+            dados_teste = None
+            for resultado in self.resultados:
+                if resultado['Modelo'] == nome_modelo:
+                    dados_teste = resultado['Dados_Teste']
+                    break
+            
+            if dados_teste:
+                X_teste, y_teste = dados_teste
                 
-                if resultado is not None:
-                    importancias = resultado.importances_mean
-                    plt.figure(figsize=(10, 6))
-                    sns.barplot(x=importancias, y=nomes_caracteristicas)
-                    plt.title(f'Importância das Características (Permutation) - {nome_modelo}')
-                    plt.xlabel('Importância')
-                    st.pyplot(plt)
-                    plt.close()
-            elif hasattr(modelo, 'feature_importances_'):
-                importancias = modelo.feature_importances_
+                if hasattr(modelo, 'feature_importances_'):
+                    # Usar feature_importances_ para modelos que suportam
+                    importancias = modelo.feature_importances_
+                else:
+                    # Usar permutation importance para modelos como SVM
+                    result = permutation_importance(
+                        modelo, X_teste, y_teste,
+                        n_repeats=10,
+                        random_state=42
+                    )
+                    importancias = result.importances_mean
+                
+                nomes_caracteristicas = self.caracteristicas.columns
+                
                 plt.figure(figsize=(10, 6))
                 sns.barplot(x=importancias, y=nomes_caracteristicas)
                 plt.title(f'Importância das Características - {nome_modelo}')
