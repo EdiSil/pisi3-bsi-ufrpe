@@ -106,13 +106,35 @@ class AvaliacaoModelos:
                 plt.close()
 
     def plotar_importancia_caracteristicas(self, nome_modelo):
-        """Plota a importância das características para modelos que suportam esta funcionalidade."""
+        """Plota a importância das características para todos os modelos usando técnicas apropriadas."""
         if nome_modelo in self.modelos:
             modelo = self.modelos[nome_modelo]
-            if hasattr(modelo, 'feature_importances_'):
-                importancias = modelo.feature_importances_
-                nomes_caracteristicas = self.caracteristicas.columns
+            nomes_caracteristicas = self.caracteristicas.columns
+            
+            if isinstance(modelo, SVC):
+                # Usar permutation importance para SVM
+                from sklearn.inspection import permutation_importance
+                resultado = None
+                for res in self.resultados:
+                    if res['Modelo'] == nome_modelo:
+                        X_teste, y_teste = res['Dados_Teste']
+                        resultado = permutation_importance(
+                            modelo, X_teste, y_teste,
+                            n_repeats=10,
+                            random_state=42
+                        )
+                        break
                 
+                if resultado is not None:
+                    importancias = resultado.importances_mean
+                    plt.figure(figsize=(10, 6))
+                    sns.barplot(x=importancias, y=nomes_caracteristicas)
+                    plt.title(f'Importância das Características (Permutation) - {nome_modelo}')
+                    plt.xlabel('Importância')
+                    st.pyplot(plt)
+                    plt.close()
+            elif hasattr(modelo, 'feature_importances_'):
+                importancias = modelo.feature_importances_
                 plt.figure(figsize=(10, 6))
                 sns.barplot(x=importancias, y=nomes_caracteristicas)
                 plt.title(f'Importância das Características - {nome_modelo}')
@@ -120,7 +142,17 @@ class AvaliacaoModelos:
                 st.pyplot(plt)
                 plt.close()
             else:
-                st.info(f"O modelo {nome_modelo} não suporta visualização de importância de características.")
+                # Usar coeficientes para modelos lineares ou outros métodos alternativos
+                if hasattr(modelo, 'coef_'):
+                    importancias = np.abs(modelo.coef_).mean(axis=0) if len(modelo.coef_.shape) > 1 else np.abs(modelo.coef_)
+                    plt.figure(figsize=(10, 6))
+                    sns.barplot(x=importancias, y=nomes_caracteristicas)
+                    plt.title(f'Importância das Características (Coeficientes) - {nome_modelo}')
+                    plt.xlabel('Importância')
+                    st.pyplot(plt)
+                    plt.close()
+                else:
+                    st.info(f"O modelo {nome_modelo} não suporta visualização de importância de características.")
 
     def exibir_metricas(self, nome_modelo):
         """Exibe as métricas detalhadas para um modelo específico."""
