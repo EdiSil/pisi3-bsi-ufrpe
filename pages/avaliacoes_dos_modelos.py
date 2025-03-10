@@ -6,7 +6,6 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-from imblearn.over_sampling import SMOTE
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -46,17 +45,12 @@ class ModelEvaluation:
             st.error("Erro: Os dados não foram carregados.")
             return False
 
-    def train_evaluate(self, model, model_name, use_smote=False):
+    def train_evaluate(self, model, model_name):
         """Treina e avalia um modelo específico."""
         if self.features is not None and self.target is not None:
             X_train, X_test, y_train, y_test = train_test_split(
                 self.features, self.target, test_size=0.3, random_state=42
             )
-
-            if use_smote:
-                smote = SMOTE(random_state=42)
-                X_train, y_train = smote.fit_resample(X_train, y_train)
-                st.info(f"SMOTE aplicado ao modelo {model_name}.")
 
             # Treinamento do modelo
             model.fit(X_train, y_train)
@@ -156,17 +150,15 @@ def main():
             if evaluator.prepare_data(selected_features):
                 # Configurações dos modelos
                 st.sidebar.header("Configurações dos Modelos")
-                use_smote = st.sidebar.checkbox("Usar SMOTE para balanceamento")
 
                 # Treinamento e avaliação dos modelos
                 if st.sidebar.button("Treinar e Avaliar Modelos"):
                     with st.spinner("Treinando modelos..."):
-                        # Adicionando Gradient Boosting aos modelos existentes
-                        evaluator.train_evaluate(SVC(), "SVM", use_smote)
-                        evaluator.train_evaluate(SVC(), "SVM + SMOTE", True)
-                        evaluator.train_evaluate(RandomForestClassifier(), "Random Forest", use_smote)
-                        evaluator.train_evaluate(KNeighborsClassifier(), "KNN", use_smote)
-                        evaluator.train_evaluate(GradientBoostingClassifier(), "Gradient Boosting", use_smote)
+                        # Treinamento dos diferentes modelos
+                        evaluator.train_evaluate(SVC(), "SVM")
+                        evaluator.train_evaluate(RandomForestClassifier(), "Random Forest")
+                        evaluator.train_evaluate(KNeighborsClassifier(), "KNN")
+                        evaluator.train_evaluate(GradientBoostingClassifier(), "Gradient Boosting")
 
                 # Visualização dos resultados
                 if evaluator.results:
