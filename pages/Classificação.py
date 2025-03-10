@@ -184,7 +184,7 @@ def main():
     
     # Área de previsão com destaque
     st.subheader("PREVISÃO DE PREÇO")
-    col1, col2 = st.columns([2, 1])
+    col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
         st.success(
@@ -192,6 +192,7 @@ def main():
             f"Valor Estimado: R$ {valor_estimado:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'),
             icon="✨"
         )
+        st.markdown("<style>div.stSuccess { text-align: center; }</style>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
