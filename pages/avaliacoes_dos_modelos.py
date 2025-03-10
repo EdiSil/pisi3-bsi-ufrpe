@@ -155,15 +155,45 @@ def main():
                 if st.sidebar.button("Treinar e Avaliar Modelos"):
                     with st.spinner("Treinando modelos..."):
                         # Treinamento dos diferentes modelos
-                        evaluator.train_evaluate(SVC(), "SVM")
-                        evaluator.train_evaluate(RandomForestClassifier(), "Random Forest")
-                        evaluator.train_evaluate(KNeighborsClassifier(), "KNN")
-                        evaluator.train_evaluate(GradientBoostingClassifier(), "Gradient Boosting")
+                        models = [
+                            (SVC(), "SVM"),
+                            (RandomForestClassifier(), "Random Forest"),
+                            (KNeighborsClassifier(), "KNN"),
+                            (GradientBoostingClassifier(), "Gradient Boosting")
+                        ]
+                        
+                        # Progress bar
+                        progress_text = "Treinando modelos..."
+                        progress_bar = st.progress(0)
+                        
+                        for idx, (model, name) in enumerate(models):
+                            st.write(f"### Treinando {name}...")
+                            evaluator.train_evaluate(model, name)
+                            progress_bar.progress((idx + 1) / len(models))
+                        
+                        progress_bar.empty()
 
                 # Visualização dos resultados
                 if evaluator.results:
-                    st.header("Visualização dos Resultados")
+                    st.header("Resultados da Avaliação dos Modelos")
                     
+                    for result in evaluator.results:
+                        model_name = result['Model']
+                        st.write(f"## Análise do Modelo: {model_name}")
+                        
+                        # Métricas detalhadas
+                        evaluator.display_metrics(model_name)
+                        
+                        # Matriz de Confusão
+                        st.write("### Matriz de Confusão")
+                        evaluator.plot_confusion_matrix(model_name)
+                        
+                        # Importância das Features
+                        st.write("### Importância das Features")
+                        evaluator.plot_feature_importance(model_name)
+                        
+                        st.markdown("---")
+
                     # Seleção do modelo para visualização
                     model_names = [result['Model'] for result in evaluator.results]
                     selected_model = st.selectbox("Selecione o Modelo", model_names)
