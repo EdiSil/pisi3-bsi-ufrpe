@@ -138,17 +138,8 @@ def main():
     st.set_page_config(page_title="Avaliação de Modelos de Machine Learning", layout="wide")
     st.title("Sistema de Avaliação de Modelos de Machine Learning")
 
-    # Sidebar para configurações
-    st.sidebar.header("Configurações")
-    
-    # Seleção de arquivo
-    input_file = st.sidebar.file_uploader("Carregar arquivo CSV", type=['csv'])
-    if input_file is not None:
-        input_file_path = input_file.name
-    else:
-        input_file_path = os.path.join('Datas', '3_Cars_predictions.csv')
-
     # Instância da classe ModelEvaluation
+    input_file_path = os.path.join('Datas', '3_Cars_predictions.csv')
     evaluator = ModelEvaluation(input_file_path, target_column='Cluster')
 
     # Carregar e preparar dados
@@ -156,7 +147,7 @@ def main():
         # Seleção de features
         all_features = evaluator.data.columns.tolist()
         selected_features = st.sidebar.multiselect(
-            "Selecionar Features",
+            "Importância dos Recursos",
             all_features,
             default=['quilometragem', 'Car Age', 'Cluster']
         )
