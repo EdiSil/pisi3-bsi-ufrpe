@@ -126,13 +126,9 @@ class ModelEvaluation:
                 metrics = result['Metrics']
                 st.write(f"### Métricas Detalhadas - {model_name}")
                 
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("Acurácia", f"{result['Accuracy']:.3f}")
-                with col2:
-                    st.metric("Precisão Média", f"{metrics['macro avg']['precision']:.3f}")
-                with col3:
-                    st.metric("Recall Médio", f"{metrics['macro avg']['recall']:.3f}")
+                st.metric("Acurácia", f"{result['Accuracy']:.3f}")
+                st.metric("Precisão Média", f"{metrics['macro avg']['precision']:.3f}")
+                st.metric("Recall Médio", f"{metrics['macro avg']['recall']:.3f}")
 
 def main():
     st.set_page_config(page_title="Avaliação de Modelos de Machine Learning", layout="wide")
@@ -183,14 +179,13 @@ def main():
                     # Métricas detalhadas
                     evaluator.display_metrics(selected_model)
                     
-                    # Matriz de Confusão e Importância das Features
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.subheader("Matriz de Confusão")
-                        evaluator.plot_confusion_matrix(selected_model)
-                    with col2:
-                        st.subheader("Importância dos recursos")
-                        evaluator.plot_feature_importance(selected_model)
+                    # Matriz de Confusão
+                    st.subheader("Matriz de Confusão")
+                    evaluator.plot_confusion_matrix(selected_model)
+                    
+                    # Importância das Features
+                    st.subheader("Importância dos recursos")
+                    evaluator.plot_feature_importance(selected_model)
 
                     # Métricas detalhadas
                     evaluator.display_metrics(selected_model)
