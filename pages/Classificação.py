@@ -184,34 +184,13 @@ def main():
     
     # Área de previsão com destaque
     st.subheader("PREVISÃO DE PREÇO")
-    col1, col2 = st.columns([1, 2])
+    col1, col2 = st.columns([2, 1])
     
     with col2:
-        st.markdown("""
-        <style>
-        .big-font {
-            font-size:20px !important;
-            font-weight: bold;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
         st.success(
-            f"""<div class='big-font'>
-            🏷️ Faixa de Preço: {previsao}
-            <br><br>
-            💰 Valor Estimado: R$ {valor_estimado:,.2f}
-            </div>""".replace(',', '_').replace('.', ',').replace('_', '.'),
+            f"Faixa de Preço Prevista: {previsao}\n\n" +
+            f"Valor Estimado: R$ {valor_estimado:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'),
             icon="✨"
-        )
-        
-        # Adicionar informações adicionais
-        st.info(
-            f"""💡 Esta previsão é baseada em:
-            - {len(dados_filtrados)} carros similares no banco de dados
-            - Características específicas do modelo selecionado
-            - Condições do mercado atual""",
-            icon="ℹ️"
         )
 
 if __name__ == "__main__":
