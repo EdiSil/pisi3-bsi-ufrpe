@@ -95,7 +95,10 @@ class ModelEvaluation:
         for result in self.results:
             if result['Model'] == model_name:
                 plt.figure(figsize=(8, 6))
-                sns.heatmap(result['Confusion_Matrix'], annot=True, fmt='d', cmap='Blues')
+                cm = result['Confusion_Matrix']
+                vmin = 0
+                vmax = cm.max().max()
+                sns.heatmap(cm, annot=True, fmt='d', cmap='YlOrRd', vmin=vmin, vmax=vmax)
                 plt.title(f'Matriz de Confusão - {model_name}')
                 plt.ylabel('Real')
                 plt.xlabel('Predito')
