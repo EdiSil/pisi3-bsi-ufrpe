@@ -37,8 +37,23 @@ class ModelEvaluation:
     def prepare_data(self, feature_columns):
         """Prepara os dados para treinamento e teste."""
         if self.data is not None:
-            self.features = self.data[feature_columns]
-            self.target = self.data[self.target_column]
+            # Create a copy of the data to avoid modifying the original
+            self.features = self.data[feature_columns].copy()
+            
+            # Convert categorical columns to numeric using one-hot encoding
+            categorical_columns = self.features.select_dtypes(include=['object']).columns
+            if not categorical_columns.empty:
+                self.features = pd.get_dummies(self.features, columns=categorical_columns)
+            
+            # Handle missing values
+            self.features = self.features.fillna(self.features.mean())
+            
+            # Ensure all data is numeric
+            self.features = self.features.astype(float)
+            
+            # Prepare target variable
+            self.target = self.data[self.target_column].astype(int)
+            
             st.success("Dados preparados para treinamento e teste.")
             return True
         else:
