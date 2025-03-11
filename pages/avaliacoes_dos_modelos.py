@@ -9,7 +9,6 @@ from sklearn.metrics import classification_report, accuracy_score, confusion_mat
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.inspection import permutation_importance
 
 class AvaliacaoModelos:
     def __init__(self, caminho_arquivo, coluna_alvo):
@@ -110,29 +109,8 @@ class AvaliacaoModelos:
         """Plota a importância das características para modelos que suportam esta funcionalidade."""
         if nome_modelo in self.modelos:
             modelo = self.modelos[nome_modelo]
-            
-            # Encontrar os dados de teste para este modelo
-            dados_teste = None
-            for resultado in self.resultados:
-                if resultado['Modelo'] == nome_modelo:
-                    dados_teste = resultado['Dados_Teste']
-                    break
-            
-            if dados_teste:
-                X_teste, y_teste = dados_teste
-                
-                if hasattr(modelo, 'feature_importances_'):
-                    # Usar feature_importances_ para modelos que suportam
-                    importancias = modelo.feature_importances_
-                else:
-                    # Usar permutation importance para modelos como SVM
-                    result = permutation_importance(
-                        modelo, X_teste, y_teste,
-                        n_repeats=10,
-                        random_state=42
-                    )
-                    importancias = result.importances_mean
-                
+            if hasattr(modelo, 'feature_importances_'):
+                importancias = modelo.feature_importances_
                 nomes_caracteristicas = self.caracteristicas.columns
                 
                 plt.figure(figsize=(10, 6))
@@ -142,17 +120,7 @@ class AvaliacaoModelos:
                 st.pyplot(plt)
                 plt.close()
             else:
-                # Usar coeficientes para modelos lineares ou outros métodos alternativos
-                if hasattr(modelo, 'coef_'):
-                    importancias = np.abs(modelo.coef_).mean(axis=0) if len(modelo.coef_.shape) > 1 else np.abs(modelo.coef_)
-                    plt.figure(figsize=(10, 6))
-                    sns.barplot(x=importancias, y=nomes_caracteristicas)
-                    plt.title(f'Importância das Características (Coeficientes) - {nome_modelo}')
-                    plt.xlabel('Importância')
-                    st.pyplot(plt)
-                    plt.close()
-                else:
-                    st.info(f"O modelo {nome_modelo} não suporta visualização de importância de características.")
+                st.info(f"O modelo {nome_modelo} não suporta visualização de importância de características.")
 
     def exibir_metricas(self, nome_modelo):
         """Exibe as métricas detalhadas para um modelo específico."""
@@ -171,7 +139,7 @@ class AvaliacaoModelos:
 
 def main():
     st.set_page_config(page_title="Avaliação de Modelos de Machine Learning", layout="wide")
-    st.title("Sistema de Avaliação dos Modelos de Machine Learning")
+    st.title("Sistema de Avaliação de Modelos de Machine Learning")
 
     # Instância da classe AvaliacaoModelos
     caminho_arquivo_entrada = os.path.join('Datas', '3_Cars_predictions.csv')
