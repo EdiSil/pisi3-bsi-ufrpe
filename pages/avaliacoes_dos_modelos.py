@@ -109,14 +109,28 @@ class AvaliacaoModelos:
         """Plota a importância das características para modelos que suportam esta funcionalidade."""
         if nome_modelo in self.modelos:
             modelo = self.modelos[nome_modelo]
-            if hasattr(modelo, 'feature_importances_'):
-                importancias = modelo.feature_importances_
-                nomes_caracteristicas = self.caracteristicas.columns
+            
+            # Encontrar o resultado correspondente ao modelo
+            resultado = next((r for r in self.resultados if r['Modelo'] == nome_modelo), None)
+            if resultado:
+                X_teste, y_teste = resultado['Dados_Teste']
                 
+                # Calcular importância por permutação
+                importancias = []
+                score_base = accuracy_score(y_teste, modelo.predict(X_teste))
+                
+                for coluna in X_teste.columns:
+                    X_permutado = X_teste.copy()
+                    X_permutado[coluna] = np.random.permutation(X_permutado[coluna])
+                    score_permutado = accuracy_score(y_teste, modelo.predict(X_permutado))
+                    importancia = score_base - score_permutado
+                    importancias.append(importancia)
+                
+                # Plotar resultados
                 plt.figure(figsize=(10, 6))
-                sns.barplot(x=importancias, y=nomes_caracteristicas)
-                plt.title(f'Importância das Características - {nome_modelo}')
-                plt.xlabel('Importância')
+                sns.barplot(x=importancias, y=X_teste.columns)
+                plt.title(f'Importância das Características (Permutation) - {nome_modelo}')
+                plt.xlabel('Diminuição na Acurácia')
                 st.pyplot(plt)
                 plt.close()
             else:
@@ -148,11 +162,12 @@ def main():
     # Carregar e preparar dados
     if avaliador.carregar_dados():
         # Seleção de características
-        todas_caracteristicas = avaliador.dados.columns.tolist()
+        todas_caracteristicas = [col for col in avaliador.dados.columns.tolist() 
+                               if col not in ['car_documents', 'Cluster', 'Predicted Price']]
         caracteristicas_selecionadas = st.sidebar.multiselect(
             "Selecione as Características",
             todas_caracteristicas,
-            default=['quilometragem', 'Car Age', 'Cluster']
+            default=['ano', 'modelo', 'marca', 'quilometragem', 'Car Age', 'preco', 'year', 'km_per_year', 'combustivel', 'tipo', 'transmissão']
         )
 
         if caracteristicas_selecionadas:
