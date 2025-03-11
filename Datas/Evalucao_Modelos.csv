@@ -1,0 +1,26 @@
+Modelo,Métrica,Closter1,Closter2,Closter3,Closter4,Closter5,Média,Média Ponderada
+SVM,Precision,0.387,0.466,0.546,0.772,0.000,0.525,0.510
+SVM,Recall,0.598,0.131,0.447,0.788,0.000,0.510,0.499
+SVM,F1-score,0.470,0.205,0.492,0.780,0.000,0.492,0.479
+SVM,Support,505.000,518.000,584.000,387.000,0.000,2688.000,-
+SVM,Acurácia,-,-,-,-,-,0.499,-
+Random Forest,Precision,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Random Forest,Recall,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Random Forest,F1-score,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Random Forest,Support,505.000,518.000,584.000,387.000,0.000,2688.000,-
+Random Forest,Acurácia,-,-,-,-,-,1.000,-
+KNN,Precision,0.681,0.680,0.835,0.897,0.000,0.792,0.793
+KNN,Recall,0.655,0.707,0.824,0.943,0.000,0.795,0.793
+KNN,F1-score,0.668,0.693,0.829,0.919,0.000,0.793,0.793
+KNN,Support,505.000,518.000,584.000,387.000,0.000,2688.000,-
+KNN,Acurácia,-,-,-,-,-,0.793,-
+Gradient Boosting,Precision,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Gradient Boosting,Recall,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Gradient Boosting,F1-score,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Gradient Boosting,Support,505.000,518.000,584.000,387.000,0.000,2688.000,-
+Gradient Boosting,Acurácia,-,-,-,-,-,1.000,-
+Decision Tree,Precision,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Decision Tree,Recall,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Decision Tree,F1-score,1.000,1.000,1.000,1.000,0.000,1.000,1.000
+Decision Tree,Support,505.000,518.000,584.000,387.000,0.000,2688.000,-
+Decision Tree,Acurácia,-,-,-,-,-,1.000,-
