@@ -183,8 +183,8 @@ def main():
         todas_caracteristicas = avaliador.dados.columns.tolist()
         caracteristicas_selecionadas = st.sidebar.multiselect(
             "Selecione as Características",
-            todas_caracteristicas,
-            default=['quilometragem', 'Car Age', 'Cluster']
+            [col for col in todas_caracteristicas if col not in ['Predicted Price', 'car_documents', 'Cluster']],
+            default=['combustivel', 'tipo', 'transmissão', 'year_range', 'km\'s driven_range', 'quilometragem', 'Car Age']
         )
 
         if caracteristicas_selecionadas:
