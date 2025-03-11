@@ -9,6 +9,7 @@ from sklearn.metrics import classification_report, accuracy_score, confusion_mat
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.inspection import permutation_importance
 
 class AvaliacaoModelos:
     def __init__(self, caminho_arquivo, coluna_alvo):
@@ -39,21 +40,21 @@ class AvaliacaoModelos:
         if self.dados is not None:
             # Criar uma cópia dos dados para evitar modificar o original
             self.caracteristicas = self.dados[colunas_caracteristicas].copy()
-            
+
             # Converter colunas categóricas para numéricas usando codificação one-hot
             colunas_categoricas = self.caracteristicas.select_dtypes(include=['object']).columns
             if not colunas_categoricas.empty:
                 self.caracteristicas = pd.get_dummies(self.caracteristicas, columns=colunas_categoricas)
-            
+
             # Tratar valores ausentes
             self.caracteristicas = self.caracteristicas.fillna(self.caracteristicas.mean())
-            
+
             # Garantir que todos os dados sejam numéricos
             self.caracteristicas = self.caracteristicas.astype(float)
-            
+
             # Preparar variável alvo
             self.alvo = self.dados[self.coluna_alvo].astype(int)
-            
+
             st.success("Dados preparados para treinamento e teste.")
             return True
         else:
@@ -109,32 +110,49 @@ class AvaliacaoModelos:
         """Plota a importância das características para modelos que suportam esta funcionalidade."""
         if nome_modelo in self.modelos:
             modelo = self.modelos[nome_modelo]
-            
-            # Encontrar o resultado correspondente ao modelo
-            resultado = next((r for r in self.resultados if r['Modelo'] == nome_modelo), None)
-            if resultado:
-                X_teste, y_teste = resultado['Dados_Teste']
-                
-                # Calcular importância por permutação
-                importancias = []
-                score_base = accuracy_score(y_teste, modelo.predict(X_teste))
-                
-                for coluna in X_teste.columns:
-                    X_permutado = X_teste.copy()
-                    X_permutado[coluna] = np.random.permutation(X_permutado[coluna])
-                    score_permutado = accuracy_score(y_teste, modelo.predict(X_permutado))
-                    importancia = score_base - score_permutado
-                    importancias.append(importancia)
-                
-                # Plotar resultados
+
+            # Encontrar os dados de teste para este modelo
+            dados_teste = None
+            for resultado in self.resultados:
+                if resultado['Modelo'] == nome_modelo:
+                    dados_teste = resultado['Dados_Teste']
+                    break
+
+            if dados_teste:
+                X_teste, y_teste = dados_teste
+
+                if hasattr(modelo, 'feature_importances_'):
+                    # Usar feature_importances_ para modelos que suportam
+                    importancias = modelo.feature_importances_
+                else:
+                    # Usar permutation importance para modelos como SVM
+                    result = permutation_importance(
+                        modelo, X_teste, y_teste,
+                        n_repeats=10,
+                        random_state=42
+                    )
+                    importancias = result.importances_mean
+
+                nomes_caracteristicas = self.caracteristicas.columns
+
                 plt.figure(figsize=(10, 6))
-                sns.barplot(x=importancias, y=X_teste.columns)
-                plt.title(f'Importância das Características (Permutation) - {nome_modelo}')
-                plt.xlabel('Diminuição na Acurácia')
+                sns.barplot(x=importancias, y=nomes_caracteristicas)
+                plt.title(f'Importância das Características - {nome_modelo}')
+                plt.xlabel('Importância')
                 st.pyplot(plt)
                 plt.close()
             else:
-                st.info(f"O modelo {nome_modelo} não suporta visualização de importância de características.")
+                # Usar coeficientes para modelos lineares ou outros métodos alternativos
+                if hasattr(modelo, 'coef_'):
+                    importancias = np.abs(modelo.coef_).mean(axis=0) if len(modelo.coef_.shape) > 1 else np.abs(modelo.coef_)
+                    plt.figure(figsize=(10, 6))
+                    sns.barplot(x=importancias, y=nomes_caracteristicas)
+                    plt.title(f'Importância das Características (Coeficientes) - {nome_modelo}')
+                    plt.xlabel('Importância')
+                    st.pyplot(plt)
+                    plt.close()
+                else:
+                    st.info(f"O modelo {nome_modelo} não suporta visualização de importância de características.")
 
     def exibir_metricas(self, nome_modelo):
         """Exibe as métricas detalhadas para um modelo específico."""
@@ -142,7 +160,7 @@ class AvaliacaoModelos:
             if resultado['Modelo'] == nome_modelo:
                 metricas = resultado['Metricas']
                 st.write(f"### Métricas Detalhadas - {nome_modelo}")
-                
+
                 col1, col2, col3 = st.columns(3)
                 with col1:
                     st.metric("Acurácia", f"{resultado['Acuracia']:.3f}")
@@ -153,7 +171,7 @@ class AvaliacaoModelos:
 
 def main():
     st.set_page_config(page_title="Avaliação de Modelos de Machine Learning", layout="wide")
-    st.title("Sistema de Avaliação de Modelos de Machine Learning")
+    st.title("Sistema de Avaliação dos Modelos de Machine Learning")
 
     # Instância da classe AvaliacaoModelos
     caminho_arquivo_entrada = os.path.join('Datas', '3_Cars_predictions.csv')
@@ -162,24 +180,18 @@ def main():
     # Carregar e preparar dados
     if avaliador.carregar_dados():
         # Seleção de características
-        todas_caracteristicas = [col for col in avaliador.dados.columns.tolist() 
-                               if col not in ['car_documents', 'Cluster', 'Predicted Price']]
-        # Definir valores padrão que existem nas características disponíveis
-        valores_padrao = [
-            col for col in ['ano', 'modelo', 'marca', 'quilometragem', 'combustivel', 'tipo', 'transmissão']
-            if col in todas_caracteristicas
-        ]
+        todas_caracteristicas = avaliador.dados.columns.tolist()
         caracteristicas_selecionadas = st.sidebar.multiselect(
             "Selecione as Características",
             todas_caracteristicas,
-            default=valores_padrao
+            default=['quilometragem', 'Car Age', 'Cluster']
         )
 
         if caracteristicas_selecionadas:
             if avaliador.preparar_dados(caracteristicas_selecionadas):
                 # Configurações dos modelos
                 st.sidebar.header("Configurações dos Modelos")
-                
+
                 # Seleção do modelo
                 opcoes_modelos = {
                     "SVM": SVC(),
@@ -187,7 +199,7 @@ def main():
                     "KNN": KNeighborsClassifier(),
                     "Gradient Boosting": GradientBoostingClassifier()
                 }
-                
+
                 modelo_selecionado = st.sidebar.selectbox(
                     "Selecione o Modelo",
                     list(opcoes_modelos.keys())
@@ -202,14 +214,14 @@ def main():
                 # Visualização dos resultados
                 if avaliador.resultados:
                     st.header(f"Resultados da Avaliação do Modelo {modelo_selecionado}")
-                    
+
                     # Métricas detalhadas
                     avaliador.exibir_metricas(modelo_selecionado)
-                    
+
                     # Matriz de Confusão
                     st.subheader("Matriz de Confusão")
                     avaliador.plotar_matriz_confusao(modelo_selecionado)
-                    
+
                     # Importância das Características
                     st.subheader("Importância das Características")
                     avaliador.plotar_importancia_caracteristicas(modelo_selecionado)
