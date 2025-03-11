@@ -107,13 +107,13 @@ def main():
     
     # Interface do usuário
     st.sidebar.header("Previsão de Faixa de Preço")
-    marca = st.sidebar.selectbox("Marca", dados['marca'].unique())
-    modelo = st.sidebar.selectbox("Modelo", dados[dados['marca'] == marca]['modelo'].unique())
-    ano = st.sidebar.number_input("Ano", min_value=2000, max_value=2023, value=2020)
+    marca = st.sidebar.selectbox("Marca do Veículo", dados['marca'].unique())
+    modelo = st.sidebar.selectbox("Modelo do Veículo", dados[dados['marca'] == marca]['modelo'].unique())
+    ano = st.sidebar.number_input("Ano do Veículo", min_value=2000, max_value=2023, value=2020)
     quilometragem = st.sidebar.number_input("Quilometragem", min_value=0, value=50000)
     combustivel = st.sidebar.selectbox("Tipo de Combustível", dados['combustivel'].unique())
-    tipo = st.sidebar.selectbox("Tipo", dados['tipo'].unique())
-    transmissao = st.sidebar.selectbox("Transmissão", dados['transmissão'].unique())
+    tipo = st.sidebar.selectbox("Tipo de Veículo", dados['tipo'].unique())
+    transmissao = st.sidebar.selectbox("Tipo de Transmissão", dados['transmissão'].unique())
     
     # Criar DataFrame com os dados de entrada
     dados_entrada = pd.DataFrame({
@@ -148,23 +148,23 @@ def main():
     else:
         dados['faixa_preco'].value_counts().plot(kind='bar')
     
-    plt.title('DISTRIBUIÇÃO DAS FAIXAS DE PREÇO DOS CARROS', fontsize=12, pad=20, color='black')
+    plt.title('DISTRIBUIÇÃO DAS FAIXAS DE PREÇO DOS VEÍCULOS', fontsize=12, pad=20, color='black')
     plt.xlabel('FAIXA DE PREÇO', fontsize=10, color='black')
-    plt.ylabel('QUANTIDADE DE CARROS', fontsize=10, color='black')
+    plt.ylabel('QUANTIDADE DE VEÍCULOS', fontsize=10, color='black')
     plt.xticks(rotation=45)
     plt.tight_layout()
     st.pyplot(fig1)
     
     st.subheader("MATRIZ DE CONFUSÃO DO MODELO")
     # Atualizar matriz de confusão com base nos dados filtrados
-    if not dados_filtrados.empty and len(dados_filtrados) > 5:  # Ensure enough samples for splitting
+    if not dados_filtrados.empty and len(dados_filtrados) > 5:  # Garantir amostras suficientes para divisão
         X_filtrado = sistema.preprocessar_dados_filtrados(dados_filtrados)
         y_filtrado = sistema.codificadores[sistema.coluna_alvo].transform(dados_filtrados[sistema.coluna_alvo])
         X_treino, X_teste, y_treino, y_teste = train_test_split(X_filtrado, y_filtrado, test_size=0.2, random_state=42)
         y_pred = sistema.modelo.predict(X_teste)
         cm = confusion_matrix(y_teste, y_pred)
     else:
-        # Use the full dataset if filtered data is insufficient
+        # Usar o conjunto de dados completo se os dados filtrados forem insuficientes
         X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=42)
         y_pred = sistema.modelo.predict(X_teste)
         cm = confusion_matrix(y_teste, y_pred)
@@ -189,10 +189,10 @@ def main():
     with col2:
         st.success(
             f"Faixa de Preço Prevista: {previsao}\n\n" +
-            f"Valor Estimado: R$ {valor_estimado:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.'),
-            icon="✨"
+            f"Valor Estimado: R$ {valor_estimado:,.2f}".replace(',', '_').replace('.', ',').replace('_', '.')
+            
         )
-        st.markdown("<style>div.stSuccess { text-align: center; }</style>", unsafe_allow_html=True)
+        st.markdown("<style>div.stSuccess { text-align: center; font-size: 18px; padding: 20px; }</style>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
