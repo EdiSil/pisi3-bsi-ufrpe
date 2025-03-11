@@ -184,7 +184,7 @@ def main():
         caracteristicas_selecionadas = st.sidebar.multiselect(
             "Selecione as Características",
             [col for col in todas_caracteristicas if col not in ['Predicted Price', 'car_documents', 'Cluster']],
-            default=['quilometragem', 'Car Age']
+            default=['quilometragem', 'Car Age', 'quilometragem']
         )
 
         if caracteristicas_selecionadas:
