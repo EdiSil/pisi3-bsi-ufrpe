@@ -183,6 +183,88 @@ def main():
         todas_caracteristicas = avaliador.dados.columns.tolist()
         caracteristicas_selecionadas = st.sidebar.multiselect(
             "Selecione as Características",
+            [col for col in todas_caracteristicas if col not in ['car_documents', 'Predicted Price']],
+            default=[col for col in todas_caracteristicas if col not in ['car_documents', 'Predicted Price']]
+        )
+
+        if caracteristicas_selecionadas:
+            if avaliador.preparar_dados(caracteristicas_selecionadas):
+                # Configurações dos modelos
+                st.sidebar.header("Configurações dos Modelos")
+                
+                # Seleção do modelo
+                opcoes_modelos = {
+                    "SVM": SVC(),
+                    "Random Forest": RandomForestClassifier(),
+                    "KNN": KNeighborsClassifier(),
+                    "Gradient Boosting": GradientBoostingClassifier()
+                }
+                
+                modelo_selecionado = st.sidebar.selectbox(
+                    "Selecione o Modelo",
+                    list(opcoes_modelos.keys())
+                )
+
+                # Treinamento e avaliação do modelo selecionado
+                if st.sidebar.button("Treinar e Avaliar Modelo"):
+                    with st.spinner(f"Treinando {modelo_selecionado}..."):
+                        modelo = opcoes_modelos[modelo_selecionado]
+                        avaliador.treinar_avaliar(modelo, modelo_selecionado)
+
+                # Visualização dos resultados
+                if avaliador.resultados:
+                    st.header(f"Resultados da Avaliação do Modelo {modelo_selecionado}")
+                    
+                    # Métricas detalhadas
+                    avaliador.exibir_metricas(modelo_selecionado)
+                    
+                    # Matriz de Confusão
+                    st.subheader("Matriz de Confusão")
+                    avaliador.plotar_matriz_confusao(modelo_selecionado)
+                    
+                    # Importância das Características
+                    st.subheader("Importância das Características")
+                    avaliador.plotar_importancia_caracteristicas(modelo_selecionado)
+                    
+                    # Área de previsão com destaque
+                    st.subheader("PREVISÃO DE PREÇO")
+                    col1, col2, col3 = st.columns([1, 2, 1])
+                    
+                    with col2:
+                        st.markdown("""
+                        <style>
+                        div.stSuccess {
+                            text-align: center;
+                            padding: 20px;
+                            font-size: 18px;
+                            line-height: 1.6;
+                        }
+                        </style>
+                        """, unsafe_allow_html=True)
+                        
+                        st.success(
+                            f"""✨ FAIXA DE PREÇO PREVISTA ✨
+                            {previsao}
+                        
+                        💰 VALOR ESTIMADO 💰
+                        R$ {valor_estimado:,.2f}""".replace(',', '_').replace('.', ',').replace('_', '.'),
+                            icon=None
+                        )
+
+def main():
+    st.set_page_config(page_title="Avaliação de Modelos de Machine Learning", layout="wide")
+    st.title("Sistema de Avaliação dos Modelos de Machine Learning")
+
+    # Instância da classe AvaliacaoModelos
+    caminho_arquivo_entrada = os.path.join('Datas', '3_Cars_predictions.csv')
+    avaliador = AvaliacaoModelos(caminho_arquivo_entrada, coluna_alvo='Cluster')
+
+    # Carregar e preparar dados
+    if avaliador.carregar_dados():
+        # Seleção de características
+        todas_caracteristicas = avaliador.dados.columns.tolist()
+        caracteristicas_selecionadas = st.sidebar.multiselect(
+            "Selecione as Características",
             todas_caracteristicas,
             default=['quilometragem', 'Car Age', 'Cluster']
         )
