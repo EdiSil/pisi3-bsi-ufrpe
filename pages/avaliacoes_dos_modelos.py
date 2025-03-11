@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import os
 import seaborn as sns
@@ -197,7 +198,8 @@ def main():
                     "SVM": SVC(),
                     "Random Forest": RandomForestClassifier(),
                     "KNN": KNeighborsClassifier(),
-                    "Gradient Boosting": GradientBoostingClassifier()
+                    "Gradient Boosting": GradientBoostingClassifier(),
+                    "Decision Tree": DecisionTreeClassifier()
                 }
 
                 modelo_selecionado = st.sidebar.selectbox(
